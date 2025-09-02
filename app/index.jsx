@@ -5,7 +5,6 @@ export default function Index() {
     <View
       style={styles.container}
     >
-      {/* <Image source={require('./pomodoro.png')}/> */}
       <Image source={require('./logoBranco.png')}/> 
       <View style={styles.inputLogin}>
         <text style={styles.textoLogin}>Email</text>
