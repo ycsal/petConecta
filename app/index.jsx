@@ -1,11 +1,12 @@
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { EnterButton } from "../components/EnterButton";
 
 export default function Index() {
   return (
     <View
       style={styles.container}
     >
-      <Image source={require('./logoBranco.png')}/> 
+      <Image source={require('../assets/images/logoBranco.png')}/> 
       <View style={styles.inputLogin}>
         <text style={styles.textoLogin}>Email</text>
       </View>
@@ -13,12 +14,10 @@ export default function Index() {
         <Text style={styles.textoLogin}>Senha</Text>
       </View>
       <View>
-        <Pressable style={styles.button}>
-          <Text style={styles.buttonText}>Entrar</Text>
-        </Pressable>
+        <EnterButton title="Entrar" onPress={()=> console.log('entrar match')}/> 
       </View>
       <View style={styles.footer}>
-        <Text style={styles.footerText}>Primeira vez?</Text>
+        <Text style={styles.footerText}>Primeira vez aqui?</Text>
         <Pressable>
           <Text style={styles.footerText}>Cadastre-se!</Text>
         </Pressable>
@@ -53,20 +52,6 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
     textAlign: "center"
-  },
-  button: {
-    marginTop: 16,
-    backgroundColor: "#00645F",
-    paddingVertical: 10,
-    paddingHorizontal: 24,
-    borderRadius: 10,      
-    alignSelf: "center"
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 18,
-    textAlign: "center",
-    fontWeight: "bold"
   },
   footer: {
     width: '80%',
