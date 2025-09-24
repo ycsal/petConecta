@@ -19,17 +19,16 @@ export default function Layout() {
         />
         <Drawer.Screen
           name="tabs"
-          options={{ headerShown: false, 
-          drawerItemStyle: { display: 'none' } }} 
+          options={{ drawerLabel: 'Menu', title: "" }} 
         />
         <Drawer.Screen
           name="configuracoes/minhaConta"
           options={{ drawerLabel: 'Minha Conta', /*nome da pagina no drawer*/
-            title: "Minha Conta"}}
+            title: ""}}
         />
         <Drawer.Screen
-          name="tabs/meusMatches"
-          options={{ drawerLabel: 'Meus matches', title: "" }} 
+          name="configuracoes/sobreNos"
+          options={{ drawerLabel: 'Sobre Nós', title: "" }} 
         />
       </Drawer>
     </GestureHandlerRootView>
