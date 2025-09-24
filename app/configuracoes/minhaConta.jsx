@@ -1,10 +1,10 @@
 import { Text, View } from "react-native";
 
 
-export default function Match() {
+export default function minhaConta() {
     return (
         <View>
-            <Text>Match</Text>
+            <Text>Minha Conta</Text>
         </View>
     );
 }

@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { EnterButton } from "../components/EnterButton";
 
@@ -14,7 +15,7 @@ export default function Index() {
         <Text style={styles.textoLogin}>Senha</Text>
       </View>
       <View>
-        <EnterButton title="Entrar" onPress={()=> console.log('entrar match')}/> 
+        <EnterButton title="Entrar" onPress={()=> router.navigate('/match') }/> 
       </View>
       <View style={styles.footer}>
         <Text style={styles.footerText}>Primeira vez aqui?</Text>

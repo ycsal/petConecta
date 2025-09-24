@@ -1,10 +1,10 @@
 import { Text, View } from "react-native";
 
 
-export default function Match() {
+export default function MeusPets() {
     return (
         <View>
-            <Text>Match</Text>
+            <Text>Meus Pets</Text>
         </View>
     );
 }
