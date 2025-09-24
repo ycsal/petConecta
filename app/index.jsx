@@ -15,7 +15,7 @@ export default function Index() {
         <Text style={styles.textoLogin}>Senha</Text>
       </View>
       <View>
-        <EnterButton title="Entrar" onPress={()=> router.navigate('/match') }/> 
+        <EnterButton title="Entrar" onPress={()=> router.navigate('tabs/match') }/> 
       </View>
       <View style={styles.footer}>
         <Text style={styles.footerText}>Primeira vez aqui?</Text>
