@@ -28,7 +28,7 @@ export default function Layout() {
         />
         <Drawer.Screen
           name="configuracoes/sobreNos"
-          options={{ drawerLabel: 'Sobre Nós', title: "" }} 
+          options={{ drawerLabel: 'Sobre Nós', title: "Sobre Nós" }} 
         />
       </Drawer>
     </GestureHandlerRootView>
