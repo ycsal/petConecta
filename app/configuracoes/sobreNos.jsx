@@ -56,9 +56,9 @@ export default function SobreNos() {
             ))}
 
             <Text style={styles.descricao}>
-                Somos uma equipe de estudantes da Faculdade de Tecnologia de São Paulo,
-                em Santos, e estamos desenvolvendo esse aplicativo para salvar todos os
-                cães do universo. Apenas cães.
+                O PetConecta é um aplicativo desenvolvidos por nós, Arthur, Bruno, Nathan e Yasmin, alunos da Faculdade de Tecnologia Baixada Santista – Rubens Lara, como resultante do Trabalho de Conclusão de Curso (TCC) do curso de Análise e Desenvolvimento de Sistemas. {"\n"}
+                O projeto foi projetado para unir tutores, abrigos, fornecedores de serviços e a comunidade para estimular adopção responsável e auxiliar no encontrar pets perdidos. O site une perfis de cães para adoção, avisos geolocalizados, chat em tempo real e mapas interativos com serviços como clínicas, pet shops, adestradores e passeadores.{"\n"}
+                O desenvolvimento do aplicativo tem como objetivo acelerar o processo de adoção e reencontro de pets, torná-lo seguro e cooperativo, apoiantes protetores e abrigos, e com o seu uso, contribuir para a luta contra o abandono de animais, unindo tecnologia e responsabilidade social para um projeto acadêmico de aplicação prática.
             </Text>
         </ScrollView>
     );
