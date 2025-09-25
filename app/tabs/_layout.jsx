@@ -19,14 +19,14 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="meusPets"
+        name="meusMatches"
         options={{
-          title: "Meus Pets",
+          title: "Matches",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="paw" size={size} color={color} />
+            <Ionicons name="heart" size={size} color={color} />
           ),
         }}
-      />
+      />      
       <Tabs.Screen
         name="mapa"
         options={{
@@ -37,11 +37,11 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="meusMatches"
+        name="meusPets"
         options={{
-          title: "Matches",
+          title: "Meus Pets",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="heart" size={size} color={color} />
+            <Ionicons name="paw" size={size} color={color} />
           ),
         }}
       />
