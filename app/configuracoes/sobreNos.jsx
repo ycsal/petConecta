@@ -5,28 +5,28 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 export default function SobreNos() {
     const equipe = [
         {
-            nome: "Arthur Duvareski",
+            nome: "Arthur D. R. Fabri",
             telefone: "13 98106-8898",
-            email: "drfarthur@gmail.com",
+            email: "arthurdrfabri@gmail.com",
             foto: require("../../assets/images/cachorrofeio.jpg"),
             posicaoFoto: "esquerda"
         },
         {
-            nome: "Bruno Peres",
+            nome: "Bruno C. Peres",
             telefone: "13 97417-7986",
-            email: "oooo@gmail.com",
+            email: "bruno.perescp@gmail.com",
             foto: require("../../assets/images/cachorrofeio.jpg"),
             posicaoFoto: "direita"
         },
         {
-            nome: "Nathan Holtz",
+            nome: "Nathan H. M. Rodrigues",
             telefone: "13 98229-0059",
-            email: "ooooo@gmail.com",
+            email: "nathan.holtz0805@gmail.com",
             foto: require("../../assets/images/cachorrofeio.jpg"),
             posicaoFoto: "esquerda"
         },
         {
-            nome: "Yasmin Costa",
+            nome: "Yasmin C. Salgado",
             telefone: "13 97409-8877",
             email: "yascsalgado@gmail.com",
             foto: require("../../assets/images/cachorrofeio.jpg"),
