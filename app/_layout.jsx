@@ -22,13 +22,17 @@ export default function Layout() {
           options={{ drawerLabel: 'Menu', title: "" }} 
         />
         <Drawer.Screen
-          name="configuracoes/minhaConta"
-          options={{ drawerLabel: 'Minha Conta', /*nome da pagina no drawer*/
-            title: ""}}
+          name="configuracoes/buscarServicos"
+          options={{ drawerLabel: 'Buscar Serviços', title: "Buscar Serviços" }} 
         />
         <Drawer.Screen
           name="configuracoes/sobreNos"
           options={{ drawerLabel: 'Sobre Nós', title: "Sobre Nós" }} 
+        />
+        <Drawer.Screen
+          name="configuracoes/minhaConta"
+          options={{ drawerLabel: 'Minha Conta', /*nome da pagina no drawer*/
+            title: ""}}
         />
       </Drawer>
     </GestureHandlerRootView>
