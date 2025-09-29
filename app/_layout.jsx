@@ -33,7 +33,7 @@ export default function Layout() {
         <Drawer.Screen
           name="configuracoes/minhaConta"
           options={{ drawerLabel: 'Minha Conta', /*nome da pagina no drawer*/
-            title: ""}}
+            title: "Minha Conta"}}
         />
         <Drawer.Screen
             name="CadastroPet/index"
