@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Text, ActivityIndicator } from 'react-native';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import Swiper from 'react-native-deck-swiper';
-import { PetCard } from '../../components/PetCard'; // Caminho ajustado
+import { PetCard } from '../../components/PetCard';
 
-// Dados de exemplo que viriam da sua API
+
 const mockPets = [
   { id: '1', nome: 'Bolinha', idade: '2 anos', raca: 'SRD', imagem: 'https://hypescience.com/wp-content/uploads/2013/07/210.jpg' },
   { id: '2', nome: 'Frajola', idade: '1 ano', raca: 'Siamês', imagem: 'https://geloelimaodotcom.wordpress.com/wp-content/uploads/2014/03/animais-animais-engracados-83c651.jpg' },
@@ -15,7 +15,7 @@ export default function Match() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simula uma chamada de API
+ 
     setTimeout(() => {
       setPets(mockPets);
       setLoading(false);
@@ -25,7 +25,6 @@ export default function Match() {
   const handleSwipeRight = (cardIndex) => {
     const pet = pets[cardIndex];
     console.log(`Você deu match com: ${pet.nome}`);
-    // Futuramente, enviar a informação do "like" para o backend aqui
   };
 
   if (loading) {
@@ -43,7 +42,7 @@ export default function Match() {
           cards={pets}
           renderCard={(pet) => <PetCard pet={pet} />}
           onSwipedRight={handleSwipeRight}
-          onSwipedAll={() => setPets([])} // Esvazia o array para mostrar a mensagem final
+          onSwipedAll={() => setPets([])} 
           cardIndex={0}
           backgroundColor={'transparent'}
           stackSize={3}
@@ -63,7 +62,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f7f7f7',
-    paddingTop: 40, // Espaço para o topo
+    paddingTop: 40,
   },
   centerContent: {
     flex: 1,
