@@ -5,27 +5,34 @@ import { Footer } from "../../components/FooterCadastro";
 
 export default function Etapa2() {
   const [email, setEmail] = useState("");
+  const [emailValido, setEmailValido] = useState(false);
+
+  const validarEmail = (texto) => {
+    setEmail(texto);
+
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    setEmailValido(regex.test(texto.trim()));
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>
-        Digite seu e-mail
-      </Text>
+      <Text style={styles.title}>Digite seu e-mail</Text>
 
       <TextInput
         style={styles.input}
         placeholder="Digite seu e-mail"
         placeholderTextColor="#888"
         value={email}
-        onChangeText={setEmail}
+        onChangeText={validarEmail}
         keyboardType="email-address"
+        autoCapitalize="none"
       />
 
       <Footer
         etapa={2}
         totalEtapas={5}
         onPress={() => router.push("/Cadastro/etapa3")}
-        disabled={email.trim().length === 0}
+        disabled={!emailValido}
       />
     </View>
   );

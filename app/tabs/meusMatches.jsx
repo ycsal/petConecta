@@ -1,7 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet, FlatList, Image, Pressable } from 'react-native';
+import { FlatList, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
-// Dados de exemplo que viriam da sua API
 const mockMatches = [
   { id: '1', nome: 'Bolinha', imagem: 'https://hypescience.com/wp-content/uploads/2013/07/210.jpg' },
   { id: '2', nome: 'Frajola', imagem: 'https://geloelimaodotcom.wordpress.com/wp-content/uploads/2014/03/animais-animais-engracados-83c651.jpg' },
