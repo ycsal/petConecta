@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 
-const mongoURI = 'mongodb+srv://nathanholtz:ABNYfatec@petconecta.aotiaz7.mongodb.net/?retryWrites=true&w=majority&appName=petconecta';
+const mongoURI = 'mongodb+srv://nathanholtz:ABNYfatec@petconecta.aotiaz7.mongodb.net/petconecta?retryWrites=true&w=majority&appName=petconecta';
 
 const connectDB = async () => {
   try {
