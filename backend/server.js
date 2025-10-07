@@ -15,9 +15,8 @@ app.use(express.json());
 app.get('/', (req, res) => {
   res.send('API do PetConecta está no ar!');
 });
-app.use('/api/pets', require('./routes/api/pets'));
+app.use('/api/pets', require('./routes/pets'));
 
-// --- Os Models e as Rotas da API virão aqui no próximo passo ---
 
 app.listen(PORT, () => {
   console.log(`🚀 Servidor backend rodando em http://localhost:${PORT}`);
