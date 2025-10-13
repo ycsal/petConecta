@@ -49,6 +49,14 @@ const PetSchema = new Schema({
     default: null 
     //deixei null pois fica mais facil na hora de criar, mas depois podemos colocar um require true e obrigar o usuario a colocar uma foto
   },
+  castrado: { 
+    type: Boolean, 
+    default: false
+   },
+  vacinado: {
+     type: Boolean, 
+     default: false 
+    },
   data_registro: {
     type: Date,
     default: Date.now 
