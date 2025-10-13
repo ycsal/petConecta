@@ -1,42 +1,41 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { View, StyleSheet, Text, ActivityIndicator, Pressable } from 'react-native';
 import Swiper from 'react-native-deck-swiper';
 import { PetCard } from '../../components/PetCard/index';
+import { Ionicons } from '@expo/vector-icons';
 
+// ADICIONADO DE VOLTA: A URL da API está aqui dentro do arquivo.
+// ATENÇÃO: Use 'localhost' para o navegador web ou SEU IP para o celular/emulador.
 const API_URL = 'http://localhost:3001/api/pets';
 
 export default function Match() {
   const [pets, setPets] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null); // Estado para controlar erros
+  const [error, setError] = useState(null);
+  
+  const swiperRef = useRef(null);
 
-  // A função de busca de dados, agora otimizada
   const fetchPets = useCallback(async () => {
-    console.log("Buscando pets da API...");
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(API_URL); // Usando a API_URL diretamente
+      const response = await fetch(API_URL); // Usando a URL local
       if (!response.ok) {
-        throw new Error('Não foi possível buscar os pets. Tente novamente mais tarde.');
+        throw new Error('Não foi possível buscar os pets.');
       }
       const data = await response.json();
-      console.log("Pets recebidos:", data.length);
       setPets(data);
     } catch (err) {
-      console.error("Houve um problema ao buscar os pets:", err);
       setError(err.message);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // Busca os pets quando a tela carrega
   useEffect(() => {
     fetchPets();
   }, [fetchPets]);
 
-  // Função que envia o "match" para o backend ao dar swipe
   const handleSwipeRight = async (cardIndex) => {
     const pet = pets[cardIndex];
     if (!pet) return;
@@ -44,10 +43,8 @@ export default function Match() {
     // TODO: Substituir este ID fixo pelo ID do usuário que está logado
     const mockUserId = '64f3e2a7c9d1f2b4a1e5f6a7'; 
     
-    console.log(`Você deu match com: ${pet.nome}`);
-
     try {
-      // Usando a API_URL para a rota de match
+      // Usando a URL local para a rota de match
       await fetch(`${API_URL}/match`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -61,7 +58,6 @@ export default function Match() {
     }
   };
 
-  // Renderiza a tela de loading
   if (loading) {
     return (
       <View style={[styles.container, styles.centerContent]}>
@@ -70,7 +66,6 @@ export default function Match() {
     );
   }
 
-  // Renderiza a tela de erro, se houver
   if (error) {
     return (
       <View style={[styles.container, styles.centerContent]}>
@@ -82,27 +77,45 @@ export default function Match() {
     );
   }
 
-  // Renderização principal da tela
   return (
     <View style={styles.container}>
-      {pets.length > 0 ? (
-        <Swiper
-          cards={pets}
-          renderCard={(pet) => <PetCard pet={pet} key={pet._id} />}
-          onSwipedRight={handleSwipeRight}
-          onSwipedAll={() => setPets([])}
-          cardIndex={0}
-          backgroundColor={'transparent'}
-          stackSize={3}
-          infinite={false}
-          animateCardOpacity
-          verticalSwipe={false}
-        />
-      ) : (
-        <View style={styles.centerContent}>
-          <Text style={styles.infoText}>Não há mais pets por aqui!</Text>
-          <Pressable style={styles.retryButton} onPress={fetchPets}>
-            <Text style={styles.retryButtonText}>Buscar novamente</Text>
+      <View style={styles.swiperContainer}>
+        {pets.length > 0 ? (
+          <Swiper
+            ref={swiperRef}
+            cards={pets}
+            renderCard={(pet) => <PetCard pet={pet} key={pet._id} />}
+            onSwipedRight={handleSwipeRight}
+            onSwipedLeft={(cardIndex) => console.log('Swipe para a esquerda no', pets[cardIndex]?.nome)}
+            onSwipedAll={() => setPets([])}
+            cardIndex={0}
+            backgroundColor={'transparent'}
+            stackSize={3}
+            infinite={false}
+            animateCardOpacity
+            verticalSwipe={false}
+            overlayLabels={{
+              left: { title: 'NÃO GOSTEI', style: { label: { backgroundColor: '#FF5A5F', color: 'white', fontSize: 18 }, wrapper: { flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'flex-start', marginTop: 30, marginLeft: -30 } } },
+              right: { title: 'GOSTEI', style: { label: { backgroundColor: '#00C7BE', color: 'white', fontSize: 18 }, wrapper: { flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'flex-start', marginTop: 30, marginLeft: 30 } } }
+            }}
+          />
+        ) : (
+          <View style={styles.centerContent}>
+            <Text style={styles.infoText}>Não há mais pets por aqui!</Text>
+            <Pressable style={styles.retryButton} onPress={fetchPets}>
+              <Text style={styles.retryButtonText}>Buscar novamente</Text>
+            </Pressable>
+          </View>
+        )}
+      </View>
+      
+      {pets.length > 0 && (
+        <View style={styles.buttonsContainer}>
+          <Pressable style={[styles.button, styles.dislikeButton]} onPress={() => swiperRef.current.swipeLeft()}>
+            <Ionicons name="close" size={32} color="#FF5A5F" />
+          </Pressable>
+          <Pressable style={[styles.button, styles.likeButton]} onPress={() => swiperRef.current.swipeRight()}>
+            <Ionicons name="heart" size={32} color="#00C7BE" />
           </Pressable>
         </View>
       )}
@@ -110,11 +123,13 @@ export default function Match() {
   );
 }
 
-// Estilos do componente
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f7f7f7',
+  },
+  swiperContainer: {
+    flex: 1,
   },
   centerContent: {
     flex: 1,
@@ -146,4 +161,33 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  buttonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginHorizontal: 30,
+    alignItems: 'center',
+    paddingBottom: 20,
+  },
+  button: {
+    width: 50,
+    height: 50,
+    borderRadius: 32,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  dislikeButton: {
+    borderColor: '#FF5A5F',
+    borderWidth: 2,
+  },
+  likeButton: {
+    borderColor: '#00C7BE',
+    borderWidth: 2,
+  }
 });
+
