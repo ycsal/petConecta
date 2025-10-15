@@ -4,16 +4,23 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 export const Footer = ({ etapa, totalEtapas, onPress, disabled }) => {
   return (
     <View style={styles.footer}>
-      <Text style={styles.footerText}>
-        Etapa {etapa} de {totalEtapas}
+      <View style={styles.progressContainer}>
+        <Text style={styles.footerText}>
+          Etapa {etapa} de {totalEtapas}
+        </Text>
+        <TouchableOpacity
+          style={[styles.circleButton, disabled && styles.disabledButton]}
+          onPress={onPress}
+          disabled={disabled}
+        >
+          <Ionicons name="arrow-forward" size={20} color="#fff" />
+        </TouchableOpacity>
+      </View>
+
+      {/* Nova frase abaixo, centralizada */}
+      <Text style={styles.infoText}>
+        Sente que errou alguma coisa? Você poderá editar sua conta depois!
       </Text>
-      <TouchableOpacity
-        style={[styles.circleButton, disabled && styles.disabledButton]}
-        onPress={onPress}
-        disabled={disabled}
-      >
-        <Ionicons name="arrow-forward" size={20} color="#fff" />
-      </TouchableOpacity>
     </View>
   );
 };
@@ -21,15 +28,18 @@ export const Footer = ({ etapa, totalEtapas, onPress, disabled }) => {
 const styles = StyleSheet.create({
   footer: {
     position: "absolute",
-    bottom: 60,
+    bottom: 40,
     left: 20,
     right: 20,
+  },
+  progressContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     borderBottomWidth: 2,
     borderBottomColor: "#00645F",
     paddingTop: 10,
+    paddingBottom: 10,
   },
   footerText: {
     color: "#00645F",
@@ -47,5 +57,11 @@ const styles = StyleSheet.create({
   },
   disabledButton: {
     backgroundColor: "#b2dfdb",
+  },
+  infoText: {
+    marginTop: 8,
+    textAlign: "center",
+    fontSize: 12,
+    color: "#888",
   },
 });
