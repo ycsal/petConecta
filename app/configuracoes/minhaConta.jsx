@@ -36,7 +36,7 @@ export default function MeuPerfil() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [cepValido, setCepValido] = useState(false);
-  const [foto, setFoto] = useState(null); // <-- foto do perfil
+  const [foto, setFoto] = useState(null); 
 
   const [erros, setErros] = useState({
     email: "",
@@ -48,18 +48,16 @@ export default function MeuPerfil() {
     setForm({ ...form, [key]: value });
   };
 
-  // ---------------- Selecionar imagem ----------------
   const escolherFoto = async () => {
     if (!isEditing) return;
 
-    // pedir permissão
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
       alert("Precisamos da permissão para acessar sua galeria.");
       return;
     }
 
-    // abrir galeria
+ 
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
@@ -72,7 +70,6 @@ export default function MeuPerfil() {
     }
   };
 
-  // ---------------- Regras de Senha ----------------
   const checks = {
     length: form.senha.length >= 8,
     upper: /[A-Z]/.test(form.senha),
@@ -84,7 +81,6 @@ export default function MeuPerfil() {
   const senhasIguais =
     form.senha === form.confirmSenha && form.senha.length > 0;
 
-  // ---------------- Telefone formatado ----------------
   const formatTelefone = (value) => {
     let onlyNumbers = value.replace(/\D/g, "");
     onlyNumbers = onlyNumbers.slice(0, 11);
@@ -96,7 +92,6 @@ export default function MeuPerfil() {
     }
   };
 
-  // ---------------- Validação Email ----------------
   const validarEmail = (email) => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!regex.test(email)) {
@@ -107,7 +102,6 @@ export default function MeuPerfil() {
     return true;
   };
 
-  // ---------------- Validação Telefone ----------------
   const validarTelefone = (telefone) => {
     const numeros = telefone.replace(/\D/g, "");
     if (numeros.length < 10 || numeros.length > 11) {
@@ -118,7 +112,6 @@ export default function MeuPerfil() {
     return true;
   };
 
-  // ---------------- CEP com ViaCEP ----------------
   const buscarCep = async (cepValue) => {
     const onlyNumbers = cepValue.replace(/\D/g, "");
 
@@ -186,7 +179,6 @@ export default function MeuPerfil() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* FOTO DE PERFIL */}
           <TouchableOpacity
             style={styles.imageContainer}
             onPress={escolherFoto}
@@ -199,7 +191,6 @@ export default function MeuPerfil() {
             )}
           </TouchableOpacity>
 
-          {/* Nome */}
           <TextInput
             placeholder="Nome"
             style={styles.input}
@@ -208,7 +199,6 @@ export default function MeuPerfil() {
             editable={isEditing}
           />
 
-          {/* Email */}
           <TextInput
             placeholder="E-mail"
             style={styles.input}
@@ -221,7 +211,6 @@ export default function MeuPerfil() {
           />
           {erros.email ? <Text style={styles.erro}>{erros.email}</Text> : null}
 
-          {/* Senha */}
           <View style={styles.inputArea}>
             <TextInput
               placeholder="Senha"
@@ -240,7 +229,6 @@ export default function MeuPerfil() {
             </TouchableOpacity>
           </View>
 
-          {/* Confirmar Senha */}
           <View style={styles.inputArea}>
             <TextInput
               placeholder="Confirmar Senha"
@@ -269,7 +257,6 @@ export default function MeuPerfil() {
             </View>
           )}
 
-          {/* Telefone */}
           <TextInput
             placeholder="Telefone"
             style={styles.input}
@@ -281,7 +268,6 @@ export default function MeuPerfil() {
           />
           {erros.telefone ? <Text style={styles.erro}>{erros.telefone}</Text> : null}
 
-          {/* CEP */}
           <TextInput
             placeholder="CEP"
             style={styles.input}
@@ -294,7 +280,6 @@ export default function MeuPerfil() {
           />
           {erros.cep ? <Text style={styles.erro}>{erros.cep}</Text> : null}
 
-          {/* Endereço */}
           <TextInput
             placeholder="Rua"
             style={styles.input}
