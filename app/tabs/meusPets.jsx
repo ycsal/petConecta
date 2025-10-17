@@ -1,60 +1,96 @@
+import { Ionicons } from "@expo/vector-icons"; // Para ícones de seta e adicionar
 import { useEffect, useState } from "react";
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
-export default function MeusPets() {
+// URL da sua API Node.js
+const API_URL = "http://SEU_SERVIDOR_API"; // Substitua pelo real
+
+export default function MeusPets({ navigation }) {
   const [pets, setPets] = useState([]);
 
-  // Simulação inicial (mock sem banco)
   useEffect(() => {
-    // Aqui entraria a chamada ao backend para buscar os pets do usuário
-    // Exemplo com fetch (quando tiver o backend pronto):
-    /*
-    fetch("http://localhost:3000/pets") // ajuste para sua rota no Node
-      .then(response => response.json())
-      .then(data => setPets(data))
-      .catch(err => console.error(err));
-    */
-
-    // Mock para visualização da tela
-    setPets([
-      { id: "1", nome: "Rex", especie: "Cachorro" },
-      { id: "2", nome: "Mimi", especie: "Gato" },
-    ]);
+    // === Conexão com o banco ===
+    fetch(`${API_URL}/pets/meus`)
+      .then((res) => res.json())
+      .then((data) => setPets(data))
+      .catch((err) => console.log("Erro ao buscar pets:", err));
   }, []);
 
-  const handleEditar = (pet) => {
-    // Aqui você pode navegar para uma tela de edição ou abrir modal
-    console.log("Editar pet:", pet);
+  // Função para abrir detalhes/chat do pet
+  const openPet = (pet) => {
+    navigation.navigate("ChatPet", { petId: pet.id, petName: pet.name });
   };
 
-  const handleAdicionar = () => {
-    // Aqui você pode navegar para a tela de cadastro de pet
-    console.log("Adicionar novo pet");
+  // Função para adicionar novo pet
+  const addNewPet = () => {
+    navigation.navigate("../CadastroPet/index");
   };
 
+  // Cores de status
+  const statusColor = {
+    disponivel: "#4CAF50", // verde
+    processo: "#FF9800", // laranja
+    adotado: "#E53935", // vermelho
+  };
+
+  // Renderização individual de cada pet
   const renderPet = ({ item }) => (
-    <View style={styles.petCard}>
-      <Text style={styles.petText}>{item.nome} ({item.especie})</Text>
-      <TouchableOpacity style={styles.editButton} onPress={() => handleEditar(item)}>
-        <Text style={styles.buttonText}>Editar</Text>
-      </TouchableOpacity>
-    </View>
+    <TouchableOpacity style={styles.petCard} onPress={() => openPet(item)}>
+      <Image source={{ uri: item.image }} style={styles.petImage} />
+      <View style={styles.petInfo}>
+        <Text style={styles.petName}>{item.name}</Text>
+        <View style={styles.statusContainer}>
+          <View
+            style={[
+              styles.statusDot,
+              {
+                backgroundColor:
+                  item.status === "Disponível para adoção"
+                    ? statusColor.disponivel
+                    : item.status === "Em processo de adoção"
+                    ? statusColor.processo
+                    : statusColor.adotado,
+              },
+            ]}
+          />
+          <Text style={styles.statusText}>{item.status}</Text>
+        </View>
+      </View>
+      <Ionicons name="chevron-forward" size={20} color="#000" />
+    </TouchableOpacity>
   );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Meus Pets</Text>
+      <Text style={styles.title}>MEUS PETS</Text>
 
-      <FlatList
-        data={pets}
-        keyExtractor={(item) => item.id}
-        renderItem={renderPet}
-        contentContainerStyle={styles.list}
-      />
+      {pets.length === 0 ? (
+        <Text style={{ marginTop: 16 }}>Nenhum pet cadastrado ainda.</Text>
+      ) : (
+        <FlatList
+          data={pets}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={renderPet}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
 
-      <TouchableOpacity style={styles.addButton} onPress={handleAdicionar}>
-        <Text style={styles.buttonText}>+ Adicionar Novo Pet</Text>
+      <TouchableOpacity style={styles.addButton} onPress={addNewPet}>
+        <Ionicons name="add" size={22} color="#000" />
+        <Text style={styles.addText}>Adicionar novo pet</Text>
       </TouchableOpacity>
+
+      {/* Ilustração inferior */}
+      <View style={styles.footerIllustration}>
+       
+      </View>
     </View>
   );
 }
@@ -62,48 +98,67 @@ export default function MeusPets() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: "#F5F5F5",
+    backgroundColor: "#fff",
+    paddingHorizontal: 16,
+    paddingTop: 32,
   },
   title: {
     fontSize: 22,
     fontWeight: "bold",
-    marginBottom: 20,
-  },
-  list: {
-    paddingBottom: 20,
+    color: "#00BCCD", // azul-turquesa da imagem
+    marginBottom: 16,
   },
   petCard: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "#FFF",
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
+    backgroundColor: "#fff",
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#eee",
   },
-  petText: {
-    fontSize: 18,
+  petImage: {
+    width: 55,
+    height: 55,
+    borderRadius: 30,
+    marginRight: 12,
   },
-  editButton: {
-    backgroundColor: "#4CAF50",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 8,
+  petInfo: {
+    flex: 1,
+  },
+  petName: {
+    fontWeight: "bold",
+    fontSize: 16,
+    color: "#000",
+  },
+  statusContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 2,
+  },
+  statusDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 6,
+  },
+  statusText: {
+    fontSize: 13,
+    color: "#444",
   },
   addButton: {
-    backgroundColor: "#2196F3",
-    paddingVertical: 15,
-    borderRadius: 10,
+    flexDirection: "row",
     alignItems: "center",
-    marginTop: 10,
+    marginTop: 20,
   },
-  buttonText: {
-    color: "#FFF",
-    fontWeight: "bold",
+  addText: {
+    fontSize: 16,
+    color: "#000",
+    marginLeft: 6,
+  },
+  footerIllustration: {
+    flex: 1,
+    justifyContent: "flex-end",
+    alignItems: "center",
+    marginBottom: 16,
   },
 });
