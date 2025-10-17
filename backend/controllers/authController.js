@@ -3,7 +3,15 @@ const User = require('../models/User');
 class AuthController {
   static async register(req, res) {
     try {
-      const { nome, email, senha, telefone, endereco } = req.body;
+      const { 
+      nome, 
+      sobrenome, 
+      email, 
+      senha, 
+      telefone, 
+      endereco,
+      tipoUsuario 
+    } = req.body;
 
       console.log('Tentativa de registro:', { nome, email });
 
@@ -27,10 +35,12 @@ class AuthController {
       // Criar novo usuário (senha sem hash por enquanto)
       const newUser = new User({
         nome,
+        sobrenome, // NOVO CAMPO
         email,
-        senha, // ⚠️ TEMPORÁRIO - implementar bcrypt depois
+        senha,
         telefone,
         endereco,
+        tipoUsuario, // NOVO CAMPO
         ultimo_login: new Date()
       });
 

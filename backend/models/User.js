@@ -34,6 +34,11 @@ const UserSchema = new Schema({
     type: Date,
     default: Date.now
   },
+  tipoUsuario: {
+  type: String,
+  enum: ['Adotante', 'Protetor', 'Abrigo', 'Outro'],
+  required: true
+},
   ultimo_login: {
     type: Date
   }
