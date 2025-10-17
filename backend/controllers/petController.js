@@ -45,24 +45,89 @@ class PetController {
 
 
   static async getMyMatches(req, res) {
-    const { userId } = req.params;
+      const { userId } = req.params;
 
+      try {
+        // 1. Encontra todos os matches daquele usuário, usando o campo 'id_usuario'
+        const userMatches = await Match.find({ id_usuario: userId });
+
+        // 2. Extrai apenas os IDs dos pets, usando o campo 'id_pet'
+        const petIds = userMatches.map(match => match.id_pet);
+
+        // 3. Busca no banco de dados todos os pets com base nos IDs extraídos
+        const pets = await Pet.find({ '_id': { $in: petIds } });
+        res.json(pets);
+      } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Erro no Servidor ao buscar os matches.');
+      }
+  }
+  static async getMyPets(req, res) {
     try {
-      // 1. Encontra todos os matches daquele usuário, usando o campo 'id_usuario'
-      const userMatches = await Match.find({ id_usuario: userId });
+      const { userId } = req.params;
 
-      // 2. Extrai apenas os IDs dos pets, usando o campo 'id_pet'
-      const petIds = userMatches.map(match => match.id_pet);
+      // Busca todos os pets onde o id_usuario é o userId
+      const pets = await Pet.find({ id_usuario: userId });
 
-      // 3. Busca no banco de dados todos os pets com base nos IDs extraídos
-      const pets = await Pet.find({ '_id': { $in: petIds } });
       res.json(pets);
     } catch (err) {
       console.error(err.message);
-      res.status(500).send('Erro no Servidor ao buscar os matches.');
+      res.status(500).send('Erro no Servidor ao buscar pets do usuário');
+    }
+    
+
+    
+  }
+  static async createPet(req, res) {
+  try {
+    const {
+      id_usuario,
+      nome,
+      especie,
+      raca,
+      sexo,
+      idade,
+      porte,
+      status = 'Disponível', // valor padrão
+      descricao,
+      foto,
+      castrado = false,
+      vacinado = false
+    } = req.body;
+
+    // Validar campos obrigatórios
+    if (!id_usuario || !nome || !especie || !raca || !sexo || !idade || !porte) {
+      return res.status(400).json({ error: 'Campos obrigatórios faltando' });
+    }
+
+    // Criar novo pet
+    const newPet = new Pet({
+      id_usuario,
+      nome,
+      especie,
+      raca,
+      sexo,
+      idade: parseInt(idade),
+      porte,
+      status,
+      descricao,
+      foto,
+      castrado: Boolean(castrado),
+      vacinado: Boolean(vacinado)
+    });
+
+    await newPet.save();
+    console.log(`Pet "${nome}" criado com sucesso para usuário ${id_usuario}`);
+    res.status(201).json(newPet);
+    }catch (err) {
+      console.error('Erro ao criar pet:', err.message);
+      res.status(500).send('Erro no Servidor ao criar pet');
     }
   }
- 
+
+
 }
+
+
 
 module.exports = PetController;

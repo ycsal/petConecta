@@ -11,21 +11,41 @@ import {
 } from "react-native";
 
 // URL da sua API Node.js
-const API_URL = "http://SEU_SERVIDOR_API";
+const API_URL = "http://localhost:3001/api/pets";
 
 export default function MeusPets() {
-  const navigation = useNavigation(); // Use o hook useNavigation
+  const navigation = useNavigation();
   const [pets, setPets] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // TEMPORÁRIO: ID do usuário fixo para testes
+  // DEPOIS você substituirá por um contexto de autenticação
+  const userId = "01"; // ← SUBSTITUA por um ID real do seu banco
+
+  const fetchMyPets = async () => {
+    try {
+      const response = await fetch(`${API_URL}/pets/meus/${userId}`);
+      
+      if (!response.ok) {
+        throw new Error('Erro ao buscar pets');
+      }
+      
+      const data = await response.json();
+      console.log("Pets recebidos:", data); // Para debug
+      setPets(data);
+    } catch (err) {
+      console.log("Erro ao buscar pets:", err);
+      Alert.alert("Erro", "Não foi possível carregar seus pets");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // === Conexão com o banco ===
-    fetch(`${API_URL}/pets/meus`)
-      .then((res) => res.json())
-      .then((data) => setPets(data))
-      .catch((err) => console.log("Erro ao buscar pets:", err));
+    fetchMyPets();
   }, []);
 
-  // Função para abrir detalhes/chat do pet
+  // Função para abrir detalhes do pet
   const openPet = (pet) => {
     navigation.navigate("ChatPet", { petId: pet.id, petName: pet.name });
   };

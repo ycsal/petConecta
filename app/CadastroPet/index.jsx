@@ -1,81 +1,146 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from '@react-navigation/native';
+import * as ImagePicker from 'expo-image-picker';
 import { useState } from "react";
 import {
+  ActivityIndicator,
+  Alert,
   Image,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 
-const API_URL = "http://SEU_SERVIDOR_API"; // Substitua pelo seu endpoint Node.js
+// URL da sua API - ATUALIZE com seu IP local
+const API_URL = "http://localhost:3001/api/pets";
 
-export default function CadastroPet({ navigation }) {
+export default function CadastroPet() {
+  const navigation = useNavigation();
+  const [loading, setLoading] = useState(false);
+  
+  // Estado do formulário ajustado para o modelo do seu Pet
   const [petData, setPetData] = useState({
     nome: "",
-    status: "",
-    encontradoPerdido: "",
-    data: "",
-    contato: "",
-    endereco: "",
     especie: "",
     raca: "",
+    sexo: "",
+    idade: "",
     porte: "",
-    cor: "",
-    castrado: "",
-    vacinado: "",
     descricao: "",
-    imagem: null,
+    foto: "",
+    castrado: false,
+    vacinado: false
   });
+
+  // TEMPORÁRIO: ID do usuário fixo para testes
+  const userId = "SEU_USER_ID_AQUI"; // ← SUBSTITUA por um ID real
+
+  // Função para selecionar imagem
+  const pickImage = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      
+      if (status !== 'granted') {
+        Alert.alert('Permissão necessária', 'Precisamos de acesso à sua galeria');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.5,
+      });
+
+      if (!result.canceled) {
+        setPetData({ ...petData, foto: result.assets[0].uri });
+      }
+    } catch (error) {
+      console.log("Erro ao selecionar imagem:", error);
+      Alert.alert("Erro", "Não foi possível selecionar a imagem");
+    }
+  };
 
   // Função para atualizar estado dos campos
   const handleChange = (key, value) => {
     setPetData((prev) => ({ ...prev, [key]: value }));
   };
 
-  // Escolher imagem
-  const pickImage = () => {
-  alert("Função de escolher imagem ainda não implementada!");
-};
-
   // Enviar dados para o backend
   const handleSubmit = async () => {
-    if (!petData.nome || !petData.status || !petData.especie) {
-      alert("Preencha os campos obrigatórios (*)");
+    // Validação dos campos obrigatórios
+    if (!petData.nome || !petData.especie || !petData.porte || !petData.sexo || !petData.idade) {
+      Alert.alert("Atenção", "Preencha todos os campos obrigatórios (*)");
       return;
     }
 
-    const formData = new FormData();
-    Object.entries(petData).forEach(([key, value]) => {
-      if (value) formData.append(key, value);
-    });
-
-    if (petData.imagem) {
-      formData.append("imagem", {
-        uri: petData.imagem,
-        name: "pet.jpg",
-        type: "image/jpeg",
-      });
+    // Validação do sexo
+    if (petData.sexo.toUpperCase() !== 'M' && petData.sexo.toUpperCase() !== 'F') {
+      Alert.alert("Atenção", "Sexo deve ser 'M' ou 'F'");
+      return;
     }
+
+    setLoading(true);
 
     try {
+      // Preparar dados para enviar
+      const dadosParaEnviar = {
+        id_usuario: userId,
+        nome: petData.nome,
+        especie: petData.especie,
+        raca: petData.raca,
+        sexo: petData.sexo.toUpperCase(),
+        idade: parseInt(petData.idade),
+        porte: petData.porte,
+        descricao: petData.descricao,
+        foto: petData.foto,
+        castrado: petData.castrado,
+        vacinado: petData.vacinado,
+        status: "Disponível" // Valor padrão
+      };
+
+      console.log("Enviando dados:", dadosParaEnviar);
+
       const response = await fetch(`${API_URL}/pets`, {
         method: "POST",
-        body: formData,
-        headers: { "Content-Type": "multipart/form-data" },
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dadosParaEnviar),
       });
 
-      if (response.ok) {
-        alert("Pet cadastrado com sucesso!");
-        navigation.goBack();
-      } else {
-        alert("Erro ao cadastrar pet.");
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Erro ${response.status}: ${errorText}`);
       }
+
+      const novoPet = await response.json();
+      
+      Alert.alert(
+        "Sucesso!", 
+        `Pet ${novoPet.nome} cadastrado com sucesso!`,
+        [
+          { 
+            text: "OK", 
+            onPress: () => navigation.goBack() 
+          }
+        ]
+      );
+
     } catch (error) {
-      console.log("Erro:", error);
+      console.log("Erro ao cadastrar pet:", error);
+      Alert.alert("Erro", "Não foi possível cadastrar o pet. Tente novamente.");
+    } finally {
+      setLoading(false);
     }
+  };
+
+  // Toggle para checkboxes
+  const toggleCheckbox = (field) => {
+    setPetData(prev => ({ ...prev, [field]: !prev[field] }));
   };
 
   return (
@@ -90,61 +155,32 @@ export default function CadastroPet({ navigation }) {
 
       {/* Foto */}
       <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
-        {petData.imagem ? (
-          <Image source={{ uri: petData.imagem }} style={styles.petImage} />
+        {petData.foto ? (
+          <Image source={{ uri: petData.foto }} style={styles.petImage} />
         ) : (
-          <Ionicons name="camera" size={32} color="#aaa" />
+          <View style={styles.imagePlaceholder}>
+            <Ionicons name="camera" size={32} color="#aaa" />
+            <Text style={styles.imageText}>Adicionar Foto</Text>
+          </View>
         )}
       </TouchableOpacity>
 
-      {/* Campos */}
+      {/* Campos do Formulário */}
       <View style={styles.form}>
         <TextInput
           style={styles.input}
-          placeholder="Nome do Pet"
+          placeholder="Nome do Pet *"
           value={petData.nome}
           onChangeText={(t) => handleChange("nome", t)}
         />
-        <TextInput
-          style={styles.input}
-          placeholder="*Selecionar Status"
-          value={petData.status}
-          onChangeText={(t) => handleChange("status", t)}
-        />
-
-        <View style={styles.row}>
-          <TextInput
-            style={[styles.input, styles.halfInput]}
-            placeholder="Encontrado/Perdido?"
-            value={petData.encontradoPerdido}
-            onChangeText={(t) => handleChange("encontradoPerdido", t)}
-          />
-          <TextInput
-            style={[styles.input, styles.halfInput]}
-            placeholder="Data"
-            value={petData.data}
-            onChangeText={(t) => handleChange("data", t)}
-          />
-        </View>
 
         <TextInput
           style={styles.input}
-          placeholder="Contato"
-          value={petData.contato}
-          onChangeText={(t) => handleChange("contato", t)}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Endereço"
-          value={petData.endereco}
-          onChangeText={(t) => handleChange("endereco", t)}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="*Espécie"
+          placeholder="Espécie (Cachorro, Gato, etc.) *"
           value={petData.especie}
           onChangeText={(t) => handleChange("especie", t)}
         />
+
         <TextInput
           style={styles.input}
           placeholder="Raça"
@@ -155,45 +191,70 @@ export default function CadastroPet({ navigation }) {
         <View style={styles.row}>
           <TextInput
             style={[styles.input, styles.halfInput]}
-            placeholder="*Porte P/M/G"
-            value={petData.porte}
-            onChangeText={(t) => handleChange("porte", t)}
+            placeholder="Sexo (M/F) *"
+            value={petData.sexo}
+            onChangeText={(t) => handleChange("sexo", t)}
+            maxLength={1}
           />
           <TextInput
             style={[styles.input, styles.halfInput]}
-            placeholder="*Cor"
-            value={petData.cor}
-            onChangeText={(t) => handleChange("cor", t)}
-          />
-        </View>
-
-        <View style={styles.row}>
-          <TextInput
-            style={[styles.input, styles.halfInput]}
-            placeholder="Castrado?"
-            value={petData.castrado}
-            onChangeText={(t) => handleChange("castrado", t)}
-          />
-          <TextInput
-            style={[styles.input, styles.halfInput]}
-            placeholder="Vacinado?"
-            value={petData.vacinado}
-            onChangeText={(t) => handleChange("vacinado", t)}
+            placeholder="Idade (anos) *"
+            value={petData.idade}
+            onChangeText={(t) => handleChange("idade", t)}
+            keyboardType="numeric"
           />
         </View>
 
         <TextInput
-          style={[styles.input, { height: 100, textAlignVertical: "top" }]}
+          style={styles.input}
+          placeholder="Porte (Pequeno, Médio, Grande) *"
+          value={petData.porte}
+          onChangeText={(t) => handleChange("porte", t)}
+        />
+
+        {/* Checkboxes */}
+        <View style={styles.checkboxRow}>
+          <TouchableOpacity 
+            style={styles.checkboxContainer}
+            onPress={() => toggleCheckbox('castrado')}
+          >
+            <View style={[styles.checkbox, petData.castrado && styles.checkboxChecked]}>
+              {petData.castrado && <Ionicons name="checkmark" size={16} color="#FFF" />}
+            </View>
+            <Text style={styles.checkboxLabel}>Castrado</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.checkboxContainer}
+            onPress={() => toggleCheckbox('vacinado')}
+          >
+            <View style={[styles.checkbox, petData.vacinado && styles.checkboxChecked]}>
+              {petData.vacinado && <Ionicons name="checkmark" size={16} color="#FFF" />}
+            </View>
+            <Text style={styles.checkboxLabel}>Vacinado</Text>
+          </TouchableOpacity>
+        </View>
+
+        <TextInput
+          style={[styles.input, styles.textArea]}
           multiline
-          placeholder="Descrição (Coleira, Comportamento...)"
+          placeholder="Descrição do pet (comportamento, características...)"
           value={petData.descricao}
           onChangeText={(t) => handleChange("descricao", t)}
         />
 
-        <Text style={styles.requiredText}>*: Obrigatório</Text>
+        <Text style={styles.requiredText}>*: Campos obrigatórios</Text>
 
-        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-          <Text style={styles.submitText}>Salvar Pet</Text>
+        <TouchableOpacity 
+          style={[styles.submitButton, loading && styles.submitButtonDisabled]} 
+          onPress={handleSubmit}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="#FFF" />
+          ) : (
+            <Text style={styles.submitText}>Salvar Pet</Text>
+          )}
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -220,20 +281,28 @@ const styles = StyleSheet.create({
   },
   imagePicker: {
     alignSelf: "center",
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    borderWidth: 1,
-    borderColor: "#ccc",
+    marginBottom: 20,
+  },
+  petImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+  },
+  imagePlaceholder: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 2,
+    borderColor: "#00BCCD",
+    borderStyle: "dashed",
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#f7f7f7",
-    marginBottom: 16,
   },
-  petImage: {
-    width: "100%",
-    height: "100%",
-    borderRadius: 40,
+  imageText: {
+    color: "#00BCCD",
+    fontSize: 12,
+    marginTop: 5,
   },
   form: {
     flex: 1,
@@ -246,12 +315,43 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 10,
   },
+  textArea: {
+    height: 100,
+    textAlignVertical: "top",
+  },
   row: {
     flexDirection: "row",
     justifyContent: "space-between",
   },
   halfInput: {
     width: "48%",
+  },
+  checkboxRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
+  checkboxContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: "48%",
+  },
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderWidth: 2,
+    borderColor: "#00BCCD",
+    borderRadius: 4,
+    marginRight: 8,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  checkboxChecked: {
+    backgroundColor: "#00BCCD",
+  },
+  checkboxLabel: {
+    fontSize: 14,
+    color: "#333",
   },
   requiredText: {
     color: "#777",
@@ -265,6 +365,9 @@ const styles = StyleSheet.create({
     padding: 14,
     alignItems: "center",
     marginBottom: 40,
+  },
+  submitButtonDisabled: {
+    backgroundColor: "#ccc",
   },
   submitText: {
     color: "#fff",
