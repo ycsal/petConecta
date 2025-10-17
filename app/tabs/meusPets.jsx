@@ -1,4 +1,5 @@
-import { Ionicons } from "@expo/vector-icons"; // Para ícones de seta e adicionar
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native"; // Adicione esta importação
 import { useEffect, useState } from "react";
 import {
   FlatList,
@@ -10,9 +11,10 @@ import {
 } from "react-native";
 
 // URL da sua API Node.js
-const API_URL = "http://SEU_SERVIDOR_API"; // Substitua pelo real
+const API_URL = "http://SEU_SERVIDOR_API";
 
-export default function MeusPets({ navigation }) {
+export default function MeusPets() {
+  const navigation = useNavigation(); // Use o hook useNavigation
   const [pets, setPets] = useState([]);
 
   useEffect(() => {
@@ -28,9 +30,9 @@ export default function MeusPets({ navigation }) {
     navigation.navigate("ChatPet", { petId: pet.id, petName: pet.name });
   };
 
-  // Função para adicionar novo pet
+  // Função para adicionar novo pet - CORRIGIDA
   const addNewPet = () => {
-    navigation.navigate("../CadastroPet/index");
+    navigation.navigate("CadastroPet/index");
   };
 
   // Cores de status
