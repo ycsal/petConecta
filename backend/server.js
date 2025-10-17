@@ -17,6 +17,7 @@ app.get('/', (req, res) => {
 });
 app.use('/api/pets', require('./routes/pets'));
 
+app.use('/api/auth', require('./routes/auth'));
 
 app.listen(PORT, () => {
   console.log(`🚀 Servidor backend rodando em http://localhost:${PORT}`);
