@@ -1,18 +1,52 @@
 //importar model para interagir com o banco de dados
 const Pet = require('../models/Pet');
 const Match = require('../models/Match');
+const User = require('../models/User');
 
 class PetController {
 
   static async getAllPets(req, res) {
+  try {
+    
+    const { sexo, porte, castrado } = req.query; 
+    
+    const filterQuery = {};
+
+    if (sexo) filterQuery.sexo = sexo;
+    if (porte) filterQuery.porte = porte;
+    if (castrado) filterQuery.castrado = castrado === 'true';
+
+    const pets = await Pet.find(filterQuery);
+    
+    res.json(pets);
+  } catch (err) {
+    // ...
+  }
+}
+
+  static async getPetById(req, res) {
     try {
+      const petId = req.params.id; // Pega o ID da URL (ex: /api/pets/12345)
       
-      const pets = await Pet.find();
-      
-      res.json(pets);
+      // Busca o pet pelo ID E popula os dados do usuário referenciado ('nome' e 'telefone')
+      const pet = await Pet.findById(petId).populate('id_usuario', 'nome telefone');
+
+      // Verifica se o pet foi encontrado
+      if (!pet) {
+        return res.status(404).json({ message: 'Pet não encontrado.' });
+      }
+
+      // Se encontrado, retorna os dados do pet (com usuário populado)
+      res.json(pet);
+
     } catch (err) {
+      // Trata erro caso o ID seja inválido (formato ObjectId incorreto)
+      if (err.kind === 'ObjectId') {
+         return res.status(404).json({ message: 'ID do Pet inválido.' });
+      }
+      // Outros erros genéricos do servidor
       console.error(err.message);
-      res.status(500).send('Erro no Servidor');
+      res.status(500).send('Erro no Servidor ao buscar o pet.');
     }
   }
 

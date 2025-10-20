@@ -1,42 +1,32 @@
-import React, { useState, useCallback } from 'react'; 
+import React, { useState, useCallback } from 'react';
 import { View, Text, StyleSheet, FlatList, Image, Pressable, ActivityIndicator } from 'react-native';
-import { useFocusEffect } from 'expo-router'; 
-
+import { useFocusEffect, Link } from 'expo-router'; // NOVO: Importamos o Link
 
 const API_URL = 'http://localhost:3001/api/pets';
 
 export default function MeusMatches() {
   const [matches, setMatches] = useState([]);
-  const [loading, setLoading] = useState(false); 
-
-  // TODO: Substituir este ID fixo pelo ID do usuário que está logado
+  const [loading, setLoading] = useState(false);
   const mockUserId = '64f3e2a7c9d1f2b4a1e5f6a7';
 
-  
   useFocusEffect(
     useCallback(() => {
       const fetchMatches = async () => {
-        console.log("Tela Meus Matches em foco. Buscando dados...");
-        setLoading(true); // Mostra o loading enquanto busca
+        setLoading(true);
         try {
           const response = await fetch(`${API_URL}/mymatches/${mockUserId}`);
           if (!response.ok) throw new Error('Erro ao buscar matches');
-          
           const data = await response.json();
           setMatches(data);
         } catch (error) {
           console.error("Erro ao buscar os matches:", error);
-          // Opcional: Adicionar um estado de erro para mostrar ao usuário
         } finally {
           setLoading(false);
         }
       };
-
       fetchMatches();
-
-      // Função de limpeza opcional, não necessária aqui
       return () => {};
-    }, []) // O array de dependências vazio é importante
+    }, [])
   );
 
   if (loading) {
@@ -55,10 +45,15 @@ export default function MeusMatches() {
         keyExtractor={item => item._id}
         numColumns={2}
         renderItem={({ item }) => (
-          <Pressable style={styles.matchCard} onPress={() => console.log(`Abrir chat com ${item.nome}`)}>
-            <Image source={{ uri: item.foto }} style={styles.matchImage} />
-            <Text style={styles.matchName}>{item.nome}</Text>
-          </Pressable>
+          // --- ALTERAÇÃO AQUI ---
+          // Envolvemos o Pressable com o Link para criar a navegação
+          <Link href={`/pet/${item._id}`} asChild>
+            <Pressable style={styles.matchCard}>
+              <Image source={{ uri: item.foto }} style={styles.matchImage} />
+              <Text style={styles.matchName}>{item.nome}</Text>
+            </Pressable>
+          </Link>
+          // --- FIM DA ALTERAÇÃO ---
         )}
         contentContainerStyle={styles.listContainer}
         ListEmptyComponent={
@@ -71,7 +66,7 @@ export default function MeusMatches() {
   );
 }
 
-// Seus estilos
+// Seus estilos (não mudaram)
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -81,7 +76,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 50, // Adiciona um espaço para não ficar colado no título
+    paddingTop: 50,
   },
   infoText: {
     fontSize: 18,
@@ -118,5 +113,5 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginTop: 10,
     color: '#333',
-  },
+  }
 });
