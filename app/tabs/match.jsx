@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { View, StyleSheet, Text, ActivityIndicator, Pressable } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import Swiper from 'react-native-deck-swiper';
 import { PetCard } from '../../components/PetCard/index';
-import { Ionicons } from '@expo/vector-icons';
 
 // ADICIONADO DE VOLTA: A URL da API está aqui dentro do arquivo.
 // ATENÇÃO: Use 'localhost' para o navegador web ou SEU IP para o celular/emulador.

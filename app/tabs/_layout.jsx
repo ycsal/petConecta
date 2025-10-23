@@ -48,7 +48,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="servicosProximos"
         options={{
-          title: "Serviços Próximos",
+          title: "Serviços",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="briefcase" size={size} color={color} />
           ),

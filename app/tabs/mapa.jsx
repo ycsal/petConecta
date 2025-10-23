@@ -2,20 +2,18 @@ import { Ionicons } from "@expo/vector-icons";
 import * as Location from 'expo-location';
 import { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
-
 
 // Componente para Web
 const WebMapView = ({ location, onAddressChange }) => (
@@ -66,7 +64,6 @@ const AddressModal = ({ visible, onClose, onConfirm, currentLocation }) => {
 
     setLoading(true);
     try {
-      // Usar Google Geocoding API para converter endereço em coordenadas
       const API_KEY = 'AIzaSyApGDpNKditZOFLwLxkSdG4oVRUtCP2OWA';
       const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${API_KEY}`;
       
@@ -150,13 +147,83 @@ const AddressModal = ({ visible, onClose, onConfirm, currentLocation }) => {
   );
 };
 
+// Componente de Mapa separado que só carrega no mobile
+const MapComponent = ({ location, filteredPlaces }) => {
+  const [MapView, setMapView] = useState(null);
+  const [Marker, setMarker] = useState(null);
+
+  useEffect(() => {
+    // Só carrega o react-native-maps se não for web
+    if (Platform.OS !== 'web') {
+      const loadMaps = async () => {
+        try {
+          const Maps = await import('react-native-maps');
+          setMapView(() => Maps.default);
+          setMarker(() => Maps.Marker);
+        } catch (error) {
+          console.log('react-native-maps não disponível');
+        }
+      };
+      loadMaps();
+    }
+  }, []);
+
+  if (!MapView || !Marker) {
+    return (
+      <View style={styles.mapFallback}>
+        <Text style={styles.mapFallbackText}>🗺️ Mapa disponível apenas no dispositivo móvel</Text>
+        <Text style={styles.mapFallbackSubtext}>Escaneie o QR Code no celular para ver o mapa completo</Text>
+      </View>
+    );
+  }
+
+  return (
+    <MapView
+      style={styles.map}
+      initialRegion={{
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        latitudeDelta: 0.05,
+        longitudeDelta: 0.05,
+      }}
+      showsUserLocation={true}
+      showsMyLocationButton={true}
+    >
+      <Marker
+        coordinate={{
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        }}
+        title="Você está aqui"
+        pinColor="#4CAF50"
+      />
+
+      {filteredPlaces.map((place) => (
+        <Marker
+          key={place.id}
+          coordinate={{
+            latitude: place.latitude,
+            longitude: place.longitude,
+          }}
+          title={place.name}
+          description={place.serviceType || 
+            (place.type === 'clinica' ? 'Clínica' :
+             place.type === 'petshop' ? 'Pet Shop' :
+             place.type === 'abrigo' ? 'Abrigo' : 'Serviço')}
+          pinColor={getMarkerColor(place.type)}
+        />
+      ))}
+    </MapView>
+  );
+};
+
 // Componente para Mobile COM DADOS REAIS
 const MobileMapView = ({ location, onLocationChange }) => {
   const [activeFilter, setActiveFilter] = useState('tudo');
   const [places, setPlaces] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showAddressModal, setShowAddressModal] = useState(false);
-  const [isPanelOpen, setIsPanelOpen] = useState(true); // Estado para controlar se o painel está aberto
+  const [isPanelOpen, setIsPanelOpen] = useState(true);
 
   const filters = [
     { id: 'tudo', label: 'Tudo' },
@@ -170,7 +237,7 @@ const MobileMapView = ({ location, onLocationChange }) => {
   // Buscar lugares reais do Google Maps
   const fetchNearbyPlaces = async (type) => {
     if (type === 'encontrado') {
-      setPlaces([]); // Pets encontrados ainda não implementados
+      setPlaces([]);
       setLoading(false);
       return;
     }
@@ -182,15 +249,13 @@ const MobileMapView = ({ location, onLocationChange }) => {
       let keywords = [];
       
       if (type === 'tudo') {
-        // Para "Tudo", busca todos os tipos
         keywords = [
-          'veterinary+clinic+vet+clínica+veterinária',
+          'veterinary+clinic+vet+clínica+veterinária+hospital+veterinário',
           'pet+store+pet+shop+petshop+loja+animal',
           'animal+shelter+abrigo+animal',
           'pet+hotel+hotel+animal+pet+taxi+táxi+animal+dog+walker+passeador+adestrador+dog+trainer'
         ];
       } else {
-        // Para filtros específicos
         switch (type) {
           case 'abrigo':
             keywords = ['animal+shelter+abrigo+animal'];
@@ -207,12 +272,11 @@ const MobileMapView = ({ location, onLocationChange }) => {
         }
       }
 
-      const radius = 5000; // 5km
+      const radius = 5000;
       const locationStr = `${location.coords.latitude},${location.coords.longitude}`;
       
       let allResults = [];
       
-      // Para "Tudo", faz múltiplas buscas
       if (type === 'tudo') {
         for (const keyword of keywords) {
           const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${locationStr}&radius=${radius}&keyword=${keyword}&key=${API_KEY}`;
@@ -241,14 +305,12 @@ const MobileMapView = ({ location, onLocationChange }) => {
           }
         }
         
-        // Remove duplicatas baseado no ID
         const uniqueResults = allResults.filter((place, index, self) =>
           index === self.findIndex(p => p.id === place.id)
         );
         
         setPlaces(uniqueResults);
       } else {
-        // Para filtros específicos, busca normal
         const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${locationStr}&radius=${radius}&keyword=${keywords[0]}&key=${API_KEY}`;
         
         const response = await fetch(url);
@@ -278,7 +340,6 @@ const MobileMapView = ({ location, onLocationChange }) => {
     }
   };
 
-  // Determinar o tipo do lugar baseado nos tipos do Google
   const getPlaceType = (types, filterType = 'tudo') => {
     if (types.includes('veterinary_care') || types.includes('hospital')) return 'clinica';
     if (types.includes('pet_store')) return 'petshop';
@@ -287,28 +348,15 @@ const MobileMapView = ({ location, onLocationChange }) => {
     return filterType === 'tudo' ? 'outro' : filterType;
   };
 
-  // Determinar o tipo específico de serviço
   const getServiceType = (types, name) => {
     const nameLower = name.toLowerCase();
     
-    if (nameLower.includes('hotel') || nameLower.includes('hosped') || nameLower.includes('boarding')) {
-      return 'Hotel';
-    }
-    if (nameLower.includes('taxi') || nameLower.includes('táxi') || nameLower.includes('transport')) {
-      return 'Pet Táxi';
-    }
-    if (nameLower.includes('passeador') || nameLower.includes('walker') || nameLower.includes('passeio')) {
-      return 'Passeador';
-    }
-    if (nameLower.includes('adestrador') || nameLower.includes('trainer') || nameLower.includes('trein')) {
-      return 'Adestrador';
-    }
-    if (types.includes('pet_store') || nameLower.includes('pet shop') || nameLower.includes('petshop')) {
-      return 'Pet Shop';
-    }
-    if (types.includes('veterinary_care')) {
-      return 'Clínica';
-    }
+    if (nameLower.includes('hotel') || nameLower.includes('hosped') || nameLower.includes('boarding')) return 'Hotel';
+    if (nameLower.includes('taxi') || nameLower.includes('táxi') || nameLower.includes('transport')) return 'Pet Táxi';
+    if (nameLower.includes('passeador') || nameLower.includes('walker') || nameLower.includes('passeio')) return 'Passeador';
+    if (nameLower.includes('adestrador') || nameLower.includes('trainer') || nameLower.includes('trein')) return 'Adestrador';
+    if (types.includes('pet_store') || nameLower.includes('pet shop') || nameLower.includes('petshop')) return 'Pet Shop';
+    if (types.includes('veterinary_care')) return 'Clínica';
     
     return 'Serviço Pet';
   };
@@ -319,7 +367,6 @@ const MobileMapView = ({ location, onLocationChange }) => {
     }
   }, [location, activeFilter]);
 
-  // Filtra os lugares baseado no filtro ativo
   const filteredPlaces = activeFilter === 'tudo' 
     ? places 
     : activeFilter === 'servicos'
@@ -344,7 +391,6 @@ const MobileMapView = ({ location, onLocationChange }) => {
             </View>
           </TouchableOpacity>
           
-          {/* Botão para abrir/fechar painel */}
           <TouchableOpacity 
             style={styles.togglePanelButton} 
             onPress={() => setIsPanelOpen(!isPanelOpen)}
@@ -385,47 +431,10 @@ const MobileMapView = ({ location, onLocationChange }) => {
         </ScrollView>
       </View>
 
-      {/* Mapa */}
-      <MapView
-        style={styles.map}
-        initialRegion={{
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
-          latitudeDelta: 0.05,
-          longitudeDelta: 0.05,
-        }}
-        showsUserLocation={true}
-        showsMyLocationButton={true}
-      >
-        {/* Marcador do usuário */}
-        <Marker
-          coordinate={{
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
-          }}
-          title="Você está aqui"
-          pinColor="#4CAF50"
-        />
+      {/* Mapa - Componente separado */}
+      <MapComponent location={location} filteredPlaces={filteredPlaces} />
 
-        {/* Marcadores dos lugares reais */}
-        {filteredPlaces.map((place) => (
-          <Marker
-            key={place.id}
-            coordinate={{
-              latitude: place.latitude,
-              longitude: place.longitude,
-            }}
-            title={place.name}
-            description={place.serviceType || 
-              (place.type === 'clinica' ? 'Clínica' :
-               place.type === 'petshop' ? 'Pet Shop' :
-               place.type === 'abrigo' ? 'Abrigo' : 'Serviço')}
-            pinColor={getMarkerColor(place.type)}
-          />
-        ))}
-      </MapView>
-
-      {/* Lista de locais - AGORA COM TOGGLE */}
+      {/* Lista de locais */}
       {isPanelOpen && (
         <View style={styles.locationsPanel}>
           <View style={styles.panelHeader}>
@@ -522,38 +531,24 @@ const MobileMapView = ({ location, onLocationChange }) => {
   );
 };
 
-// Função para cores dos marcadores
+// Funções auxiliares
 const getMarkerColor = (type) => {
   const colors = {
-    clinica: '#FF6B6B',     // Vermelho para clínicas
-    petshop: '#4ECDC4',     // Verde água para petshops
-    abrigo: '#FFA500',      // Laranja para abrigos
-    servico: '#9C27B0',     // Roxo para serviços
-    outro: '#666'           // Cinza para outros
+    clinica: '#FF6B6B', petshop: '#4ECDC4', abrigo: '#FFA500', servico: '#9C27B0', outro: '#666'
   };
   return colors[type] || '#666';
 };
 
-// Função para cores de fundo dos tipos
 const getTypeBackgroundColor = (type) => {
   const colors = {
-    clinica: '#FFEBEE',
-    petshop: '#E0F2F1',
-    abrigo: '#FFF3E0',
-    servico: '#F3E5F5',
-    outro: '#F5F5F5'
+    clinica: '#FFEBEE', petshop: '#E0F2F1', abrigo: '#FFF3E0', servico: '#F3E5F5', outro: '#F5F5F5'
   };
   return colors[type] || '#F5F5F5';
 };
 
-// Função para cores do texto dos tipos
 const getTypeTextColor = (type) => {
   const colors = {
-    clinica: '#D32F2F',
-    petshop: '#00796B',
-    abrigo: '#F57C00',
-    servico: '#7B1FA2',
-    outro: '#666'
+    clinica: '#D32F2F', petshop: '#00796B', abrigo: '#F57C00', servico: '#7B1FA2', outro: '#666'
   };
   return colors[type] || '#666';
 };
@@ -626,7 +621,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
-  // Header
   header: {
     backgroundColor: '#fff',
     paddingTop: 15,
@@ -673,7 +667,6 @@ const styles = StyleSheet.create({
     borderColor: '#00C7BE',
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
   },
-  // Filtros
   filtersContainer: {
     backgroundColor: '#f8f8f8',
     paddingVertical: 10,
@@ -702,17 +695,34 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
   },
-  // Mapa
   map: {
     flex: 1,
   },
-  // Painel de locais
+  mapFallback: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#e8f5e8',
+    padding: 20,
+  },
+  mapFallbackText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#4CAF50',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  mapFallbackSubtext: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+  },
   locationsPanel: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    height: 300, // Aumentei a altura para melhor visualização
+    height: 300,
     backgroundColor: 'white',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
@@ -782,7 +792,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '500',
   },
-  // Botão flutuante para abrir painel
   openPanelButton: {
     position: 'absolute',
     bottom: 20,
@@ -809,7 +818,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-  // Estados
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -842,7 +850,6 @@ const styles = StyleSheet.create({
     marginTop: 50,
     paddingHorizontal: 20,
   },
-  // Modal styles
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -910,7 +917,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: '600',
   },
-  // Web styles
   webContainer: {
     flex: 1,
     backgroundColor: '#f0f8ff',
