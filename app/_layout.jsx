@@ -122,7 +122,6 @@ export default function Layout() {
             }}
           />
 
-          
           <Drawer.Screen
             name="filters"
             options={{
@@ -130,6 +129,39 @@ export default function Layout() {
               title: 'Filtros',
               headerShown: false,
               drawerItemStyle: { display: 'none' }
+            }}
+          />
+
+          <Drawer.Screen
+            name="editar/editaPet"
+            options={{
+              drawerItemStyle: { display: 'none' },
+              title: '',
+              headerLeft: () => {
+                return <Ionicons name='arrow-back' size={24} color='#00645F' style={{ marginLeft: 16 }} onPress={() => router.back()} />
+              }
+            }}
+          />
+
+          <Drawer.Screen
+            name="editar/editaServico"
+            options={{
+              drawerItemStyle: { display: 'none' },
+              title: '',
+              headerLeft: () => {
+                return <Ionicons name='arrow-back' size={24} color='#00645F' style={{ marginLeft: 16 }} onPress={() => router.back()} />
+              }
+            }}
+          />
+
+          <Drawer.Screen
+            name="CadastroServico/index"
+            options={{
+              drawerItemStyle: { display: 'none' },
+              title: '',
+              headerLeft: () => {
+                return <Ionicons name='arrow-back' size={24} color='#00645F' style={{ marginLeft: 16 }} onPress={() => router.back()} />
+              }
             }}
           />
 

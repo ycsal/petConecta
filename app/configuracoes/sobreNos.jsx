@@ -8,19 +8,19 @@ export default function SobreNos() {
             nome: "Arthur D. R. Fabri",
             telefone: "13 98106-8898",
             email: "arthurdrfabri@gmail.com",
-            foto: require("../../assets/images/cachorrofeio.jpg")
+            foto: require("../../assets/images/arthur.jpg")
         },
         {
             nome: "Bruno C. Peres",
             telefone: "13 97417-7986",
             email: "bruno.perescp@gmail.com",
-            foto: require("../../assets/images/cachorrofeio.jpg")
+            foto: require("../../assets/images/bruno.jpg")
         },
         {
             nome: "Nathan H. M. Rodrigues",
             telefone: "13 98229-0059",
             email: "nathan.holtz0805@gmail.com",
-            foto: require("../../assets/images/cachorrofeio.jpg")
+            foto: require("../../assets/images/nathan.jpg")
         },
         {
             nome: "Yasmin C. Salgado",
@@ -52,7 +52,7 @@ export default function SobreNos() {
             ))}
 
             <Text style={styles.descricao}>
-                O PetConecta é um aplicativo desenvolvido por nós, Arthur, Bruno, Nathan e Yasmin, alunos da Faculdade de Tecnologia Baixada Santista – Rubens Lara, como resultante do Trabalho de Conclusão de Curso (TCC) do curso de Análise e Desenvolvimento de Sistemas. {"\n"}
+                O PetConecta é um aplicativo desenvolvido por nós, Arthur, Bruno, Nathan e Yasmin, alunos da Faculdade de Tecnologia Baixada Santista - Rubens Lara, como resultante do Trabalho de Conclusão de Curso (TCC) do curso de Análise e Desenvolvimento de Sistemas. {"\n"}
                 O projeto foi criado com o objetivo de unir tutores, abrigos, fornecedores de serviços e a comunidade para estimular adopção responsável e auxiliar no encontrar pets perdidos. O aplicativo une perfis de animais para adoção, avisos geolocalizados e mapas interativos com serviços como clínicas, pet shops e prestadores de serviços.{"\n"}
                 O desenvolvimento do aplicativo tem como objetivo acelerar o processo de adoção e reencontro de pets, torná-lo seguro e cooperativo, apoiando protetores e abrigos, e com o seu uso, contribuir para a luta contra o abandono de animais, unindo tecnologia e responsabilidade social para um projeto acadêmico de aplicação prática.
             </Text>
