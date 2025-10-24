@@ -91,7 +91,7 @@ export default function MeusPets() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>MEUS PETS</Text>
+      <Text style={styles.title}>Meus Pets</Text>
 
       {pets.length === 0 ? (
         <Text style={{ marginTop: 16 }}>Nenhum pet cadastrado ainda.</Text>
@@ -105,7 +105,7 @@ export default function MeusPets() {
       )}
 
       <TouchableOpacity style={styles.addButton} onPress={addNewPet}>
-        <Ionicons name="add" size={22} color="#000" />
+        <Ionicons name="add" size={22} color="#fff" />
         <Text style={styles.addText}>Adicionar novo pet</Text>
       </TouchableOpacity>
 
@@ -120,29 +120,65 @@ export default function MeusPets() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#f8f8f8",
     paddingHorizontal: 16,
     paddingTop: 32,
   },
   title: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: "bold",
-    color: "#00BCCD", // azul-turquesa da imagem
+    color: "#00C7BE", 
     marginBottom: 16,
+  },
+  loadingText: {
+    textAlign: "center",
+    marginTop: 32,
+    fontSize: 16,
+    color: "#666",
+  },
+  emptyState: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 64,
+    paddingHorizontal: 32,
+  },
+  emptyText: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#666",
+    marginTop: 16,
+    textAlign: "center",
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: "#999",
+    marginTop: 8,
+    textAlign: "center",
+  },
+  listContent: {
+    paddingBottom: 16,
   },
   petCard: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#fff",
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
   },
   petImage: {
-    width: 55,
-    height: 55,
+    width: 60,
+    height: 60,
     borderRadius: 30,
-    marginRight: 12,
+    marginRight: 16,
   },
   petInfo: {
     flex: 1,
@@ -151,11 +187,16 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
     color: "#000",
+    marginBottom: 4,
+  },
+  petDetails: {
+    fontSize: 14,
+    color: "#666",
+    marginBottom: 6,
   },
   statusContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 2,
   },
   statusDot: {
     width: 8,
@@ -164,23 +205,32 @@ const styles = StyleSheet.create({
     marginRight: 6,
   },
   statusText: {
-    fontSize: 13,
+    fontSize: 12,
     color: "#444",
+    fontWeight: "500",
   },
   addButton: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 20,
+    justifyContent: "center",
+    backgroundColor: "#00C7BE",
+    padding: 16,
+    borderRadius: 12,
+    marginTop: 16,
+    marginBottom: 24,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
   },
   addText: {
     fontSize: 16,
-    color: "#000",
-    marginLeft: 6,
-  },
-  footerIllustration: {
-    flex: 1,
-    justifyContent: "flex-end",
-    alignItems: "center",
-    marginBottom: 16,
+    color: "#fff",
+    fontWeight: "600",
+    marginLeft: 8,
   },
 });

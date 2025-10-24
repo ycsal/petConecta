@@ -26,8 +26,8 @@ export default function Layout() {
             options={{ drawerLabel: 'Menu', title: "" }}
           />
           <Drawer.Screen
-            name="configuracoes/buscarServicos"
-            options={{ drawerLabel: 'Buscar Serviços', title: "Buscar Serviços" }}
+            name="configuracoes/meusServicos"
+            options={{ drawerLabel: 'Meus Serviços', title: "Meus Serviços" }}
           />
           <Drawer.Screen
             name="configuracoes/sobreNos"
@@ -43,7 +43,7 @@ export default function Layout() {
               drawerItemStyle: { display: 'none' },
               title: '',
               headerLeft: () => (
-                <Ionicons name='arrow-back' size={24} color='#FFF' style={{ marginLeft: 16 }} onPress={() => router.navigate('/tasks')} />
+                <Ionicons name='arrow-back' size={24} color='#00C7BE' style={{ marginLeft: 16 }} onPress={() => router.navigate('tabs/meusPets')} />
               )
             }}
           />
@@ -57,7 +57,7 @@ export default function Layout() {
               drawerItemStyle: { display: 'none' },
               title: '',
               headerLeft: () => (
-                <Ionicons name='arrow-back' size={24} color='#00645F' style={{ marginLeft: 16 }} onPress={() => router.navigate(' ')} />
+                <Ionicons name='arrow-back' size={24} color='#00C7BE' style={{ marginLeft: 16 }} onPress={() => router.navigate(' ')} />
               )
             }}
           />
@@ -111,16 +111,6 @@ export default function Layout() {
               )
             }}
           />
-          <Drawer.Screen
-            name="Cadastro/CadastroServico"
-            options={{
-              drawerItemStyle: { display: 'none' },
-              title: '',
-              headerLeft: () => {
-                return <Ionicons name='arrow-back' size={24} color='#00645F' style={{ marginLeft: 16 }} onPress={() => router.navigate('tabs')} />
-              }
-            }}
-          />
 
           <Drawer.Screen
             name="filters"
@@ -160,7 +150,7 @@ export default function Layout() {
               drawerItemStyle: { display: 'none' },
               title: '',
               headerLeft: () => {
-                return <Ionicons name='arrow-back' size={24} color='#00645F' style={{ marginLeft: 16 }} onPress={() => router.back()} />
+                return <Ionicons name='arrow-back' size={24} color='#00645F' style={{ marginLeft: 16 }} onPress={() => router.navigate('/tabs')} />
               }
             }}
           />

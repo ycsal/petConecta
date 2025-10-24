@@ -1,19 +1,20 @@
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { useNavigation } from "@react-navigation/native"; // Adicione esta importação
 import { useState } from 'react';
 import {
-    Linking,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  Linking,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from "react-native";
 
 export default function ServicosProximos() {
   const [searchText, setSearchText] = useState('');
-  
+  const navigation = useNavigation();
+
   // Dados mockados para prestadores de serviço
   const prestadoresServico = [
     {
@@ -21,72 +22,72 @@ export default function ServicosProximos() {
       nome: "João Silva - Taxi Dog",
       tipo: "Taxi Pet",
       bairro: "Centro",
-      cidade: "São Paulo",
+      cidade: "Guarujá",
       estado: "SP",
-      telefone: "(11) 99999-9999"
+      telefone: "(13) 99999-9999"
     },
     {
       id: 2,
       nome: "Maria Santos - Adestramento",
       tipo: "Adestrador",
-      bairro: "Jardins",
-      cidade: "São Paulo",
-      estado: "SP", 
-      telefone: "(11) 98888-8888"
+      bairro: "Jardim Las Palmas",
+      cidade: "Guarujá",
+      estado: "SP",
+      telefone: "(13) 98888-8888"
     },
     {
       id: 3,
       nome: "Carlos Oliveira - Babá Pet",
       tipo: "Pet Sitter",
-      bairro: "Vila Madalena",
-      cidade: "São Paulo",
+      bairro: "Santo Antônio",
+      cidade: "Guarujá",
       estado: "SP",
-      telefone: "(11) 97777-7777"
+      telefone: "(13) 97777-7777"
     },
     {
       id: 4,
       nome: "Ana Costa - Passeios",
       tipo: "Passeador",
-      bairro: "Moema",
-      cidade: "São Paulo", 
+      bairro: "Perequê",
+      cidade: "Guarujá",
       estado: "SP",
-      telefone: "(11) 96666-6666"
+      telefone: "(13) 96666-6666"
     },
     {
       id: 5,
       nome: "Pedro Martins - Hotel",
       tipo: "Hotel Pet",
-      bairro: "Pinheiros",
-      cidade: "São Paulo",
+      bairro: "Jardim dos Pássaros",
+      cidade: "Guarujá",
       estado: "SP",
-      telefone: "(11) 95555-5555"
+      telefone: "(13) 95555-5555"
     },
     {
       id: 6,
       nome: "Fernanda Lima - Banho",
       tipo: "Banho & Tosa",
-      bairro: "Itaim Bibi",
-      cidade: "São Paulo",
+      bairro: "Santa Rosa",
+      cidade: "Guarujá",
       estado: "SP",
-      telefone: "(11) 94444-4444"
+      telefone: "(13) 94444-4444"
     },
     {
       id: 7,
       nome: "Ricardo Souza - Transporte",
       tipo: "Transporte Pet",
-      bairro: "Brooklin",
-      cidade: "São Paulo",
+      bairro: "Pitangueiras",
+      cidade: "Guarujá",
       estado: "SP",
-      telefone: "(11) 93333-3333"
+      telefone: "(13) 93333-3333"
     },
     {
       id: 8,
       nome: "Juliana Rocha - Creche",
       tipo: "Creche Pet",
-      bairro: "Perdizes",
-      cidade: "São Paulo",
+      bairro: "Centro",
+      cidade: "Guarujá",
       estado: "SP",
-      telefone: "(11) 92222-2222"
+      telefone: "(13) 92222-2222"
     }
   ];
 
@@ -99,7 +100,7 @@ export default function ServicosProximos() {
   const fazerLigacao = (telefone) => {
     const numeroLimpo = telefone.replace(/\D/g, '');
     const url = `tel:${numeroLimpo}`;
-    
+
     Linking.canOpenURL(url)
       .then(supported => {
         if (supported) {
@@ -111,18 +112,20 @@ export default function ServicosProximos() {
       .catch(err => console.error('Erro ao abrir app de telefone:', err));
   };
 
+
+
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>Serviços</Text>
-        <TouchableOpacity 
-  style={styles.criarButton} 
-  onPress={() => router.push('../CadastroServico/index')}
->
-  <Ionicons name="add-circle" size={20} color="#fff" />
-  <Text style={styles.criarButtonText}>Oferecer Serviço</Text>
-</TouchableOpacity>
+        <TouchableOpacity
+          style={styles.criarButton}
+          onPress={() => navigation.navigate("configuracoes/meusServicos")}
+        >
+          <Ionicons name="add-circle" size={20} color="#fff" />
+          <Text style={styles.criarButtonText}>Meus Serviços</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Barra de Pesquisa */}
@@ -161,7 +164,7 @@ export default function ServicosProximos() {
             </View>
 
             {/* Botão de Ligar */}
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.ligarButton}
               onPress={() => fazerLigacao(prestador.telefone)}
             >
@@ -173,7 +176,7 @@ export default function ServicosProximos() {
       </ScrollView>
 
       {/* Botão Flutuante para Oferecer Serviço */}
-      <TouchableOpacity style={styles.floatingButton} onPress={() => router.push('../CadastroServico/index')}>
+      <TouchableOpacity style={styles.floatingButton} onPress={() => navigation.navigate("CadastroServico/index")}>
         <Ionicons name="add" size={24} color="#fff" />
       </TouchableOpacity>
     </View>
@@ -185,13 +188,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f8f8f8',
     paddingHorizontal: 16,
+    paddingTop: 20,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 20,
-    paddingTop: 50,
+    paddingVertical: 10
   },
   title: {
     fontSize: 24,
