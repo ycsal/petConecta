@@ -21,6 +21,14 @@ import {
 // URL da sua API - ATUALIZE com seu IP local
 const API_URL = "http://localhost:3001/api/pets";
 
+// Opções de status
+const statusOptions = [
+  { label: "🐾 Para adoção", value: "Disponível" },
+  { label: "🔍 Perdido", value: "Perdido" },
+  { label: "🏠 Encontrado", value: "Encontrado" },
+  { label: "✅ Adotado", value: "Adotado" },
+];
+
 export default function CadastroPet() {
   const navigation = useNavigation();
   const [loading, setLoading] = useState(false);
@@ -36,7 +44,8 @@ export default function CadastroPet() {
     descricao: "",
     foto: "",
     castrado: false,
-    vacinado: false
+    vacinado: false,
+    status: "Disponível" // Novo campo com valor padrão
   });
 
   // TEMPORÁRIO: ID do usuário fixo para testes
@@ -73,6 +82,11 @@ export default function CadastroPet() {
     setPetData((prev) => ({ ...prev, [key]: value }));
   };
 
+  // Função para selecionar status
+  const handleStatusSelect = (statusValue) => {
+    setPetData((prev) => ({ ...prev, status: statusValue }));
+  };
+
   // Enviar dados para o backend
   const handleSubmit = async () => {
     // Validação dos campos obrigatórios
@@ -84,6 +98,12 @@ export default function CadastroPet() {
     // Validação do sexo
     if (petData.sexo.toUpperCase() !== 'M' && petData.sexo.toUpperCase() !== 'F') {
       Alert.alert("Atenção", "Sexo deve ser 'M' ou 'F'");
+      return;
+    }
+
+    // Validação do status
+    if (!petData.status) {
+      Alert.alert("Atenção", "Selecione a situação do pet");
       return;
     }
 
@@ -103,7 +123,7 @@ export default function CadastroPet() {
         foto: petData.foto,
         castrado: petData.castrado,
         vacinado: petData.vacinado,
-        status: "Disponível" // Valor padrão
+        status: petData.status // Usar o status selecionado
       };
 
       console.log("Enviando dados:", dadosParaEnviar);
@@ -151,13 +171,13 @@ export default function CadastroPet() {
     <KeyboardAvoidingView 
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 80} // AUMENTEI o offset
+      keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 80}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView 
           style={styles.scrollView} 
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent} // Adicionei isso
+          contentContainerStyle={styles.scrollContent}
         >
           {/* Cabeçalho */}
           <View style={styles.header}>
@@ -223,6 +243,30 @@ export default function CadastroPet() {
               onChangeText={(t) => handleChange("porte", t)}
             />
 
+            {/* NOVO: Seleção de Status */}
+            <View style={styles.statusSection}>
+              <Text style={styles.sectionLabel}>Situação do Pet *</Text>
+              <View style={styles.statusContainer}>
+                {statusOptions.map((option) => (
+                  <TouchableOpacity
+                    key={option.value}
+                    style={[
+                      styles.statusOption,
+                      petData.status === option.value && styles.statusOptionSelected
+                    ]}
+                    onPress={() => handleStatusSelect(option.value)}
+                  >
+                    <Text style={[
+                      styles.statusOptionText,
+                      petData.status === option.value && styles.statusOptionTextSelected
+                    ]}>
+                      {option.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
             {/* Checkboxes */}
             <View style={styles.checkboxRow}>
               <TouchableOpacity 
@@ -285,7 +329,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 16,
     paddingTop: 40,
-    paddingBottom: 20, // Adicionei padding na parte inferior
+    paddingBottom: 20,
   },
   header: {
     flexDirection: "row",
@@ -344,6 +388,44 @@ const styles = StyleSheet.create({
   },
   halfInput: {
     width: "48%",
+  },
+  // NOVOS ESTILOS PARA A SELEÇÃO DE STATUS
+  statusSection: {
+    marginBottom: 15,
+  },
+  sectionLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    marginBottom: 8,
+    color: "#333",
+  },
+  statusContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+  },
+  statusOption: {
+    width: "48%",
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: "#f8f8f8",
+    borderWidth: 1,
+    borderColor: "#ddd",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  statusOptionSelected: {
+    backgroundColor: "#00C7BE",
+    borderColor: "#00C7BE",
+  },
+  statusOptionText: {
+    fontSize: 13,
+    color: "#666",
+    textAlign: "center",
+  },
+  statusOptionTextSelected: {
+    color: "#fff",
+    fontWeight: "600",
   },
   checkboxRow: {
     flexDirection: "row",
