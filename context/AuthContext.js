@@ -6,7 +6,7 @@ import { Alert } from 'react-native';
 const AuthContext = createContext();
 
 // ⚠️ SUBSTITUA pelo seu IP real
-const API_URL = "http://SEU_IP:3001"; 
+const API_URL = "SEU IP"; 
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
