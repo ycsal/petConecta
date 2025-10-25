@@ -5,6 +5,9 @@ const PetController = require('../controllers/petController');
 // Rota para obter todos os pets
 router.get('/', PetController.getAllPets);
 
+// Rota para obter um pet específico pelo ID
+router.get('/:id', PetController.getPetById);
+
 //Rota para criar um match
 router.post('/match', PetController.createMatch);
 

@@ -1,33 +1,28 @@
-import { useEffect, useState } from "react";
+import { useNavigation } from "@react-navigation/native"; // Adicione esta importação
+import { useState } from "react";
 import {
-    Alert,
-    FlatList,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 // URL da sua API Node.js
 const API_URL = "http://SEU_SERVIDOR_API"; // <- Substitua pelo real
 
-export default function MeusServicos({ navigation }) {
+export default function MeusServicos() {
+  const navigation = useNavigation(); // Obtém o objeto de navegação
   const [services, setServices] = useState([]);
 
-  // Buscar serviços do usuário prestador
-  useEffect(() => {
-    fetch(`${API_URL}/services/meus`) // <- Endpoint da sua API
-      .then((res) => res.json())
-      .then((data) => setServices(data))
-      .catch((err) => console.log("Erro ao carregar serviços:", err));
-  }, []);
+  // ... restante do código
 
   // Criar novo serviço
   const createService = () => {
-    // Aqui poderia abrir um modal ou navegar para uma tela de cadastro
-    navigation.navigate("CadastroServico");
+    // Navega para a tela de cadastro de serviço
+    navigation.navigate("CadastroServico/index"); // <- Verifique se este é o nome exato da rota
   };
-
   // Editar serviço
   const editService = (service) => {
     // Navega para a tela de edição com os dados do serviço
@@ -155,7 +150,7 @@ const styles = StyleSheet.create({
   addButton: {
     padding: 12,
     borderRadius: 8,
-    backgroundColor: "#2196F3",
+    backgroundColor: "#00C7BE",
     alignItems: "center",
     marginBottom: 12,
   },

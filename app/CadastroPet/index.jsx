@@ -6,11 +6,15 @@ import {
   ActivityIndicator,
   Alert,
   Image,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View
 } from "react-native";
 
@@ -144,120 +148,129 @@ export default function CadastroPet() {
   };
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Cabeçalho */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color="#00BCCD" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>CADASTRO - PET</Text>
-      </View>
-
-      {/* Foto */}
-      <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
-        {petData.foto ? (
-          <Image source={{ uri: petData.foto }} style={styles.petImage} />
-        ) : (
-          <View style={styles.imagePlaceholder}>
-            <Ionicons name="camera" size={32} color="#aaa" />
-            <Text style={styles.imageText}>Adicionar Foto</Text>
-          </View>
-        )}
-      </TouchableOpacity>
-
-      {/* Campos do Formulário */}
-      <View style={styles.form}>
-        <TextInput
-          style={styles.input}
-          placeholder="Nome do Pet *"
-          value={petData.nome}
-          onChangeText={(t) => handleChange("nome", t)}
-        />
-
-        <TextInput
-          style={styles.input}
-          placeholder="Espécie (Cachorro, Gato, etc.) *"
-          value={petData.especie}
-          onChangeText={(t) => handleChange("especie", t)}
-        />
-
-        <TextInput
-          style={styles.input}
-          placeholder="Raça"
-          value={petData.raca}
-          onChangeText={(t) => handleChange("raca", t)}
-        />
-
-        <View style={styles.row}>
-          <TextInput
-            style={[styles.input, styles.halfInput]}
-            placeholder="Sexo (M/F) *"
-            value={petData.sexo}
-            onChangeText={(t) => handleChange("sexo", t)}
-            maxLength={1}
-          />
-          <TextInput
-            style={[styles.input, styles.halfInput]}
-            placeholder="Idade (anos) *"
-            value={petData.idade}
-            onChangeText={(t) => handleChange("idade", t)}
-            keyboardType="numeric"
-          />
-        </View>
-
-        <TextInput
-          style={styles.input}
-          placeholder="Porte (Pequeno, Médio, Grande) *"
-          value={petData.porte}
-          onChangeText={(t) => handleChange("porte", t)}
-        />
-
-        {/* Checkboxes */}
-        <View style={styles.checkboxRow}>
-          <TouchableOpacity 
-            style={styles.checkboxContainer}
-            onPress={() => toggleCheckbox('castrado')}
-          >
-            <View style={[styles.checkbox, petData.castrado && styles.checkboxChecked]}>
-              {petData.castrado && <Ionicons name="checkmark" size={16} color="#FFF" />}
-            </View>
-            <Text style={styles.checkboxLabel}>Castrado</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.checkboxContainer}
-            onPress={() => toggleCheckbox('vacinado')}
-          >
-            <View style={[styles.checkbox, petData.vacinado && styles.checkboxChecked]}>
-              {petData.vacinado && <Ionicons name="checkmark" size={16} color="#FFF" />}
-            </View>
-            <Text style={styles.checkboxLabel}>Vacinado</Text>
-          </TouchableOpacity>
-        </View>
-
-        <TextInput
-          style={[styles.input, styles.textArea]}
-          multiline
-          placeholder="Descrição do pet (comportamento, características...)"
-          value={petData.descricao}
-          onChangeText={(t) => handleChange("descricao", t)}
-        />
-
-        <Text style={styles.requiredText}>*: Campos obrigatórios</Text>
-
-        <TouchableOpacity 
-          style={[styles.submitButton, loading && styles.submitButtonDisabled]} 
-          onPress={handleSubmit}
-          disabled={loading}
+    <KeyboardAvoidingView 
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 80} // AUMENTEI o offset
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView 
+          style={styles.scrollView} 
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent} // Adicionei isso
         >
-          {loading ? (
-            <ActivityIndicator color="#FFF" />
-          ) : (
-            <Text style={styles.submitText}>Salvar Pet</Text>
-          )}
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+          {/* Cabeçalho */}
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>CADASTRO - PET</Text>
+          </View>
+
+          {/* Foto */}
+          <TouchableOpacity style={styles.imagePicker} onPress={pickImage}>
+            {petData.foto ? (
+              <Image source={{ uri: petData.foto }} style={styles.petImage} />
+            ) : (
+              <View style={styles.imagePlaceholder}>
+                <Ionicons name="camera" size={32} color="#aaa" />
+                <Text style={styles.imageText}>Adicionar Foto</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+
+          {/* Campos do Formulário */}
+          <View style={styles.form}>
+            <TextInput
+              style={styles.input}
+              placeholder="Nome do Pet *"
+              value={petData.nome}
+              onChangeText={(t) => handleChange("nome", t)}
+            />
+
+            <TextInput
+              style={styles.input}
+              placeholder="Espécie (Cachorro, Gato, etc.) *"
+              value={petData.especie}
+              onChangeText={(t) => handleChange("especie", t)}
+            />
+
+            <TextInput
+              style={styles.input}
+              placeholder="Raça"
+              value={petData.raca}
+              onChangeText={(t) => handleChange("raca", t)}
+            />
+
+            <View style={styles.row}>
+              <TextInput
+                style={[styles.input, styles.halfInput]}
+                placeholder="Sexo (M/F) *"
+                value={petData.sexo}
+                onChangeText={(t) => handleChange("sexo", t)}
+                maxLength={1}
+              />
+              <TextInput
+                style={[styles.input, styles.halfInput]}
+                placeholder="Idade (anos) *"
+                value={petData.idade}
+                onChangeText={(t) => handleChange("idade", t)}
+                keyboardType="numeric"
+              />
+            </View>
+
+            <TextInput
+              style={styles.input}
+              placeholder="Porte (Pequeno, Médio, Grande) *"
+              value={petData.porte}
+              onChangeText={(t) => handleChange("porte", t)}
+            />
+
+            {/* Checkboxes */}
+            <View style={styles.checkboxRow}>
+              <TouchableOpacity 
+                style={styles.checkboxContainer}
+                onPress={() => toggleCheckbox('castrado')}
+              >
+                <View style={[styles.checkbox, petData.castrado && styles.checkboxChecked]}>
+                  {petData.castrado && <Ionicons name="checkmark" size={16} color="#FFF" />}
+                </View>
+                <Text style={styles.checkboxLabel}>Castrado</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={styles.checkboxContainer}
+                onPress={() => toggleCheckbox('vacinado')}
+              >
+                <View style={[styles.checkbox, petData.vacinado && styles.checkboxChecked]}>
+                  {petData.vacinado && <Ionicons name="checkmark" size={16} color="#FFF" />}
+                </View>
+                <Text style={styles.checkboxLabel}>Vacinado</Text>
+              </TouchableOpacity>
+            </View>
+
+            <TextInput
+              style={[styles.input, styles.textArea]}
+              multiline
+              placeholder="Descrição do pet (comportamento, características...)"
+              value={petData.descricao}
+              onChangeText={(t) => handleChange("descricao", t)}
+            />
+
+            <Text style={styles.requiredText}>*: Campos obrigatórios</Text>
+
+            <TouchableOpacity 
+              style={[styles.submitButton, loading && styles.submitButtonDisabled]} 
+              onPress={handleSubmit}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator color="#FFF" />
+              ) : (
+                <Text style={styles.submitText}>Salvar Pet</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -265,8 +278,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
     paddingHorizontal: 16,
     paddingTop: 40,
+    paddingBottom: 20, // Adicionei padding na parte inferior
   },
   header: {
     flexDirection: "row",
@@ -274,9 +293,9 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   headerTitle: {
-    color: "#00BCCD",
+    color: "#00C7BE",
     fontWeight: "bold",
-    fontSize: 18,
+    fontSize: 24,
     marginLeft: 10,
   },
   imagePicker: {
@@ -293,14 +312,14 @@ const styles = StyleSheet.create({
     height: 120,
     borderRadius: 60,
     borderWidth: 2,
-    borderColor: "#00BCCD",
+    borderColor: "#00C7BE",
     borderStyle: "dashed",
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#f7f7f7",
   },
   imageText: {
-    color: "#00BCCD",
+    color: "#aaa",
     fontSize: 12,
     marginTop: 5,
   },
@@ -340,14 +359,14 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderWidth: 2,
-    borderColor: "#00BCCD",
+    borderColor: "#00C7BE",
     borderRadius: 4,
     marginRight: 8,
     justifyContent: "center",
     alignItems: "center",
   },
   checkboxChecked: {
-    backgroundColor: "#00BCCD",
+    backgroundColor: "#00C7BE",
   },
   checkboxLabel: {
     fontSize: 14,
@@ -360,7 +379,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   submitButton: {
-    backgroundColor: "#00BCCD",
+    backgroundColor: "#00C7BE",
     borderRadius: 8,
     padding: 14,
     alignItems: "center",

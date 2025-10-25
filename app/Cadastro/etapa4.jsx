@@ -152,10 +152,6 @@ export default function Etapa2() {
                 />
             </View>
 
-            <Text style={styles.aviso}>
-                Suas informações são confidenciais e só serão compartilhadas caso você autorize.
-            </Text>
-
             <Footer
                 etapa={4}
                 totalEtapas={5}
@@ -179,7 +175,8 @@ const styles = StyleSheet.create({
         backgroundColor: "#fff",
         justifyContent: "center",
         alignItems: "center",
-        padding: 20
+        padding: 20,
+        paddingBottom: 80
     },
     title: {
         fontSize: 18,
@@ -205,11 +202,4 @@ const styles = StyleSheet.create({
     halfInput: {
         flex: 1
     },
-    aviso: {
-        fontSize: 12,
-        color: "#666",
-        textAlign: "center",
-        marginBottom: 20,
-        paddingHorizontal: 10
-    }
 });
