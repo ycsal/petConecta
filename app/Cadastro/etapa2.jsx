@@ -2,9 +2,11 @@ import { router } from "expo-router";
 import { useState } from "react";
 import { StyleSheet, Text, TextInput, View } from "react-native";
 import { Footer } from "../../components/FooterCadastro";
+import { useCadastro } from '../../context/CadastroContext';
 
 export default function Etapa2() {
-  const [email, setEmail] = useState("");
+  const { dadosCadastro, atualizarDados } = useCadastro();
+  const [email, setEmail] = useState(dadosCadastro.email);
   const [emailValido, setEmailValido] = useState(false);
 
   const validarEmail = (texto) => {
@@ -12,6 +14,11 @@ export default function Etapa2() {
 
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     setEmailValido(regex.test(texto.trim()));
+  };
+  
+  const avancar = () => {
+    atualizarDados({ email });
+    router.push("/Cadastro/etapa3");
   };
 
   return (
@@ -31,7 +38,7 @@ export default function Etapa2() {
       <Footer
         etapa={2}
         totalEtapas={5}
-        onPress={() => router.push("/Cadastro/etapa3")}
+        onPress={avancar}
         disabled={!emailValido}
       />
     </View>

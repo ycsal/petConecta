@@ -3,7 +3,7 @@ import { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Footer } from "../../components/FooterCadastro";
 
-export default function Etapa5() {
+export default function EtapaServico() {
     const [prestadorServico, setPrestadorServico] = useState(null);
 
     const handleNext = () => {

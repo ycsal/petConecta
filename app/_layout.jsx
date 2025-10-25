@@ -2,10 +2,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { AuthProvider } from '../context/AuthContext';
+import { CadastroProvider } from '../context/CadastroContext';
 import { FilterProvider } from '../context/FilterContext';
 
 export default function Layout() {
   return (
+    <AuthProvider>
+    <CadastroProvider>
     <FilterProvider>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <Drawer
@@ -158,5 +162,7 @@ export default function Layout() {
         </Drawer>
       </GestureHandlerRootView>
     </FilterProvider>
+    </CadastroProvider>
+    </AuthProvider>
   );
 }

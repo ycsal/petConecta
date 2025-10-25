@@ -25,7 +25,7 @@ class AuthController {
       }
 
       // Validar campos obrigatórios
-      if (!nome || !email || !senha) {
+      if (!nome || !sobrenome || !email || !senha || !tipoUsuario) {
         return res.status(400).json({
           success: false,
           error: 'Nome, email e senha são obrigatórios'
@@ -50,9 +50,11 @@ class AuthController {
       const userResponse = {
         _id: newUser._id,
         nome: newUser.nome,
+        sobrenome: newUser.sobrenome, 
         email: newUser.email,
         telefone: newUser.telefone,
         endereco: newUser.endereco,
+        tipoUsuario: newUser.tipoUsuario,
         data_cadastro: newUser.data_cadastro
       };
       
