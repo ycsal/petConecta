@@ -1,10 +1,11 @@
+import { router } from "expo-router";
 import { createContext, useContext, useState } from 'react';
 import { Alert } from 'react-native';
 
 const AuthContext = createContext();
 
 // ⚠️ SUBSTITUA pelo seu IP real
-const API_URL = "http://localhost:3001"; 
+const API_URL = "http://192.168.1.8:3001"; 
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -43,11 +44,47 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const login = async (email, senha) => {
+  setLoading(true);
+  try {
+    console.log('Tentando login:', email);
+    
+    const response = await fetch(`${API_URL}/api/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, senha }),
+    });
+
+    const data = await response.json();
+
+    console.log('Resposta do login:', data);
+
+    if (data.success) {
+      setUser(data.user);
+      Alert.alert('Sucesso!', 'Login realizado com sucesso');
+      router.replace('/tabs/match');
+      return { success: true, user: data.user };
+    } else {
+      Alert.alert('Erro', data.error || 'Erro ao fazer login');
+      return { success: false, error: data.error };
+    }
+  } catch (error) {
+    console.log('Erro no login:', error);
+    Alert.alert('Erro', 'Não foi possível conectar ao servidor');
+    return { success: false, error: 'Erro de conexão' };
+  } finally {
+    setLoading(false);
+  }
+};
+
   return (
     <AuthContext.Provider value={{
       user,
       register,
       loading,
+      login,
       isAuthenticated: !!user
     }}>
       {children}
