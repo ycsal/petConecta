@@ -1,15 +1,34 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from "expo-router";
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 
 const AuthContext = createContext();
 
 // ⚠️ SUBSTITUA pelo seu IP real
-const API_URL = "http://192.168.1.8:3001"; 
+const API_URL = "http://SEU_IP:3001"; 
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    checkStoredUser();
+  }, []);
+
+  const checkStoredUser = async () => {
+    try {
+      const storedUser = await AsyncStorage.getItem('@user');
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+        console.log('Usuário recuperado do storage:', JSON.parse(storedUser).email);
+      }
+    } catch (error) {
+      console.log('Erro ao recuperar usuário:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const register = async (userData) => {
     setLoading(true);
@@ -29,6 +48,7 @@ export const AuthProvider = ({ children }) => {
 
       if (data.success) {
         setUser(data.user);
+        await AsyncStorage.setItem('@user', JSON.stringify(data.user));
         Alert.alert('Sucesso!', 'Conta criada com sucesso');
         return { success: true, user: data.user };
       } else {
@@ -63,6 +83,8 @@ export const AuthProvider = ({ children }) => {
 
     if (data.success) {
       setUser(data.user);
+      await AsyncStorage.setItem('@user', JSON.stringify(data.user));
+      console.log('Usuário salvo no storage');
       Alert.alert('Sucesso!', 'Login realizado com sucesso');
       router.replace('/tabs/match');
       return { success: true, user: data.user };
@@ -78,6 +100,15 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }
 };
+  const logout = async () => {
+    try {
+      await AsyncStorage.removeItem('@user');
+      setUser(null);
+      console.log('Usuário deslogado e storage limpo');
+    } catch (error) {
+      console.log('Erro ao fazer logout:', error);
+    }
+  };
 
   return (
     <AuthContext.Provider value={{
