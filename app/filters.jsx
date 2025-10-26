@@ -35,17 +35,13 @@ export default function FiltersModal() {
     }));
   };
 
-  
   const handleApply = () => {
     setFilters(localFilters);
-   
-    router.navigate('/tabs/match'); 
+    router.navigate('/tabs/match');
   };
   
- 
   const handleClear = () => {
     clearFilters();
-   
     router.navigate('/tabs/match');
   };
 
@@ -74,6 +70,15 @@ export default function FiltersModal() {
         onSelect={(value) => handleSelect('castrado', value)}
       />
       
+    
+      <FilterGroup
+        title="Vacinado"
+        options={[{ label: 'Sim', value: true }, { label: 'Não', value: false }]}
+        selected={localFilters.vacinado} 
+        onSelect={(value) => handleSelect('vacinado', value)}
+      />
+    
+      
       <View style={styles.footerButtons}>
         <Pressable style={styles.applyButton} onPress={handleApply}>
           <Text style={styles.applyButtonText}>Aplicar Filtros</Text>
@@ -86,7 +91,7 @@ export default function FiltersModal() {
   );
 }
 
-// Seus estilos continuam os mesmos
+
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#fff', },
     scrollContent: { padding: 20, },
@@ -98,7 +103,7 @@ const styles = StyleSheet.create({
     optionSelected: { backgroundColor: '#00C7BE', borderColor: '#00A69E' },
     optionText: { fontSize: 16, color: '#555' },
     optionTextSelected: { fontSize: 16, color: '#fff', fontWeight: 'bold' },
-    footerButtons: { marginTop: 30, paddingBottom: 40, },
+    footerButtons: { marginTop: 1, paddingBottom: 40, },
     applyButton: { backgroundColor: '#00C7BE', padding: 15, borderRadius: 10, elevation: 2, },
     applyButtonText: { color: '#fff', textAlign: 'center', fontSize: 18, fontWeight: 'bold' },
     clearButton: { marginTop: 15, padding: 15 },

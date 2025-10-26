@@ -8,13 +8,14 @@ class PetController {
   static async getAllPets(req, res) {
   try {
     
-    const { sexo, porte, castrado } = req.query; 
+    const { sexo, porte, castrado, vacinado } = req.query; 
     
     const filterQuery = {};
 
     if (sexo) filterQuery.sexo = sexo;
     if (porte) filterQuery.porte = porte;
     if (castrado) filterQuery.castrado = castrado === 'true';
+    if (vacinado) filterQuery.vacinado = vacinado === 'true';
 
     const pets = await Pet.find(filterQuery);
     
