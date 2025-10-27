@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { View, StyleSheet, Text, ActivityIndicator, Pressable } from 'react-native';
-import Swiper from 'react-native-deck-swiper';
-import { PetCard } from '../../components/PetCard/index';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router'; // NOVO: Para navegar para a tela de filtros
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import Swiper from 'react-native-deck-swiper';
+import { PetCard } from '../../components/PetCard/index';
 import { useFilters } from '../../context/FilterContext'; // NOVO: Para usar os filtros
 
 // A URL da API está aqui dentro do arquivo.
@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
   // NOVO: Estilo para o botão de filtro
   filterButton: {
     position: 'absolute',
-    top: 50,
+    top: 5,
     right: 20,
     zIndex: 10,
     backgroundColor: '#fff',

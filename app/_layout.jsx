@@ -67,7 +67,7 @@ export default function Layout() {
               drawerItemStyle: { display: 'none' },
               title: '',
               headerLeft: () => (
-                <Ionicons name='arrow-back' size={24} color='#00645F' style={{ marginLeft: 16 }} onPress={() => router.navigate('Cadastro/etapa1')} />
+                <Ionicons name='arrow-back' size={24} color='#00C7BE' style={{ marginLeft: 16 }} onPress={() => router.navigate('Cadastro/etapa1')} />
               )
             }}
           />
@@ -77,7 +77,7 @@ export default function Layout() {
               drawerItemStyle: { display: 'none' },
               title: '',
               headerLeft: () => (
-                <Ionicons name='arrow-back' size={24} color='#00645F' style={{ marginLeft: 16 }} onPress={() => router.navigate('Cadastro/etapa2')} />
+                <Ionicons name='arrow-back' size={24} color='#00C7BE' style={{ marginLeft: 16 }} onPress={() => router.navigate('Cadastro/etapa2')} />
               )
             }}
           />
@@ -87,7 +87,7 @@ export default function Layout() {
               drawerItemStyle: { display: 'none' },
               title: '',
               headerLeft: () => (
-                <Ionicons name='arrow-back' size={24} color='#00645F' style={{ marginLeft: 16 }} onPress={() => router.navigate('Cadastro/etapa3')} />
+                <Ionicons name='arrow-back' size={24} color='#00C7BE' style={{ marginLeft: 16 }} onPress={() => router.navigate('Cadastro/etapa3')} />
               )
             }}
           />
@@ -97,7 +97,7 @@ export default function Layout() {
               drawerItemStyle: { display: 'none' },
               title: '',
               headerLeft: () => (
-                <Ionicons name='arrow-back' size={24} color='#00645F' style={{ marginLeft: 16 }} onPress={() => router.navigate('Cadastro/etapa4')} />
+                <Ionicons name='arrow-back' size={24} color='#00C7BE' style={{ marginLeft: 16 }} onPress={() => router.navigate('Cadastro/etapa4')} />
               )
             }}
           />
@@ -107,7 +107,7 @@ export default function Layout() {
               drawerItemStyle: { display: 'none' },
               title: '',
               headerLeft: () => (
-                <Ionicons name='arrow-back' size={24} color='#00645F' style={{ marginLeft: 16 }} onPress={() => router.navigate('Cadastro/etapa5')} />
+                <Ionicons name='arrow-back' size={24} color='#00C7BE' style={{ marginLeft: 16 }} onPress={() => router.navigate('Cadastro/etapa5')} />
               )
             }}
           />
@@ -128,7 +128,7 @@ export default function Layout() {
               drawerItemStyle: { display: 'none' },
               title: '',
               headerLeft: () => {
-                return <Ionicons name='arrow-back' size={24} color='#00645F' style={{ marginLeft: 16 }} onPress={() => router.back()} />
+                return <Ionicons name='arrow-back' size={24} color='#00C7BE' style={{ marginLeft: 16 }} onPress={() => router.back()} />
               }
             }}
           />
@@ -139,7 +139,7 @@ export default function Layout() {
               drawerItemStyle: { display: 'none' },
               title: '',
               headerLeft: () => {
-                return <Ionicons name='arrow-back' size={24} color='#00645F' style={{ marginLeft: 16 }} onPress={() => router.back()} />
+                return <Ionicons name='arrow-back' size={24} color='#00C7BE' style={{ marginLeft: 16 }} onPress={() => router.back()} />
               }
             }}
           />
@@ -150,7 +150,7 @@ export default function Layout() {
               drawerItemStyle: { display: 'none' },
               title: '',
               headerLeft: () => {
-                return <Ionicons name='arrow-back' size={24} color='#00645F' style={{ marginLeft: 16 }} onPress={() => router.navigate('/tabs')} />
+                return <Ionicons name='arrow-back' size={24} color='#00C7BE' style={{ marginLeft: 16 }} onPress={() => router.navigate('/tabs')} />
               }
             }}
           />

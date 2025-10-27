@@ -1,17 +1,17 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
-    Alert,
-    FlatList,
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Alert,
+  FlatList,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from "react-native";
 
-// Dados de exemplo do protetor
+
 const PROTETOR_EXEMPLO = {
   id: "1",
   nome: "Ana Silva",
@@ -23,7 +23,6 @@ const PROTETOR_EXEMPLO = {
   descricaoTipo: "Pessoa que resgata e cuida temporariamente de animais."
 };
 
-// Dados de exemplo dos pets - agora incluindo pets encontrados
 const PETS_EXEMPLO = [
   {
     id: 1,
@@ -60,7 +59,7 @@ const PETS_EXEMPLO = [
   },
   {
     id: 4,
-    name: null, // Pet encontrado sem nome
+    name: null, 
     especie: "Cachorro",
     raca: "Desconhecida",
     idade: "Adulto",
@@ -94,7 +93,7 @@ const SERVICOS_EXEMPLO = [
     descricao: "Cuido do seu pet enquanto você viaja. Ambiente seguro e acolhedor.",
     preco: "R$ 50/dia",
     image: "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=150&h=150&fit=crop",
-    tipo: "Hospedagem",
+    tipo: "Hotel Pet",
     protetorId: "1"
   },
   {
@@ -103,7 +102,7 @@ const SERVICOS_EXEMPLO = [
     descricao: "Passeios de 30min a 1hora em parques seguros.",
     preco: "R$ 25/passeio",
     image: "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=150&h=150&fit=crop",
-    tipo: "Passeio",
+    tipo: "Passeador",
     protetorId: "1"
   },
   {
@@ -118,14 +117,13 @@ const SERVICOS_EXEMPLO = [
 ];
 
 export default function PerfilProtetor({ route }) {
-  const [filtroAtivo, setFiltroAtivo] = useState('pets'); // 'pets' ou 'servicos'
+  const [filtroAtivo, setFiltroAtivo] = useState('pets'); 
   
   // Em uma implementação real, esses dados viriam do route.params
   const protetor = PROTETOR_EXEMPLO;
   const pets = PETS_EXEMPLO;
   const servicos = SERVICOS_EXEMPLO;
 
-  // Filtrar pets por tipo
   const petsAdocao = pets.filter(pet => pet.tipo === 'adocao');
   const petsEncontrados = pets.filter(pet => pet.tipo === 'encontrado');
 
