@@ -75,7 +75,7 @@ export default function PetDetail() {
   // Função para navegar para o perfil do protetor
   const handleViewProtectorProfile = () => {
     if (pet?.id_usuario?._id) {
-      router.push(`/perfilProtetor/${pet.id_usuario._id}`);
+      router.push(`../perfilProtetor/${pet.id_usuario._id}`);
     } else {
       Alert.alert("Erro", "Informações do protetor não disponíveis.");
     }
@@ -145,7 +145,7 @@ export default function PetDetail() {
 
         {/* SEÇÃO DE INFORMAÇÕES DO PRESTADOR (SUBSTITUIU CONTATO DO RESPONSÁVEL) */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Informações do Prestador</Text>
+          <Text style={styles.sectionTitle}>Informações do Protetor</Text>
           
           <View style={styles.infoRow}>
             <Ionicons name="person" size={18} color="#666" />
@@ -167,7 +167,6 @@ export default function PetDetail() {
             </Text>
           </View>
 
-          {/* BOTÃO PARA VER PERFIL DO PRESTADOR */}
           <Pressable 
             style={styles.verPerfilButton}
             onPress={handleViewProtectorProfile}
