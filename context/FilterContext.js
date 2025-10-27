@@ -5,6 +5,7 @@ const initialState = {
   sexo: null,
   porte: null,
   castrado: null,
+  vacinado: null,
 }; 
 
 const FilterContext = createContext();

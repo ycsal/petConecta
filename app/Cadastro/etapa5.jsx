@@ -2,9 +2,13 @@ import { router } from "expo-router";
 import { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Footer } from "../../components/FooterCadastro";
+import { useAuth } from '../../context/AuthContext';
+import { useCadastro } from '../../context/CadastroContext';
 
 export default function Etapa5() {
-  const [tipoUsuario, setTipoUsuario] = useState("");
+  const { dadosCadastro, limparDados } = useCadastro();
+  const { register, loading} = useAuth();
+   const [tipoUsuario, setTipoUsuario] = useState(dadosCadastro.tipoUsuario || "");
 
   const opcoes = [
     { key: "Adotante", desc: "Pessoa interessada em adotar um animal." },
@@ -12,6 +16,23 @@ export default function Etapa5() {
     { key: "Abrigo", desc: "Organização ou espaço que acolhe vários animais." },
     { key: "Outro", desc: "Outro tipo de participante que não se encaixa nas categorias acima." },
   ];
+
+   const finalizarCadastro = async () => {
+    const dadosCompletos = {
+      ...dadosCadastro,
+      tipoUsuario
+    };
+
+    console.log('Dados completos para cadastro:', dadosCompletos);
+
+    const resultado = await register(dadosCompletos);
+    
+    if (resultado.success) {
+      limparDados();
+      // Redirecionar para a tela principal
+      router.push("/Cadastro/etapaServico");
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -43,8 +64,8 @@ export default function Etapa5() {
       <Footer
         etapa={5}
         totalEtapas={5}
-        onPress={() => router.push("/Cadastro/etapaServico")}
-        disabled={tipoUsuario.trim().length === 0}
+        onPress={finalizarCadastro}
+        disabled={tipoUsuario.trim().length === 0 || loading}
       />
     </View>
   );

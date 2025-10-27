@@ -2,10 +2,17 @@ import { router } from "expo-router";
 import { useState } from "react";
 import { StyleSheet, Text, TextInput, View } from "react-native";
 import { Footer } from "../../components/FooterCadastro";
+import { useCadastro } from '../../context/CadastroContext';
 
 export default function Etapa1() {
-  const [nome, setNome] = useState("");
-  const [sobrenome, setSobrenome] = useState("");
+  const { dadosCadastro, atualizarDados } = useCadastro();
+  const [nome, setNome] = useState(dadosCadastro.nome);
+  const [sobrenome, setSobrenome] = useState(dadosCadastro.sobrenome);
+
+  const avancar = () => {
+    atualizarDados({ nome, sobrenome });
+    router.push("/Cadastro/etapa2");
+  };
 
   return (
     <View style={styles.container}>
@@ -30,7 +37,7 @@ export default function Etapa1() {
       <Footer
         etapa={1}
         totalEtapas={5}
-        onPress={() => router.push("/Cadastro/etapa2")}
+        onPress={avancar}
         disabled={nome.trim().length === 0 || sobrenome.trim().length === 0}
       />
     </View>

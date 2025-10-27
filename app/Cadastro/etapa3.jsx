@@ -3,10 +3,12 @@ import { useRouter } from "expo-router"; // <-- Importa useRouter
 import { useState } from "react";
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Footer } from "../../components/FooterCadastro";
+import { useCadastro } from '../../context/CadastroContext';
 
 export default function Etapa3() {
   const router = useRouter(); // <-- Inicializa o router
-  const [password, setPassword] = useState("");
+  const { dadosCadastro, atualizarDados } = useCadastro();
+  const [password, setPassword] = useState(dadosCadastro.senha);
   const [confirm, setConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -22,6 +24,11 @@ export default function Etapa3() {
 
   const requisitosValidos = Object.values(checks).every(Boolean);
   const senhasIguais = password === confirm && password.length > 0;
+
+   const avancar = () => {
+    atualizarDados({ senha: password });
+    router.push("/Cadastro/etapa4");
+  }; 
 
   return (
     <View style={styles.container}>
@@ -83,7 +90,7 @@ export default function Etapa3() {
       <Footer
         etapa={3}
         totalEtapas={5}
-        onPress={() => router.push("/Cadastro/etapa4")} 
+        onPress={avancar} 
         disabled={!requisitosValidos || !senhasIguais}
       />
     </View>

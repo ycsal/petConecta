@@ -2,19 +2,37 @@ import { router } from "expo-router";
 import { useState } from "react";
 import { Alert, StyleSheet, Text, TextInput, View } from "react-native";
 import { Footer } from "../../components/FooterCadastro";
+import { useCadastro } from '../../context/CadastroContext';
 
-export default function Etapa2() {
-    const [telefone, setTelefone] = useState("");
-    const [cep, setCep] = useState("");
-    const [rua, setRua] = useState("");
-    const [numero, setNumero] = useState("");
-    const [complemento, setComplemento] = useState("");
-    const [bairro, setBairro] = useState("");
-    const [cidade, setCidade] = useState("");
-    const [estado, setEstado] = useState("");
+export default function Etapa4() {
+    const { dadosCadastro, atualizarDados } = useCadastro();
+    const [telefone, setTelefone] = useState(dadosCadastro.telefone || "");
+    const [cep, setCep] = useState(dadosCadastro.endereco?.cep || "");
+    const [rua, setRua] = useState(dadosCadastro.endereco?.rua || "");
+    const [numero, setNumero] = useState(dadosCadastro.endereco?.numero || "");
+    const [complemento, setComplemento] = useState(dadosCadastro.endereco?.complemento || "");
+    const [bairro, setBairro] = useState(dadosCadastro.endereco?.bairro || "");
+    const [cidade, setCidade] = useState(dadosCadastro.endereco?.cidade || "");
+    const [estado, setEstado] = useState(dadosCadastro.endereco?.estado || "");
     const [cepValido, setCepValido] = useState(false);
     const telefoneNumeros = telefone.replace(/\D/g, "");
 
+    const avancarParaEtapa5 = () => {
+        // Salvar dados no contexto antes de avançar
+        atualizarDados({
+            telefone: telefoneNumeros,
+            endereco: {
+                cep,
+                rua,
+                numero,
+                complemento,
+                bairro,
+                cidade,
+                estado
+            }
+        });
+        router.push("/Cadastro/etapa5");
+    };
 
     const buscarCep = async (cepValue) => {
     const onlyNumbers = cepValue.replace(/\D/g, "");
@@ -155,12 +173,13 @@ export default function Etapa2() {
             <Footer
                 etapa={4}
                 totalEtapas={5}
-                onPress={() => router.push("/Cadastro/etapa5")}
+                onPress={avancarParaEtapa5}
                 disabled={
                     telefoneNumeros.length < 10 ||
                     !cepValido ||
                     rua.trim().length === 0 ||
                     numero.trim().length === 0 ||
+                    bairro.trim().length === 0 ||
                     cidade.trim().length === 0 ||
                     estado.trim().length === 0
                 }

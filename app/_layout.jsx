@@ -2,10 +2,46 @@ import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Drawer } from 'expo-router/drawer';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { AuthProvider, useAuth } from '../context/AuthContext';
+import { CadastroProvider } from '../context/CadastroContext';
 import { FilterProvider } from '../context/FilterContext';
+
+function RootLayoutNav() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#00C7BE' }}>
+        <ActivityIndicator size="large" color="#fff" />
+      </View>
+    );
+  }
+
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      {!user ? (
+        // Usuário NÃO logado - Telas
+        <>
+          <Stack.Screen name="index" />
+          <Stack.Screen name="Cadastro" />
+        </>
+      ) : (
+        // Usuário LOGADO - Telas
+        <>
+          <Stack.Screen name="tabs" />
+          <Stack.Screen name="CadastroServico" />
+          <Stack.Screen name="MeusPets" />
+          {/* Adicione outras telas protegidas aqui */}
+        </>
+      )}
+    </Stack>
+  );
+}
 
 export default function Layout() {
   return (
+    <AuthProvider>
+    <CadastroProvider>
     <FilterProvider>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <Drawer
@@ -158,5 +194,7 @@ export default function Layout() {
         </Drawer>
       </GestureHandlerRootView>
     </FilterProvider>
+    </CadastroProvider>
+    </AuthProvider>
   );
 }

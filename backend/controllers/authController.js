@@ -3,7 +3,15 @@ const User = require('../models/User');
 class AuthController {
   static async register(req, res) {
     try {
-      const { nome, email, senha, telefone, endereco } = req.body;
+      const { 
+      nome, 
+      sobrenome, 
+      email, 
+      senha, 
+      telefone, 
+      endereco,
+      tipoUsuario 
+    } = req.body;
 
       console.log('Tentativa de registro:', { nome, email });
 
@@ -17,7 +25,7 @@ class AuthController {
       }
 
       // Validar campos obrigatórios
-      if (!nome || !email || !senha) {
+      if (!nome || !sobrenome || !email || !senha || !tipoUsuario) {
         return res.status(400).json({
           success: false,
           error: 'Nome, email e senha são obrigatórios'
@@ -27,10 +35,12 @@ class AuthController {
       // Criar novo usuário (senha sem hash por enquanto)
       const newUser = new User({
         nome,
+        sobrenome, // NOVO CAMPO
         email,
-        senha, // ⚠️ TEMPORÁRIO - implementar bcrypt depois
+        senha,
         telefone,
         endereco,
+        tipoUsuario, // NOVO CAMPO
         ultimo_login: new Date()
       });
 
@@ -40,9 +50,11 @@ class AuthController {
       const userResponse = {
         _id: newUser._id,
         nome: newUser.nome,
+        sobrenome: newUser.sobrenome, 
         email: newUser.email,
         telefone: newUser.telefone,
         endereco: newUser.endereco,
+        tipoUsuario: newUser.tipoUsuario,
         data_cadastro: newUser.data_cadastro
       };
       

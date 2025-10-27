@@ -7,6 +7,10 @@ const UserSchema = new Schema({
     required: true,
     trim: true
   },
+  sobrenome: { 
+    type: String, 
+    required: true 
+  },
   email: {
     type: String,
     required: true,
@@ -26,17 +30,23 @@ const UserSchema = new Schema({
     cep: String,
     rua: String,
     numero: String,
+    complemento: String,
     bairro: String,
     cidade: String,
     estado: String
   },
+  tipoUsuario: {
+  type: String,
+  enum: ['Adotante', 'Protetor', 'Abrigo', 'Outro'],
+  required: true
+},
   data_cadastro: {
     type: Date,
     default: Date.now
-  },
+  }/*,
   ultimo_login: {
     type: Date
-  }
+  }*/
 });
 
 module.exports = mongoose.model('User', UserSchema);
