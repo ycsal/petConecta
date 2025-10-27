@@ -181,7 +181,7 @@ export default function CadastroPet() {
         >
           {/* Cabeçalho */}
           <View style={styles.header}>
-            <Text style={styles.headerTitle}>CADASTRO - PET</Text>
+            <Text style={styles.headerTitle}>Cadastro Pet</Text>
           </View>
 
           {/* Foto */}

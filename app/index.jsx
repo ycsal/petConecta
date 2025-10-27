@@ -72,7 +72,7 @@ export default function Index() {
         ) : (
           <EnterButton 
             title="Entrar" 
-            onPress={handleLogin} // ← MUDAR para handleLogin
+            onPress={router.navigate('tabs/match')} /*{handlelogin}*/
           />
         )}
       </View>

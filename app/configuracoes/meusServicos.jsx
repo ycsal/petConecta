@@ -101,13 +101,15 @@ export default function MeusServicos() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-    backgroundColor: "#fff",
+    backgroundColor: '#f8f8f8',
+    paddingHorizontal: 16,
+    paddingTop: 32,
+    gap: 10
   },
   title: {
     fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 16,
+    fontWeight: 'bold',
+    color: '#00C7BE',
   },
   card: {
     padding: 12,

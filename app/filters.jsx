@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { router } from 'expo-router';
+import { useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useFilters } from '../context/FilterContext';
 
 
@@ -50,6 +50,17 @@ export default function FiltersModal() {
       <Text style={styles.title}>Filtrar Animais</Text>
 
       <FilterGroup
+        title="Status"
+        options={[
+          { label: 'Para Adoção', value: 'Disponível para adoção' }, 
+          { label: 'Encontrado', value: 'Encontrado - Procurando dono' }, 
+          { label: 'Perdido', value: 'Perdido' }
+        ]}
+        selected={localFilters.status}
+        onSelect={(value) => handleSelect('status', value)}
+      />
+
+      <FilterGroup
         title="Sexo"
         options={[{ label: 'Macho', value: 'M' }, { label: 'Fêmea', value: 'F' }]}
         selected={localFilters.sexo}
@@ -76,8 +87,7 @@ export default function FiltersModal() {
         options={[{ label: 'Sim', value: true }, { label: 'Não', value: false }]}
         selected={localFilters.vacinado} 
         onSelect={(value) => handleSelect('vacinado', value)}
-      />
-    
+      />    
       
       <View style={styles.footerButtons}>
         <Pressable style={styles.applyButton} onPress={handleApply}>
@@ -95,7 +105,7 @@ export default function FiltersModal() {
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#fff', },
     scrollContent: { padding: 20, },
-    title: { fontSize: 28, fontWeight: 'bold', textAlign: 'center', marginBottom: 30, marginTop: 40, color: '#014946ff' },
+    title: { fontSize: 28, fontWeight: 'bold', textAlign: 'center', marginBottom: 30, marginTop: 40, color: '#00c7be' },
     groupContainer: { marginBottom: 25 },
     label: { fontSize: 18, fontWeight: '600', marginBottom: 15, color: '#333', },
     optionsContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },

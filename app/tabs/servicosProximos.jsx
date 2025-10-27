@@ -19,30 +19,39 @@ export default function ServicosProximos() {
   const prestadoresServico = [
     {
       id: 1,
-      nome: "João Silva - Taxi Dog",
+      nome: "João Silva - Transpopet",
       tipo: "Taxi Pet",
       bairro: "Centro",
       cidade: "Guarujá",
       estado: "SP",
-      telefone: "(13) 99999-9999"
+      telefone: "(13) 99999-9999",
+      descricao: "Serviço de transporte seguro e confortável para seu pet. Veículo adaptado com caixas de transporte e ar condicionado.",
+      valores: "R$ 30,00 por corrida",
+      observacoes: "Atendo emergências 24h"
     },
     {
       id: 2,
-      nome: "Maria Santos - Adestramento",
+      nome: "Maria Santos - Obedecão",
       tipo: "Adestrador",
       bairro: "Jardim Las Palmas",
       cidade: "Guarujá",
       estado: "SP",
-      telefone: "(13) 98888-8888"
+      telefone: "(13) 98888-8888",
+      descricao: "Adestramento profissional para cães de todas as raças e idades. Métodos positivos e sem violência.",
+      valores: "R$ 80,00 por aula",
+      observacoes: "Primeira aula experimental gratuita"
     },
     {
       id: 3,
-      nome: "Carlos Oliveira - Babá Pet",
-      tipo: "Pet Sitter",
+      nome: "Carlos Oliveira - Pet Sitter",
+      tipo: "Babá Pet",
       bairro: "Santo Antônio",
       cidade: "Guarujá",
       estado: "SP",
-      telefone: "(13) 97777-7777"
+      telefone: "(13) 97777-7777",
+      descricao: "Cuido do seu pet enquanto você viaja. Visitas diárias, alimentação, medicamentos e muito carinho.",
+      valores: "R$ 40,00 por visita",
+      observacoes: "Plantão de feriados e finais de semana"
     },
     {
       id: 4,
@@ -51,7 +60,10 @@ export default function ServicosProximos() {
       bairro: "Perequê",
       cidade: "Guarujá",
       estado: "SP",
-      telefone: "(13) 96666-6666"
+      telefone: "(13) 96666-6666",
+      descricao: "Passeios recreativos em parques e praças. Duração de 30min a 1hora, conforme necessidade do pet.",
+      valores: "R$ 25,00 por passeio",
+      observacoes: "Pacote semanal com desconto"
     },
     {
       id: 5,
@@ -60,7 +72,10 @@ export default function ServicosProximos() {
       bairro: "Jardim dos Pássaros",
       cidade: "Guarujá",
       estado: "SP",
-      telefone: "(13) 95555-5555"
+      telefone: "(13) 95555-5555",
+      descricao: "Hotelzinho familiar com amplo espaço externo. Acomodações individuais, alimentação especial e monitoramento 24h.",
+      valores: "R$ 60,00 diária",
+      observacoes: "Desconto para estadias longas"
     },
     {
       id: 6,
@@ -69,7 +84,10 @@ export default function ServicosProximos() {
       bairro: "Santa Rosa",
       cidade: "Guarujá",
       estado: "SP",
-      telefone: "(13) 94444-4444"
+      telefone: "(13) 94444-4444",
+      descricao: "Banho completo com produtos hipoalergênicos e tosa higiênica. Secagem adequada e cuidados com unhas e ouvidos.",
+      valores: "R$ 45,00 banho e tosa",
+      observacoes: "Agendamento prévio necessário"
     },
     {
       id: 7,
@@ -78,7 +96,10 @@ export default function ServicosProximos() {
       bairro: "Pitangueiras",
       cidade: "Guarujá",
       estado: "SP",
-      telefone: "(13) 93333-3333"
+      telefone: "(13) 93333-3333",
+      descricao: "Transporte especializado para pets. Viagens intermunicipais, consultas veterinárias e demais deslocamentos.",
+      valores: "R$ 2,50 por km",
+      observacoes: "Atendo toda a Baixada Santista"
     },
     {
       id: 8,
@@ -87,7 +108,10 @@ export default function ServicosProximos() {
       bairro: "Centro",
       cidade: "Guarujá",
       estado: "SP",
-      telefone: "(13) 92222-2222"
+      telefone: "(13) 92222-2222",
+      descricao: "Creche diária para pets. Atividades recreativas, socialização com outros animais e muito entretenimento.",
+      valores: "R$ 35,00 diária",
+      observacoes: "Horário flexível das 7h às 19h"
     }
   ];
 
@@ -112,7 +136,24 @@ export default function ServicosProximos() {
       .catch(err => console.error('Erro ao abrir app de telefone:', err));
   };
 
+  const abrirWhatsApp = (telefone) => {
+    const numeroLimpo = telefone.replace(/\D/g, '');
+    const url = `https://wa.me/55${numeroLimpo}`;
 
+    Linking.canOpenURL(url)
+      .then(supported => {
+        if (supported) {
+          Linking.openURL(url);
+        } else {
+          console.log('Não foi possível abrir o WhatsApp');
+        }
+      })
+      .catch(err => console.error('Erro ao abrir WhatsApp:', err));
+  };
+
+  const abrirDetalhesServico = (servico) => {
+    navigation.navigate('detalhesServico', { servico });
+  };
 
   return (
     <View style={styles.container}>
@@ -147,9 +188,16 @@ export default function ServicosProximos() {
       {/* Lista de Prestadores */}
       <ScrollView style={styles.listaContainer} showsVerticalScrollIndicator={false}>
         {prestadoresFiltrados.map((prestador) => (
-          <View key={prestador.id} style={styles.prestadorCard}>
+          <TouchableOpacity 
+            key={prestador.id} 
+            style={styles.prestadorCard}
+            onPress={() => abrirDetalhesServico(prestador)}
+          >
             <View style={styles.prestadorInfo}>
-              <Text style={styles.prestadorNome}>{prestador.nome}</Text>
+              <View style={styles.headerCard}>
+                <Text style={styles.prestadorNome}>{prestador.nome}</Text>
+                <Ionicons name="chevron-forward" size={16} color="#666" />
+              </View>
               <Text style={styles.prestadorTipo}>{prestador.tipo}</Text>
               <View style={styles.localizacaoContainer}>
                 <Ionicons name="location-outline" size={14} color="#666" />
@@ -163,15 +211,31 @@ export default function ServicosProximos() {
               </View>
             </View>
 
-            {/* Botão de Ligar */}
-            <TouchableOpacity
-              style={styles.ligarButton}
-              onPress={() => fazerLigacao(prestador.telefone)}
-            >
-              <Ionicons name="call" size={18} color="#fff" />
-              <Text style={styles.ligarButtonText}>Ligar</Text>
-            </TouchableOpacity>
-          </View>
+            {/* Botões de Ação - Lado a Lado */}
+            <View style={styles.botoesAcao}>
+              <TouchableOpacity
+                style={styles.ligarButton}
+                onPress={(e) => {
+                  e.stopPropagation(); // Impede que o clique propague para o card
+                  fazerLigacao(prestador.telefone);
+                }}
+              >
+                <Ionicons name="call" size={18} color="#fff" />
+                <Text style={styles.ligarButtonText}>Ligar</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={styles.whatsappButton}
+                onPress={(e) => {
+                  e.stopPropagation(); // Impede que o clique propague para o card
+                  abrirWhatsApp(prestador.telefone);
+                }}
+              >
+                <Ionicons name="logo-whatsapp" size={18} color="#fff" />
+                <Text style={styles.whatsappButtonText}>WhatsApp</Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
         ))}
       </ScrollView>
 
@@ -251,6 +315,12 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 2,
   },
+  headerCard: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
   prestadorInfo: {
     flex: 1,
     marginBottom: 12,
@@ -259,7 +329,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 4,
+    flex: 1,
   },
   prestadorTipo: {
     fontSize: 14,
@@ -287,7 +357,13 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     marginLeft: 6,
   },
+  // NOVOS ESTILOS PARA OS BOTÕES LADO A LADO
+  botoesAcao: {
+    flexDirection: 'row',
+    gap: 10,
+  },
   ligarButton: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -297,6 +373,21 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   ligarButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 16,
+  },
+  whatsappButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#25D366',
+    paddingVertical: 10,
+    borderRadius: 8,
+    gap: 8,
+  },
+  whatsappButtonText: {
     color: '#fff',
     fontWeight: '600',
     fontSize: 16,

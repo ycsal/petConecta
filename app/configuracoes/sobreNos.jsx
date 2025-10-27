@@ -6,25 +6,21 @@ export default function SobreNos() {
     const equipe = [
         {
             nome: "Arthur D. R. Fabri",
-            telefone: "13 98106-8898",
             email: "arthurdrfabri@gmail.com",
             foto: require("../../assets/images/arthur.jpg")
         },
         {
             nome: "Bruno C. Peres",
-            telefone: "13 97417-7986",
             email: "bruno.perescp@gmail.com",
             foto: require("../../assets/images/bruno.jpg")
         },
         {
             nome: "Nathan H. M. Rodrigues",
-            telefone: "13 98229-0059",
             email: "nathan.holtz0805@gmail.com",
             foto: require("../../assets/images/nathan.jpg")
         },
         {
             nome: "Yasmin C. Salgado",
-            telefone: "13 97409-8877",
             email: "yascsalgado@gmail.com",
             foto: require("../../assets/images/yasmin.jpg")
         },
@@ -45,7 +41,6 @@ export default function SobreNos() {
                         index % 2 === 0 ? styles.textoEsquerda : styles.textoDireita
                     ]}>
                         <Text style={styles.nome}>{pessoa.nome}</Text>
-                        <Text style={styles.texto}>{pessoa.telefone}</Text>
                         <Text style={styles.texto}>{pessoa.email}</Text>
                     </View>
                 </View>

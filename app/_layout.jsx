@@ -63,15 +63,15 @@ export default function Layout() {
           />
           <Drawer.Screen
             name="configuracoes/meusServicos"
-            options={{ drawerLabel: 'Meus Serviços', title: "Meus Serviços" }}
-          />
-          <Drawer.Screen
-            name="configuracoes/sobreNos"
-            options={{ drawerLabel: 'Sobre Nós', title: "Sobre Nós" }}
+            options={{ drawerLabel: 'Meus Serviços', title: "" }}
           />
           <Drawer.Screen
             name="configuracoes/minhaConta"
             options={{ drawerLabel: 'Minha Conta', title: "Minha Conta" }}
+          />
+          <Drawer.Screen
+            name="configuracoes/sobreNos"
+            options={{ drawerLabel: 'Sobre Nós', title: "Sobre Nós" }}
           />
           <Drawer.Screen
             name="CadastroPet/index"
@@ -85,7 +85,10 @@ export default function Layout() {
           />
           <Drawer.Screen
             name="pet/[id]" 
-            options={{ drawerItemStyle: { display: 'none' }, title: "Detalhes do Pet" }}
+            options={{ drawerItemStyle: { display: 'none' }, title: "Detalhes do Pet",
+          headerLeft: () => (
+                <Ionicons name='arrow-back' size={24} color='#00C7BE' style={{ marginLeft: 16 }} onPress={() => router.navigate('tabs/meusMatches')} />
+              ) }}
           />
           <Drawer.Screen
             name="Cadastro/etapa1"
@@ -190,6 +193,29 @@ export default function Layout() {
               }
             }}
           />
+
+          <Drawer.Screen
+            name="perfilProtetor"
+            options={{
+              drawerItemStyle: { display: 'none' },
+              title: '',
+              headerLeft: () => {
+                return <Ionicons name='arrow-back' size={24} color='#00C7BE' style={{ marginLeft: 16 }} onPress={() => router.navigate('/tabs')} />
+              }
+            }}
+          />
+
+          <Drawer.Screen
+            name="detalhesServico"
+            options={{
+              drawerItemStyle: { display: 'none' },
+              title: '',
+              headerLeft: () => {
+                return <Ionicons name='arrow-back' size={24} color='#00C7BE' style={{ marginLeft: 16 }} onPress={() => router.navigate('/tabs')} />
+              }
+            }}
+          />
+          
 
         </Drawer>
       </GestureHandlerRootView>

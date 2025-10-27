@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, ActivityIndicator, ScrollView, Pressable, Linking, Alert } from 'react-native';
-import { useLocalSearchParams, Stack, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { Stack, router, useLocalSearchParams } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, Image, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 // ATENÇÃO: Use 'localhost' para o navegador web ou SEU IP para o celular/emulador.
 const API_URL = 'http://localhost:3001/api/pets';
@@ -49,6 +49,35 @@ export default function PetDetail() {
       });
     } else {
          Alert.alert("Contato", "Telefone não disponível.");
+    }
+  };
+
+  // Função para abrir WhatsApp
+  const handleWhatsApp = () => {
+    if (pet?.id_usuario?.telefone) {
+      const phoneNumber = pet.id_usuario.telefone.replace(/\D/g, '');
+      const url = `https://wa.me/55${phoneNumber}`;
+      
+      Linking.canOpenURL(url)
+        .then(supported => {
+          if (supported) {
+            Linking.openURL(url);
+          } else {
+            Alert.alert('Erro', 'Não foi possível abrir o WhatsApp');
+          }
+        })
+        .catch(err => console.error('Erro ao abrir WhatsApp:', err));
+    } else {
+      Alert.alert("Contato", "Telefone não disponível.");
+    }
+  };
+
+  // Função para navegar para o perfil do protetor
+  const handleViewProtectorProfile = () => {
+    if (pet?.id_usuario?._id) {
+      router.push(`/perfilProtetor/${pet.id_usuario._id}`);
+    } else {
+      Alert.alert("Erro", "Informações do protetor não disponíveis.");
     }
   };
 
@@ -114,16 +143,75 @@ export default function PetDetail() {
           </View>
         </View>
 
-        <Text style={styles.contactTitle}>Contato do Responsável</Text>
-        <Text style={styles.contactName}>{pet.id_usuario?.nome || 'Nome não informado'}</Text>
-        {pet.id_usuario?.telefone ? (
-          <Pressable style={styles.callButton} onPress={handleCall}>
-            <Ionicons name="call" size={20} color="#fff" />
-            <Text style={styles.callButtonText}>{pet.id_usuario.telefone}</Text>
+        {/* SEÇÃO DE INFORMAÇÕES DO PRESTADOR (SUBSTITUIU CONTATO DO RESPONSÁVEL) */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Informações do Prestador</Text>
+          
+          <View style={styles.infoRow}>
+            <Ionicons name="person" size={18} color="#666" />
+            <Text style={styles.infoText}>{pet.id_usuario?.nome || 'Nome não informado'}</Text>
+          </View>
+          
+          <View style={styles.infoRow}>
+            <Ionicons name="call" size={18} color="#666" />
+            <Text style={styles.infoText}>{pet.id_usuario?.telefone || 'Telefone não informado'}</Text>
+          </View>
+          
+          <View style={styles.infoRow}>
+            <Ionicons name="location" size={18} color="#666" />
+            <Text style={styles.infoText}>
+              {pet.id_usuario?.cidade && pet.id_usuario?.estado 
+                ? `${pet.id_usuario.cidade} - ${pet.id_usuario.estado}`
+                : 'Localização não informada'
+              }
+            </Text>
+          </View>
+
+          {/* BOTÃO PARA VER PERFIL DO PRESTADOR */}
+          <Pressable 
+            style={styles.verPerfilButton}
+            onPress={handleViewProtectorProfile}
+          >
+            <Ionicons name="person-circle-outline" size={20} color="#00C7BE" />
+            <Text style={styles.verPerfilButtonText}>Ver Perfil Completo</Text>
+            <Ionicons name="chevron-forward" size={16} color="#00C7BE" />
           </Pressable>
-        ) : (
-          <Text style={styles.contactInfoNA}>Telefone não disponível</Text>
-        )}
+        </View>
+      </View>
+
+      {/* Botões de Ação */}
+      <View style={styles.botoesContainer}>
+        <Pressable 
+          style={styles.ligarButton}
+          onPress={handleCall}
+        >
+          <Ionicons name="call" size={20} color="#fff" />
+          <Text style={styles.botaoTexto}>Ligar</Text>
+        </Pressable>
+        
+        <Pressable 
+          style={styles.whatsappButton}
+          onPress={handleWhatsApp}
+        >
+          <Ionicons name="logo-whatsapp" size={20} color="#fff" />
+          <Text style={styles.botaoTexto}>WhatsApp</Text>
+        </Pressable>
+      </View>
+
+      {/* Informações de Contato */}
+      <View style={styles.card}>
+        <Text style={styles.sectionTitle}>Entre em Contato</Text>
+        <Text style={styles.contatoInfo}>
+          Entre em contato diretamente com {pet.id_usuario?.nome || 'o responsável'} para 
+          esclarecer dúvidas sobre {pet.nome}.
+        </Text>
+        
+        <View style={styles.contatoDestaque}>
+          <Ionicons name="call" size={16} color="#00C7BE" />
+          <Text style={styles.contatoDestaqueText}>
+            {pet.id_usuario?.telefone || 'Telefone não disponível'}
+          </Text>
+        </View>
       </View>
     </ScrollView>
   );
@@ -133,7 +221,8 @@ export default function PetDetail() {
 const styles = StyleSheet.create({
     container: { 
         flex: 1, 
-        backgroundColor: '#fff',
+        backgroundColor: '#f8f8f8',
+        paddingTop: 32,
     },
     center: { 
         flex: 1, 
@@ -227,44 +316,110 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#555',
     },
-    contactTitle: { 
-        fontSize: 22, 
-        fontWeight: '600', 
-        marginTop: 25, 
-        marginBottom: 10, 
-        color: '#333',
+    // NOVOS ESTILOS DA SEÇÃO DE INFORMAÇÕES DO PRESTADOR
+    section: {
+        marginBottom: 24,
+        marginTop: 25,
         borderTopColor: '#eee',
         borderTopWidth: 1,
         paddingTop: 20,
     },
-    contactName: {
-        fontSize: 18,
-        fontWeight: '500',
-        color: '#444',
-        marginBottom: 10,
+    sectionTitle: {
+        fontSize: 22,
+        fontWeight: '600',
+        color: '#333',
+        marginBottom: 12,
     },
-    callButton: { 
-        flexDirection: 'row', 
-        backgroundColor: '#00C7BE', 
-        paddingVertical: 12, 
-        paddingHorizontal: 20, 
-        borderRadius: 8, 
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        alignSelf: 'flex-start',
-        marginTop: 5,
-        elevation: 2,
+    infoRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 12,
     },
-    callButtonText: { 
-        color: '#fff', 
-        fontSize: 16, 
-        fontWeight: 'bold', 
-        marginLeft: 10 
+    infoText: {
+        fontSize: 14,
+        color: '#333',
+        marginLeft: 8,
+        flex: 1,
     },
-    contactInfoNA: {
+    verPerfilButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        backgroundColor: '#f0f9f9',
+        padding: 12,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#00C7BE',
+        marginTop: 8,
+    },
+    verPerfilButtonText: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#00C7BE',
+        flex: 1,
+        textAlign: 'center',
+    },
+    botoesContainer: {
+        flexDirection: 'row',
+        padding: 16,
+        gap: 12,
+    },
+    ligarButton: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#00C7BE',
+        paddingVertical: 14,
+        borderRadius: 8,
+        gap: 8,
+    },
+    whatsappButton: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#25D366',
+        paddingVertical: 14,
+        borderRadius: 8,
+        gap: 8,
+    },
+    botaoTexto: {
+        color: '#fff',
+        fontWeight: '600',
         fontSize: 16,
-        color: '#888',
-        fontStyle: 'italic',
-        marginTop: 5,
+    },
+    card: {
+        backgroundColor: '#fff',
+        borderRadius: 12,
+        padding: 20,
+        margin: 16,
+        marginBottom: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    contatoInfo: {
+        fontSize: 14,
+        color: '#666',
+        lineHeight: 20,
+        marginBottom: 12,
+    },
+    contatoDestaque: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#f0f9f9',
+        padding: 12,
+        borderRadius: 8,
+        borderLeftWidth: 4,
+        borderLeftColor: '#00C7BE',
+    },
+    contatoDestaqueText: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#00C7BE',
+        marginLeft: 8,
     },
 });
