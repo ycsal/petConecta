@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import Swiper from 'react-native-deck-swiper';
 import { PetCard } from '../../components/PetCard/index';
-import { useFilters } from '../../context/FilterContext'; // NOVO: Para usar os filtros
+import { useFilters } from '../../context/FilterContext';
 
 // A URL da API está aqui dentro do arquivo.
 const API_URL = 'http://localhost:3001/api/pets';
@@ -15,10 +15,10 @@ export default function Match() {
   const [error, setError] = useState(null);
   const swiperRef = useRef(null);
 
-  // NOVO: Lendo os filtros do estado global
+  
   const { filters } = useFilters();
 
-  // ALTERADO: A função de busca agora envia os filtros para o backend
+ 
   const fetchPets = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -92,7 +92,7 @@ export default function Match() {
 
   return (
     <View style={styles.container}>
-      {/* NOVO: Botão para abrir a tela de filtros */}
+     
       <Pressable style={styles.filterButton} onPress={() => router.push('/filters')}>
         <Ionicons name="filter" size={24} color="#333" />
       </Pressable>
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
     borderColor: '#00C7BE',
     borderWidth: 2,
   },
-  // NOVO: Estilo para o botão de filtro
+  
   filterButton: {
     position: 'absolute',
     top: 5,
