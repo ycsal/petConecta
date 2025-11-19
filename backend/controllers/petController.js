@@ -9,9 +9,13 @@ class PetController {
   try {
     
     const { sexo, porte, castrado, vacinado } = req.query; 
-    
-    const filterQuery = {};
 
+  
+    const filterQuery = {
+      status: { $in: ['Perdido', 'Disponível'] }
+    };
+    
+    
     if (sexo) filterQuery.sexo = sexo;
     if (porte) filterQuery.porte = porte;
     if (castrado) filterQuery.castrado = castrado === 'true';
@@ -21,7 +25,7 @@ class PetController {
     
     res.json(pets);
   } catch (err) {
-    // ...
+    console.error(err.message);
   }
 }
 
