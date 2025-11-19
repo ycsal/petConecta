@@ -30,7 +30,7 @@ export default function Etapa5() {
     if (resultado.success) {
       limparDados();
       // Redirecionar para a tela principal
-      router.push("/Cadastro/etapaServico");
+      router.push("../tabs/match");
     }
   };
 
