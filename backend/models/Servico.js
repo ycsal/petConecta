@@ -19,6 +19,8 @@ const ServicoSchema = new Schema({
     type: String,
     required: true
   },
+  telefone: { type: String,
+     required: true },
   bairro: String,
   cidade: String,
   estado: String,

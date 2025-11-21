@@ -11,13 +11,14 @@ class ServicoController {
         bairro,
         cidade,
         estado,
+        telefone,
         valores,
         observacoesValores,
         status = 'Ativo'
       } = req.body;
 
       // Validar campos obrigatórios
-      if (!id_usuario || !titulo || !descricao || !nomeUsuario) {
+      if (!id_usuario || !titulo || !descricao || !nomeUsuario || !telefone) {
         return res.status(400).json({
           success: false,
           error: 'Campos obrigatórios faltando'
@@ -33,6 +34,7 @@ class ServicoController {
         cidade,
         estado,
         valores,
+        telefone,
         observacoesValores,
         status
       });
@@ -69,6 +71,41 @@ class ServicoController {
         success: false,
         error: 'Erro no servidor ao buscar serviços'
       });
+    }
+  }
+
+  static async updateServico(req, res) {
+    const { id } = req.params;
+    const updateData = req.body;
+
+    try {
+      const servico = await Servico.findByIdAndUpdate(id, updateData, { new: true });
+
+      if (!servico) {
+        return res.status(404).json({ success: false, error: 'Serviço não encontrado' });
+      }
+
+      res.json({ success: true, servico, message: 'Serviço atualizado com sucesso' });
+    } catch (err) {
+      console.error('Erro ao atualizar serviço:', err);
+      res.status(500).json({ success: false, error: 'Erro ao atualizar serviço' });
+    }
+  }
+
+  static async deleteServico(req, res) {
+    const { id } = req.params;
+
+    try {
+      const servico = await Servico.findByIdAndDelete(id);
+
+      if (!servico) {
+        return res.status(404).json({ success: false, error: 'Serviço não encontrado' });
+      }
+
+      res.json({ success: true, message: 'Serviço excluído com sucesso' });
+    } catch (err) {
+      console.error('Erro ao deletar serviço:', err);
+      res.status(500).json({ success: false, error: 'Erro ao deletar serviço' });
     }
   }
 }

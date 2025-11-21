@@ -1,8 +1,10 @@
-import { useNavigation } from "@react-navigation/native";
-import { useState } from "react";
+// MUDANÇA 1: Importar useRouter do expo-router
+import { useRoute } from '@react-navigation/native';
+import { useRouter } from 'expo-router'; 
+import * as ImagePicker from 'expo-image-picker';
+import { useState, useEffect } from "react";
 import {
   Alert,
-  Keyboard,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -10,27 +12,53 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  TouchableWithoutFeedback,
-  View
+  View,
+  ActivityIndicator
 } from "react-native";
-// import { useAuth } from "../contexts/AuthContext"; // Para pegar dados do usuário logado
+
+// URL da API
+const API_URL = "http://localhost:3001/api/servicos";
 
 export default function CadastroServico() {
-  const navigation = useNavigation();
-  // const { user } = useAuth(); // Obter usuário logado
+  // MUDANÇA 2: Usar o router em vez de navigation
+  const router = useRouter();
+  const route = useRoute(); 
+  const [loading, setLoading] = useState(false);
+
+  // Verifica se estamos editando
+  const servicoParaEditar = route.params?.servicoParaEditar;
+  const isEditing = !!servicoParaEditar;
+
+  // ID do usuário fixo
+  const userId = "64f3e2a7c9d1f2b4a1e5f6a7";
 
   const [servicoData, setServicoData] = useState({
     titulo: "",
     descricao: "",
-    preco: "",
-    nomeUsuario: "", // Preenche automaticamente com nome do usuário
-    telefone: "", // NOVO CAMPO: telefone para contato
+    nomeUsuario: "",
+    telefone: "",
     bairro:  "",
     cidade:  "",
     estado: "",
-    valores: "", // Campo para valores/contato
-    observacoesValores: "" // Descrição dos valores
+    valores: "",
+    observacoesValores: ""
   });
+
+  useEffect(() => {
+    if (isEditing) {
+      setServicoData({
+        titulo: servicoParaEditar.titulo || "",
+        descricao: servicoParaEditar.descricao || "",
+        nomeUsuario: servicoParaEditar.nomeUsuario || "",
+        telefone: servicoParaEditar.telefone || "",
+        bairro: servicoParaEditar.bairro || "",
+        cidade: servicoParaEditar.cidade || "",
+        estado: servicoParaEditar.estado || "",
+        valores: servicoParaEditar.valores || "",
+        observacoesValores: servicoParaEditar.observacoesValores || ""
+      });
+    }
+  }, [servicoParaEditar]);
 
   const handleChange = (field, value) => {
     setServicoData(prev => ({
@@ -40,64 +68,77 @@ export default function CadastroServico() {
   };
 
   const handleSalvar = async () => {
-    // Validação básica
     if (!servicoData.titulo || !servicoData.descricao || !servicoData.nomeUsuario) {
       Alert.alert("Atenção", "Preencha pelo menos o título, descrição e seu nome.");
       return;
     }
 
-    // Validação do telefone (opcional, mas se preenchido deve ter formato válido)
-    if (servicoData.telefone && !/^\(?\d{2}\)?[\s-]?\d{4,5}-?\d{4}$/.test(servicoData.telefone)) {
-      Alert.alert("Atenção", "Por favor, insira um telefone válido (ex: (11) 99999-9999)");
-      return;
-    }
+    setLoading(true);
 
     try {
-    /*
-      // TODO: integrar com backend - endpoint precisa ser criado
-      const response = await fetch("http://SEU_IP_LOCAL:3001/api/servicos", {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...servicoData,
-          id_usuario: user?._id, // ID do usuário logado
-          status: "Ativo" // Status padrão
-        }),
-      });
+      const dadosParaEnviar = {
+        id_usuario: userId,
+        titulo: servicoData.titulo,
+        descricao: servicoData.descricao,
+        nomeUsuario: servicoData.nomeUsuario,
+        telefone: servicoData.telefone,
+        bairro: servicoData.bairro,
+        cidade: servicoData.cidade,
+        estado: servicoData.estado,
+        valores: servicoData.valores,
+        observacoesValores: servicoData.observacoesValores,
+        status: "Ativo"
+      };
+
+      let response;
+
+      if (isEditing) {
+        response = await fetch(`${API_URL}/${servicoParaEditar._id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(dadosParaEnviar),
+        });
+      } else {
+        response = await fetch(`${API_URL}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(dadosParaEnviar),
+        });
+      }
+
+      const data = await response.json();
 
       if (response.ok) {
-        Alert.alert("Sucesso", "Serviço cadastrado com sucesso!");
-        navigation.goBack();
-      } else {
-        const errorData = await response.json();
-        Alert.alert("Erro", errorData.error || "Erro ao cadastrar serviço");
-      } 
-    } catch (error) {
-      console.log("Erro ao cadastrar serviço:", error);
-      Alert.alert("Erro", "Não foi possível conectar ao servidor");
-    }
-    */
+        const mensagem = isEditing ? "Serviço atualizado com sucesso!" : "Serviço cadastrado com sucesso!";
+        
 
-    // Apagar essa parte quando tiver integração com backend
-    console.log("Dados que seriam enviados:", servicoData);
-      Alert.alert("Sucesso (Simulação)", "Serviço cadastrado com sucesso!\n\nDados:\n" + 
-        `Título: ${servicoData.titulo}\n` +
-        `Descrição: ${servicoData.descricao}\n` +
-        `Nome: ${servicoData.nomeUsuario}\n` +
-        `Telefone: ${servicoData.telefone || 'Não informado'}\n` +
-        `Bairro: ${servicoData.bairro}\n` +
-        `Cidade: ${servicoData.cidade}\n` +
-        `Estado: ${servicoData.estado}\n` +
-        `Valores: ${servicoData.valores}\n` +
-        `Observações: ${servicoData.observacoesValores}`
-      );
-      navigation.goBack();
-      
+        const navigateToServices = () => {
+             
+             router.replace('/meusServicos');
+        };
+
+        if (Platform.OS === 'web') {
+            alert(mensagem);
+            navigateToServices();
+        } else {
+            Alert.alert("Sucesso", mensagem, [
+                { text: "OK", onPress: navigateToServices }
+            ]);
+        }
+        // -------------------------------------------
+
+      } else {
+        const errorMsg = data.error || "Erro ao salvar serviço";
+        if (Platform.OS === 'web') alert(`Erro: ${errorMsg}`);
+        else Alert.alert("Erro", errorMsg);
+      } 
+
     } catch (error) {
-      console.log("Erro ao cadastrar serviço:", error);
-      Alert.alert("Erro", "Não foi possível conectar ao servidor");
+      console.log("Erro ao salvar serviço:", error);
+      if (Platform.OS === 'web') alert("Erro: Não foi possível conectar ao servidor");
+      else Alert.alert("Erro", "Não foi possível conectar ao servidor");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -107,102 +148,109 @@ export default function CadastroServico() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 100}
     >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <ScrollView 
-          style={styles.scrollView} 
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
+      <ScrollView 
+        style={styles.scrollView} 
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        <Text style={styles.title}>
+            {isEditing ? "Editar Serviço" : "Cadastrar Serviço"}
+        </Text>
+
+        <Text style={styles.sectionTitle}>Informações do Serviço</Text>
+        
+        <TextInput 
+          style={styles.input} 
+          placeholder="Título do serviço *" 
+          value={servicoData.titulo} 
+          onChangeText={(text) => handleChange("titulo", text)} 
+        />
+        
+        <TextInput 
+          style={[styles.input, styles.textArea]} 
+          placeholder="Descrição detalhada do serviço *" 
+          value={servicoData.descricao} 
+          onChangeText={(text) => handleChange("descricao", text)} 
+          multiline 
+          numberOfLines={4}
+        />
+
+        <Text style={styles.sectionTitle}>Valores e Contato</Text>
+        
+        <TextInput 
+          style={styles.input} 
+          placeholder="Valores (ex: R$ 50,00 hora | A combinar | Gratuito)" 
+          value={servicoData.valores} 
+          onChangeText={(text) => handleChange("valores", text)} 
+        />
+        
+        <TextInput 
+          style={[styles.input, styles.textArea]} 
+          placeholder="Observações sobre valores (forma de pagamento, condições, etc.)" 
+          value={servicoData.observacoesValores} 
+          onChangeText={(text) => handleChange("observacoesValores", text)} 
+          multiline 
+          numberOfLines={3}
+        />
+
+        <Text style={styles.sectionTitle}>Seus Dados para Contato</Text>
+        
+        <TextInput 
+          style={styles.input} 
+          placeholder="Seu nome *" 
+          value={servicoData.nomeUsuario} 
+          onChangeText={(text) => handleChange("nomeUsuario", text)} 
+        />
+        
+        <TextInput 
+          style={styles.input} 
+          placeholder="Telefone para contato (ex: (11) 99999-9999) *" 
+          value={servicoData.telefone} 
+          onChangeText={(text) => handleChange("telefone", text)} 
+          keyboardType="phone-pad"
+        />
+        
+        <View style={styles.row}>
+          <TextInput 
+            style={[styles.input, styles.halfInput]} 
+            placeholder="Bairro *" 
+            value={servicoData.bairro} 
+            onChangeText={(text) => handleChange("bairro", text)} 
+          />
+          <TextInput 
+            style={[styles.input, styles.halfInput]} 
+            placeholder="Cidade *" 
+            value={servicoData.cidade} 
+            onChangeText={(text) => handleChange("cidade", text)} 
+          />
+        </View>
+        
+        <TextInput 
+          style={styles.input} 
+          placeholder="Estado *" 
+          value={servicoData.estado} 
+          onChangeText={(text) => handleChange("estado", text)} 
+        />
+
+        <Text style={styles.obs}>
+          * Campos obrigatórios{'\n'}
+          Seus dados de contato serão visíveis para outros usuários interessados no serviço.
+        </Text>
+
+        <TouchableOpacity 
+            style={styles.button} 
+            onPress={handleSalvar}
+            disabled={loading}
         >
-          <Text style={styles.title}>Cadastrar Serviço</Text>
-
-          {/* Informações Básicas do Serviço */}
-          <Text style={styles.sectionTitle}>Informações do Serviço</Text>
-          
-          <TextInput 
-            style={styles.input} 
-            placeholder="Título do serviço *" 
-            value={servicoData.titulo} 
-            onChangeText={(text) => handleChange("titulo", text)} 
-          />
-          
-          <TextInput 
-            style={[styles.input, styles.textArea]} 
-            placeholder="Descrição detalhada do serviço *" 
-            value={servicoData.descricao} 
-            onChangeText={(text) => handleChange("descricao", text)} 
-            multiline 
-            numberOfLines={4}
-          />
-
-          {/* Informações de Contato/Valores */}
-          <Text style={styles.sectionTitle}>Valores e Contato</Text>
-          
-          <TextInput 
-            style={styles.input} 
-            placeholder="Valores (ex: R$ 50,00 hora | A combinar | Gratuito)" 
-            value={servicoData.valores} 
-            onChangeText={(text) => handleChange("valores", text)} 
-          />
-          
-          <TextInput 
-            style={[styles.input, styles.textArea]} 
-            placeholder="Observações sobre valores (forma de pagamento, condições, etc.)" 
-            value={servicoData.observacoesValores} 
-            onChangeText={(text) => handleChange("observacoesValores", text)} 
-            multiline 
-            numberOfLines={3}
-          />
-
-          {/* Informações Pessoais */}
-          <Text style={styles.sectionTitle}>Seus Dados para Contato</Text>
-          
-          <TextInput 
-            style={styles.input} 
-            placeholder="Seu nome *" 
-            value={servicoData.nomeUsuario} 
-            onChangeText={(text) => handleChange("nomeUsuario", text)} 
-          />
-          
-          <TextInput 
-            style={styles.input} 
-            placeholder="Telefone para contato (ex: (11) 99999-9999) *" 
-            value={servicoData.telefone} 
-            onChangeText={(text) => handleChange("telefone", text)} 
-            keyboardType="phone-pad"
-          />
-          
-          <View style={styles.row}>
-            <TextInput 
-              style={[styles.input, styles.halfInput]} 
-              placeholder="Bairro *" 
-              value={servicoData.bairro} 
-              onChangeText={(text) => handleChange("bairro", text)} 
-            />
-            <TextInput 
-              style={[styles.input, styles.halfInput]} 
-              placeholder="Cidade *" 
-              value={servicoData.cidade} 
-              onChangeText={(text) => handleChange("cidade", text)} 
-            />
-          </View>
-          
-          <TextInput 
-            style={styles.input} 
-            placeholder="Estado *" 
-            value={servicoData.estado} 
-            onChangeText={(text) => handleChange("estado", text)} 
-          />
-
-          <Text style={styles.obs}>
-            * Campos obrigatórios{'\n'}
-            Seus dados de contato serão visíveis para outros usuários interessados no serviço.
-          </Text>
-
-          <TouchableOpacity style={styles.button} onPress={handleSalvar}>
-            <Text style={styles.buttonText}>Salvar Serviço</Text>
-          </TouchableOpacity>
-        </ScrollView>
-      </TouchableWithoutFeedback>
+          {loading ? (
+            <ActivityIndicator color="#FFF" />
+          ) : (
+            <Text style={styles.buttonText}>
+                {isEditing ? "Atualizar Serviço" : "Salvar Serviço"}
+            </Text>
+          )}
+        </TouchableOpacity>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
