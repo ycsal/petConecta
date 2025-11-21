@@ -52,8 +52,8 @@ export default function FiltersModal() {
       <FilterGroup
         title="Status"
         options={[
-          { label: 'Para Adoção', value: 'Disponível para adoção' }, 
-          { label: 'Encontrado', value: 'Encontrado - Procurando dono' }, 
+          { label: 'Para Adoção', value: 'Disponível' }, 
+          { label: 'Encontrado', value: 'Encontrado' }, 
           { label: 'Perdido', value: 'Perdido' }
         ]}
         selected={localFilters.status}

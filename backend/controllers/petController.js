@@ -8,14 +8,18 @@ class PetController {
   static async getAllPets(req, res) {
   try {
     
-    const { sexo, porte, castrado, vacinado } = req.query; 
+    const { sexo, porte, castrado, vacinado, status } = req.query;  
 
-  
-    const filterQuery = {
-      status: { $in: ['Perdido', 'Disponível'] }
-    };
-    
-    
+      const filterQuery = {};
+     
+      if (status) {
+        
+        filterQuery.status = status;
+      } else {
+        
+        filterQuery.status = { $in: ['Disponível', 'Perdido'] };
+      }
+      
     if (sexo) filterQuery.sexo = sexo;
     if (porte) filterQuery.porte = porte;
     if (castrado) filterQuery.castrado = castrado === 'true';
@@ -28,7 +32,6 @@ class PetController {
     console.error(err.message);
   }
 }
-
   static async getPetById(req, res) {
     try {
       const petId = req.params.id; // Pega o ID da URL (ex: /api/pets/12345)
@@ -54,7 +57,6 @@ class PetController {
       res.status(500).send('Erro no Servidor ao buscar o pet.');
     }
   }
-
   static async createMatch(req, res) {
    //front envia userId e petId no corpo da requisição
     const { userId, petId } = req.body;
@@ -81,8 +83,6 @@ class PetController {
       res.status(500).send('Erro no Servidor ao salvar o match.');
     }
   }
-
-
   static async getMyMatches(req, res) {
       const { userId } = req.params;
 
@@ -163,7 +163,42 @@ class PetController {
       res.status(500).send('Erro no Servidor ao criar pet');
     }
   }
+  static async updatePet(req, res) {
+    const { id } = req.params; // Pega o ID que veio na URL
+    const updateData = req.body; // Pega os dados novos
 
+    try {
+      // findByIdAndUpdate: Busca pelo ID e atualiza com os dados novos
+      // { new: true }: Retorna o pet já atualizado
+      // { runValidators: true }: Garante que as regras (como enum 'M'/'F') sejam respeitadas
+      const pet = await Pet.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
+
+      if (!pet) {
+        return res.status(404).json({ message: 'Pet não encontrado.' });
+      }
+
+      res.json(pet);
+    } catch (err) {
+      console.error('Erro ao atualizar:', err.message);
+      res.status(500).json({ message: 'Erro ao atualizar pet', error: err.message });
+    }
+  }
+  static async deletePet(req, res) {
+    const { id } = req.params;
+
+    try {
+      const pet = await Pet.findByIdAndDelete(id);
+
+      if (!pet) {
+        return res.status(404).json({ message: 'Pet não encontrado.' });
+      }
+
+      res.json({ message: 'Pet excluído com sucesso!' });
+    } catch (err) {
+      console.error('Erro ao deletar:', err.message);
+      res.status(500).json({ message: 'Erro ao deletar pet', error: err.message });
+    }
+  }
 
 }
 

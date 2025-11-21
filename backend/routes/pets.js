@@ -20,4 +20,10 @@ router.get('/meus/:userId', PetController.getMyPets);
 // Rota para criar um novo pet
 router.post('/', PetController.createPet);
 
+// Rota para atualizar um pet pelo ID
+router.patch('/:id', PetController.updatePet);
+
+// Rota para excluir um pet pelo ID
+router.delete('/:id', PetController.deletePet);
+
 module.exports = router;

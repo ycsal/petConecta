@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native"; // Adicione esta importação
-import { useEffect, useState } from "react";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import { useState, useCallback } from "react";
 import {
   FlatList,
   Image,
@@ -8,9 +8,12 @@ import {
   Text,
   TouchableOpacity,
   View,
+  ActivityIndicator,
+  Alert,
+  Platform // <--- 1. ADICIONADO AQUI
 } from "react-native";
 
-// URL da sua API Node.js
+// URL base da API
 const API_URL = "http://localhost:3001/api/pets";
 
 export default function MeusPets() {
@@ -18,89 +21,195 @@ export default function MeusPets() {
   const [pets, setPets] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // TEMPORÁRIO: ID do usuário fixo para testes
-  // DEPOIS você substituirá por um contexto de autenticação
-  const userId = "01"; // ← SUBSTITUA por um ID real do seu banco
+  // ID do usuário
+  const userId = "64f3e2a7c9d1f2b4a1e5f6a7"; 
 
   const fetchMyPets = async () => {
+    setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/pets/meus/${userId}`);
-      
-      if (!response.ok) {
-        throw new Error('Erro ao buscar pets');
-      }
-      
+      const response = await fetch(`${API_URL}/meus/${userId}`);
       const data = await response.json();
-      console.log("Pets recebidos:", data); // Para debug
-      setPets(data);
+      
+      if (Array.isArray(data)) {
+        setPets(data);
+      } else {
+        setPets([]);
+      }
+
     } catch (err) {
       console.log("Erro ao buscar pets:", err);
-      Alert.alert("Erro", "Não foi possível carregar seus pets");
+      setPets([]);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchMyPets();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      fetchMyPets();
+    }, [])
+  );
 
-  // Função para abrir detalhes do pet
-  const openPet = (pet) => {
-    navigation.navigate("ChatPet", { petId: pet.id, petName: pet.name });
+  // --- 2. FUNÇÃO DE EXCLUIR ATUALIZADA (Funciona na Web e no Celular) ---
+  const handleDelete = (petId) => {
+    
+    // Função que executa a exclusão de verdade
+    const confirmDelete = async () => {
+      try {
+        const response = await fetch(`${API_URL}/${petId}`, {
+          method: 'DELETE',
+        });
+
+        if (response.ok) {
+          setPets((currentPets) => currentPets.filter(pet => pet._id !== petId));
+          
+          // Aviso de sucesso compatível
+          if (Platform.OS === 'web') {
+            alert("Sucesso: Pet excluído!");
+          } else {
+            Alert.alert("Sucesso", "Pet excluído!");
+          }
+        } else {
+          if (Platform.OS === 'web') {
+            alert("Erro: Não foi possível excluir o pet.");
+          } else {
+            Alert.alert("Erro", "Não foi possível excluir o pet.");
+          }
+        }
+      } catch (error) {
+        console.log("Erro ao excluir:", error);
+        if (Platform.OS === 'web') {
+          alert("Erro de conexão ao tentar excluir.");
+        } else {
+          Alert.alert("Erro", "Erro de conexão ao tentar excluir.");
+        }
+      }
+    };
+
+    // Verifica onde estamos rodando
+    if (Platform.OS === 'web') {
+      // No Computador (Web): Usa o confirm do navegador
+      const confirmacao = window.confirm("Tem certeza que deseja excluir este pet permanentemente?");
+      if (confirmacao) {
+        confirmDelete();
+      }
+    } else {
+      // No Celular: Usa o Alert nativo bonito
+      Alert.alert(
+        "Excluir Pet",
+        "Tem certeza que deseja excluir este pet permanentemente?",
+        [
+          { text: "Cancelar", style: "cancel" },
+          {
+            text: "Excluir",
+            style: "destructive",
+            onPress: confirmDelete
+          }
+        ]
+      );
+    }
   };
 
-  // Função para adicionar novo pet - CORRIGIDA
+  const handleEdit = (pet) => {
+    navigation.navigate("CadastroPet/index", { petParaEditar: pet });
+  };
+
+  const openPet = (pet) => {
+    navigation.navigate("ChatPet", { petId: pet._id, petName: pet.nome });
+  };
+
   const addNewPet = () => {
     navigation.navigate("CadastroPet/index");
   };
 
-  // Cores de status
-  const statusColor = {
-    disponivel: "#4CAF50", // verde
-    processo: "#FF9800", // laranja
-    adotado: "#E53935", // vermelho
+  // --- NOVO: Lógica de Status visualmente igual ao MeusMatches ---
+  const getStatusInfo = (status) => {
+    switch (status?.toLowerCase()) {
+      case 'disponível':
+      case 'disponivel':
+      case 'disponível para adoção':
+      case 'disponivel para adoção':
+        return { color: '#4CAF50', text: 'Disponível' };
+      case 'encontrado - procurando dono':
+      case 'encontrado':
+        return { color: '#FF9800', text: 'Encontrado' };
+      case 'perdido':
+        return { color: '#F44336', text: 'Perdido' };
+      case 'adotado':
+        return { color: '#9E9E9E', text: 'Adotado' };
+      case 'em processo de adoção':
+        return { color: '#2196F3', text: 'Em processo' };
+      default:
+        return { color: '#757575', text: status || 'Status não informado' };
+    }
   };
 
-  // Renderização individual de cada pet
-  const renderPet = ({ item }) => (
-    <TouchableOpacity style={styles.petCard} onPress={() => openPet(item)}>
-      <Image source={{ uri: item.image }} style={styles.petImage} />
-      <View style={styles.petInfo}>
-        <Text style={styles.petName}>{item.name}</Text>
-        <View style={styles.statusContainer}>
-          <View
-            style={[
-              styles.statusDot,
-              {
-                backgroundColor:
-                  item.status === "Disponível para adoção"
-                    ? statusColor.disponivel
-                    : item.status === "Em processo de adoção"
-                    ? statusColor.processo
-                    : statusColor.adotado,
-              },
-            ]}
-          />
-          <Text style={styles.statusText}>{item.status}</Text>
+  const renderPet = ({ item }) => {
+    const statusInfo = getStatusInfo(item.status);
+
+    return (
+      <TouchableOpacity style={styles.card} onPress={() => openPet(item)}>
+        {/* Imagem (Estilo do Matches) */}
+        <Image 
+          source={{ uri: item.foto ? item.foto : 'https://via.placeholder.com/55?text=Foto' }} 
+          style={styles.cardImage} 
+        />
+        
+        <View style={styles.cardInfo}>
+          <Text style={styles.cardName}>{item.nome}</Text>
+          
+          {/* Linha Extra (Especie/Raça) igual ao Matches */}
+          <View style={styles.extraInfo}>
+             <Text style={styles.cardDetails}>
+                {item.especie || 'Pet'} • {item.raca || 'SRD'}
+             </Text>
+          </View>
+
+          {/* Status (Estilo do Matches) */}
+          <View style={styles.statusContainer}>
+            <View style={[styles.statusDot, { backgroundColor: statusInfo.color }]} />
+            <Text style={[styles.statusText, { color: statusInfo.color }]}>
+              {statusInfo.text}
+            </Text>
+          </View>
         </View>
-      </View>
-      <Ionicons name="chevron-forward" size={20} color="#000" />
-    </TouchableOpacity>
-  );
+
+        {/* --- BOTÕES DE AÇÃO (Lápis/Lixeira) --- */}
+        <View style={styles.actionsContainer}>
+          <TouchableOpacity onPress={() => handleEdit(item)} style={styles.actionButton}>
+            <Ionicons name="pencil" size={20} color="#00C7BE" />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => handleDelete(item._id)} style={[styles.actionButton, { marginLeft: 5 }]}>
+            <Ionicons name="trash-outline" size={20} color="#E53935" />
+          </TouchableOpacity>
+        </View>
+        {/* -------------------------------------- */}
+
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Meus Pets</Text>
 
-      {pets.length === 0 ? (
-        <Text style={{ marginTop: 16 }}>Nenhum pet cadastrado ainda.</Text>
+      {loading ? (
+          <View style={styles.centerContent}>
+            <ActivityIndicator size="large" color="#00C7BE" />
+          </View>
+      ) : pets.length === 0 ? (
+        <View style={styles.centerContent}>
+            <Text style={styles.emptyText}>Você ainda não tem pets.</Text>
+            <Text style={styles.emptySubtext}>Clique em adicionar para começar!</Text>
+        </View>
       ) : (
         <FlatList
           data={pets}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => item._id ? item._id.toString() : Math.random().toString()}
           renderItem={renderPet}
           showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContent}
         />
       )}
 
@@ -108,15 +217,11 @@ export default function MeusPets() {
         <Ionicons name="add" size={22} color="#fff" />
         <Text style={styles.addText}>Adicionar novo pet</Text>
       </TouchableOpacity>
-
-      {/* Ilustração inferior */}
-      <View style={styles.footerIllustration}>
-       
-      </View>
     </View>
   );
 }
 
+// ESTILOS COPIADOS E ADAPTADOS DO MEUSMATCHES
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -124,75 +229,58 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 32,
   },
+  centerContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingBottom: 50,
+  },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     color: "#00C7BE", 
     marginBottom: 16,
   },
-  loadingText: {
-    textAlign: "center",
-    marginTop: 32,
-    fontSize: 16,
-    color: "#666",
-  },
-  emptyState: {
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 64,
-    paddingHorizontal: 32,
-  },
-  emptyText: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#666",
-    marginTop: 16,
-    textAlign: "center",
-  },
-  emptySubtext: {
-    fontSize: 14,
-    color: "#999",
-    marginTop: 8,
-    textAlign: "center",
-  },
   listContent: {
-    paddingBottom: 16,
+    paddingBottom: 100, // Espaço para o botão flutuante
   },
-  petCard: {
+  // CARD VISUAL
+  card: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#fff",
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
+    // Sombras idênticas ao Matches
     shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.15,
+    shadowRadius: 2.5,
+    elevation: 2,
   },
-  petImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+  cardImage: {
+    width: 55,
+    height: 55,
+    borderRadius: 27.5,
     marginRight: 16,
+    backgroundColor: '#eee',
   },
-  petInfo: {
+  cardInfo: {
     flex: 1,
   },
-  petName: {
-    fontWeight: "bold",
+  cardName: {
+    fontWeight: "600",
     fontSize: 16,
-    color: "#000",
+    color: "#333",
     marginBottom: 4,
   },
-  petDetails: {
+  extraInfo: {
+    marginBottom: 6,
+  },
+  cardDetails: {
     fontSize: 14,
     color: "#666",
-    marginBottom: 6,
   },
   statusContainer: {
     flexDirection: "row",
@@ -206,8 +294,27 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 12,
-    color: "#444",
     fontWeight: "500",
+  },
+  // ESTILOS ESPECÍFICOS DO MEUS PETS (Ações e Botão Add)
+  actionsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  actionButton: {
+    padding: 8,
+  },
+  emptyText: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#666",
+    textAlign: "center",
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: "#999",
+    marginTop: 8,
+    textAlign: "center",
   },
   addButton: {
     flexDirection: "row",
@@ -216,16 +323,15 @@ const styles = StyleSheet.create({
     backgroundColor: "#00C7BE",
     padding: 16,
     borderRadius: 12,
-    marginTop: 16,
-    marginBottom: 24,
+    position: 'absolute', 
+    bottom: 24,
+    left: 16,
+    right: 16,
+    elevation: 4, // Sombra do botão
     shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
     shadowRadius: 3,
-    elevation: 3,
   },
   addText: {
     fontSize: 16,
