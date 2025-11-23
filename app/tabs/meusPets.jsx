@@ -1,20 +1,21 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation, useFocusEffect } from "@react-navigation/native";
-import { useState, useCallback } from "react";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useCallback, useState } from "react";
 import {
+  ActivityIndicator,
+  Alert,
   FlatList,
   Image,
+  Platform,
+
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
-  ActivityIndicator,
-  Alert,
-  Platform // <--- 1. ADICIONADO AQUI
+  View
 } from "react-native";
 
 // URL base da API
-const API_URL = "http://localhost:3001/api/pets";
+const API_URL = 'http://192.168.101.22:3001/api/pets';
 
 export default function MeusPets() {
   const navigation = useNavigation();
@@ -24,21 +25,46 @@ export default function MeusPets() {
   // ID do usuário
   const userId = "64f3e2a7c9d1f2b4a1e5f6a7"; 
 
+  // ⭐⭐ FUNÇÃO CORRIGIDA - COM ENDPOINT CORRETO E DEBUG ⭐⭐
   const fetchMyPets = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/meus/${userId}`);
+      console.log("🔄 Buscando meus pets...");
+      
+      // ⭐⭐ ENDPOINT CORRETO BASEADO NO SEU PETCONTROLLER ⭐⭐
+      const response = await fetch(`${API_URL}/my-pets/${userId}`);
+      
+      console.log("📡 URL usada:", `${API_URL}/my-pets/${userId}`);
+      console.log("✅ Status da resposta:", response.status);
+      
+      if (!response.ok) {
+        throw new Error(`Erro HTTP: ${response.status}`);
+      }
+      
       const data = await response.json();
+      console.log("📦 Dados recebidos:", data);
       
       if (Array.isArray(data)) {
         setPets(data);
+        console.log(`🎉 ${data.length} pets carregados!`);
       } else {
+        console.log("⚠️ Nenhum pet encontrado ou dados inválidos");
         setPets([]);
       }
 
     } catch (err) {
-      console.log("Erro ao buscar pets:", err);
+      console.log("❌ Erro ao buscar pets:", err.message);
       setPets([]);
+      
+      // ⭐⭐ MENSAGEM DE ERRO MAIS ESPECÍFICA ⭐⭐
+      if (Platform.OS === 'web') {
+        alert(`Erro: ${err.message}\n\nTente:\n1. Verificar se o backend está rodando\n2. Conferir a rota /my-pets no backend`);
+      } else {
+        Alert.alert(
+          "Erro de Conexão", 
+          `Não foi possível carregar seus pets.\n\nErro: ${err.message}`
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -46,16 +72,18 @@ export default function MeusPets() {
 
   useFocusEffect(
     useCallback(() => {
+      console.log('🎯 Tela MeusPets focada - iniciando busca...');
       fetchMyPets();
     }, [])
   );
 
-  // --- 2. FUNÇÃO DE EXCLUIR ATUALIZADA (Funciona na Web e no Celular) ---
+  // --- FUNÇÃO DE EXCLUIR ATUALIZADA (Funciona na Web e no Celular) ---
   const handleDelete = (petId) => {
     
     // Função que executa a exclusão de verdade
     const confirmDelete = async () => {
       try {
+        console.log("🗑️ Excluindo pet:", petId);
         const response = await fetch(`${API_URL}/${petId}`, {
           method: 'DELETE',
         });
@@ -122,7 +150,7 @@ export default function MeusPets() {
     navigation.navigate("CadastroPet/index");
   };
 
-  // --- NOVO: Lógica de Status visualmente igual ao MeusMatches ---
+  // --- Lógica de Status visualmente igual ao MeusMatches ---
   const getStatusInfo = (status) => {
     switch (status?.toLowerCase()) {
       case 'disponível':
@@ -197,6 +225,7 @@ export default function MeusPets() {
       {loading ? (
           <View style={styles.centerContent}>
             <ActivityIndicator size="large" color="#00C7BE" />
+            <Text style={styles.loadingText}>Carregando seus pets...</Text>
           </View>
       ) : pets.length === 0 ? (
         <View style={styles.centerContent}>
@@ -314,6 +343,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#999",
     marginTop: 8,
+    textAlign: "center",
+  },
+  loadingText: {
+    fontSize: 16,
+    color: "#666",
+    marginTop: 10,
     textAlign: "center",
   },
   addButton: {

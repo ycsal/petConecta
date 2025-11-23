@@ -7,7 +7,7 @@ import { PetCard } from '../../components/PetCard/index';
 import { useFilters } from '../../context/FilterContext';
 
 // A URL da API está aqui dentro do arquivo.
-const API_URL = 'http://localhost:3001/api/pets';
+const API_URL = 'http://192.168.101.22:3001/api/pets';
 
 export default function Match() {
   const [pets, setPets] = useState([]);

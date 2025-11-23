@@ -63,7 +63,7 @@ export default function Index() {
       </View>
 
        <View>
-        {/* ✅ ATUALIZAR: Usar handleLogin e mostrar loading */}
+        {/* ✅ CORRIGIDO: Usar handleLogin corretamente */}
         {loading ? (
           <View style={styles.loadingButton}>
             <ActivityIndicator color="#fff" />
@@ -72,7 +72,7 @@ export default function Index() {
         ) : (
           <EnterButton 
             title="Entrar" 
-            onPress={router.navigate('tabs/match')} /*{handlelogin}*/
+            onPress={handleLogin} // ✅ Corrigido: passa a referência da função
           />
         )}
       </View>
@@ -127,5 +127,15 @@ const styles = StyleSheet.create({
     color: "#014946ff",
     fontSize: 20,
     textAlign: "center"
+  },
+  loadingButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10
+  },
+  loadingText: {
+    color: '#fff',
+    fontSize: 16
   }
 });
