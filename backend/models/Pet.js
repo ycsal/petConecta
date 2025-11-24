@@ -18,7 +18,6 @@ const PetSchema = new Schema({
   },
   raca: {
     type: String,
-    required: true
   },
   sexo: {
     type: String,
