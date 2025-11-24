@@ -642,7 +642,7 @@ const styles = StyleSheet.create({
   },
   changeLocationButton: {
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    paddingHorizontal: 12,
+    paddingHorizontal: 6,
     paddingVertical: 6,
     borderRadius: 15,
     borderWidth: 1,
