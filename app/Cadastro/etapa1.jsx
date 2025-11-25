@@ -1,6 +1,15 @@
 import { router } from "expo-router";
 import { useState } from "react";
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableWithoutFeedback,
+  View
+} from "react-native";
 import { Footer } from "../../components/FooterCadastro";
 import { useCadastro } from '../../context/CadastroContext';
 
@@ -15,32 +24,41 @@ export default function Etapa1() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Informe seu nome e sobrenome</Text>
+    <KeyboardAvoidingView 
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.innerContainer}>
+          <Text style={styles.title}>Informe seu nome e sobrenome</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Nome"
-        placeholderTextColor="#888"
-        value={nome}
-        onChangeText={setNome}
-      />
+          <TextInput
+            style={styles.input}
+            placeholder="Nome"
+            placeholderTextColor="#888"
+            value={nome}
+            onChangeText={setNome}
+          />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Sobrenome"
-        placeholderTextColor="#888"
-        value={sobrenome}
-        onChangeText={setSobrenome}
-      />
+          <TextInput
+            style={styles.input}
+            placeholder="Sobrenome"
+            placeholderTextColor="#888"
+            value={sobrenome}
+            onChangeText={setSobrenome}
+          />
 
-      <Footer
-        etapa={1}
-        totalEtapas={5}
-        onPress={avancar}
-        disabled={nome.trim().length === 0 || sobrenome.trim().length === 0}
-      />
-    </View>
+          <View style={styles.footerWrapper}>
+            <Footer
+              etapa={1}
+              totalEtapas={5}
+              onPress={avancar}
+              disabled={nome.trim().length === 0 || sobrenome.trim().length === 0}
+            />
+          </View>
+        </View>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -48,6 +66,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+  },
+  innerContainer: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
     padding: 20
@@ -68,4 +89,10 @@ const styles = StyleSheet.create({
     color: "#000",
     marginBottom: 20
   },
+  footerWrapper: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+  }
 });

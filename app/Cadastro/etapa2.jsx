@@ -1,6 +1,15 @@
 import { router } from "expo-router";
 import { useState } from "react";
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableWithoutFeedback,
+  View
+} from "react-native";
 import { Footer } from "../../components/FooterCadastro";
 import { useCadastro } from '../../context/CadastroContext';
 
@@ -22,26 +31,35 @@ export default function Etapa2() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Digite seu e-mail</Text>
+    <KeyboardAvoidingView 
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.innerContainer}>
+          <Text style={styles.title}>Digite seu e-mail</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Digite seu e-mail"
-        placeholderTextColor="#888"
-        value={email}
-        onChangeText={validarEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
+          <TextInput
+            style={styles.input}
+            placeholder="Digite seu e-mail"
+            placeholderTextColor="#888"
+            value={email}
+            onChangeText={validarEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
 
-      <Footer
-        etapa={2}
-        totalEtapas={5}
-        onPress={avancar}
-        disabled={!emailValido}
-      />
-    </View>
+          <View style={styles.footerWrapper}>
+            <Footer
+              etapa={2}
+              totalEtapas={5}
+              onPress={avancar}
+              disabled={!emailValido}
+            />
+          </View>
+        </View>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -49,6 +67,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+  },
+  innerContainer: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
@@ -69,4 +90,10 @@ const styles = StyleSheet.create({
     color: "#000",
     marginBottom: 20,
   },
+  footerWrapper: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+  }
 });
