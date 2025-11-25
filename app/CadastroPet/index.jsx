@@ -15,9 +15,8 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
+import { API_PETS } from "../../config";
 
-// URL da sua API
-const API_URL = "http://192.168.15.77:3001/api/pets";
 
 const statusOptions = [
   { label: "🐾 Para adoção", value: "Disponível" },
@@ -131,14 +130,14 @@ export default function CadastroPet() {
       
       if (isEditing) {
         console.log("Atualizando pet ID:", petParaEditar._id);
-        response = await fetch(`${API_URL}/${petParaEditar._id}`, {
+        response = await fetch(`${API_PETS}/${petParaEditar._id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(dadosParaEnviar),
         });
       } else {
         console.log("Criando novo pet...");
-        response = await fetch(`${API_URL}`, {
+        response = await fetch(`${API_PETS}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(dadosParaEnviar),

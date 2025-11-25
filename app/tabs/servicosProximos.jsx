@@ -12,9 +12,7 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-
-// URL da sua API - ATUALIZE COM SEU IP
-const API_URL = "http://192.168.15.77:3001/api/servicos";
+import { API_SERVICOS } from '../../config';
 
 export default function ServicosProximos() {
   const [searchText, setSearchText] = useState('');
@@ -27,7 +25,7 @@ export default function ServicosProximos() {
   const fetchServicos = async (search = '') => {
     try {
       setLoading(true);
-      const url = search ? `${API_URL}?search=${encodeURIComponent(search)}` : API_URL;
+      const url = search ? `${API_SERVICOS}?search=${encodeURIComponent(search)}` : API_SERVICOS;
       
       const response = await fetch(url);
       

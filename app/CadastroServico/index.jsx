@@ -14,9 +14,7 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-
-// URL da API
-const API_URL = "http://192.168.15.77:3001/api/servicos";
+import { API_SERVICOS } from "../../config";
 
 export default function CadastroServico() {
   // MUDANÇA 2: Usar o router em vez de navigation
@@ -92,13 +90,13 @@ export default function CadastroServico() {
       let response;
 
       if (isEditing) {
-        response = await fetch(`${API_URL}/${servicoParaEditar._id}`, {
+        response = await fetch(`${API_SERVICOS}/${servicoParaEditar._id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(dadosParaEnviar),
         });
       } else {
-        response = await fetch(`${API_URL}`, {
+        response = await fetch(`${API_SERVICOS}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(dadosParaEnviar),

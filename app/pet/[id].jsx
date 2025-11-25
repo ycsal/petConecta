@@ -2,9 +2,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { API_PETS } from '../../config';
 
 // ATENÇÃO: Use 'localhost' para o navegador web ou SEU IP para o celular/emulador.
-const API_URL = 'http://192.168.15.77:3001/api/pets';
+
 
 export default function PetDetail() {
   const { id: petId } = useLocalSearchParams(); // Pega o 'id' da URL
@@ -22,7 +23,7 @@ export default function PetDetail() {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`${API_URL}/${petId}`);
+        const response = await fetch(`${API_PETS}/${petId}`);
         if (!response.ok) {
            if(response.status === 404) throw new Error('Pet não encontrado.');
            throw new Error('Erro ao buscar detalhes do pet.');

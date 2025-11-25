@@ -11,10 +11,8 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
+import { API_SERVICOS } from "../../config";
 
-// URL da API (Ajuste se for rodar no celular físico)
-const API_URL = "http://192.168.15.77:3001/api/servicos"; 
-// OBS: Se não tiver configurado o prefixo /servicos no app.js, ajuste aqui.
 
 export default function MeusServicos() {
   const navigation = useNavigation();
@@ -28,7 +26,7 @@ export default function MeusServicos() {
   const fetchServices = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/meus/${userId}`);
+      const response = await fetch(`${API_SERVICOS}/meus/${userId}`);
       const data = await response.json();
 
       // Verifica se a API retornou o array dentro de 'servicos' (conforme seu controller)
@@ -65,7 +63,7 @@ export default function MeusServicos() {
   const deleteService = (id) => {
     const confirmDelete = async () => {
       try {
-        const response = await fetch(`${API_URL}/${id}`, {
+        const response = await fetch(`${API_SERVICOS}/${id}`, {
           method: "DELETE",
         });
 

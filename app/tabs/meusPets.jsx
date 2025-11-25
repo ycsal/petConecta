@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { API_PETS } from '../../config';
 import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
@@ -14,8 +15,6 @@ import {
   View
 } from "react-native";
 
-// URL base da API
-const API_URL = 'http://192.168.15.77:3001/api/pets';
 
 export default function MeusPets() {
   const navigation = useNavigation();
@@ -32,9 +31,9 @@ export default function MeusPets() {
       console.log("🔄 Buscando meus pets...");
       
       // ⭐⭐ ENDPOINT CORRETO BASEADO NO SEU PETCONTROLLER ⭐⭐
-      const response = await fetch(`${API_URL}/meus/${userId}`);
+      const response = await fetch(`${API_PETS}/meus/${userId}`);
       
-      console.log("📡 URL usada:", `${API_URL}/meus/${userId}`);
+      console.log("📡 URL usada:", `${API_PETS}/meus/${userId}`);
       console.log("✅ Status da resposta:", response.status);
       
       if (!response.ok) {
@@ -84,7 +83,7 @@ export default function MeusPets() {
     const confirmDelete = async () => {
       try {
         console.log("🗑️ Excluindo pet:", petId);
-        const response = await fetch(`${API_URL}/${petId}`, {
+        const response = await fetch(`${API_PETS}/${petId}`, {
           method: 'DELETE',
         });
 

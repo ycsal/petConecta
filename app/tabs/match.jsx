@@ -5,9 +5,10 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-nati
 import Swiper from 'react-native-deck-swiper';
 import { PetCard } from '../../components/PetCard/index';
 import { useFilters } from '../../context/FilterContext';
+import {API_PETS } from '../../config';
 
-// A URL da API está aqui dentro do arquivo.
-const API_URL = 'http://192.168.15.77:3001/api/pets';
+
+
 
 export default function Match() {
   const [pets, setPets] = useState([]);
@@ -31,7 +32,7 @@ export default function Match() {
       }
     });
     const queryString = params.toString();
-    const fullUrl = queryString ? `${API_URL}?${queryString}` : API_URL;
+    const fullUrl = queryString ? `${API_PETS}?${queryString}` : API_PETS;
 
     console.log("Buscando pets da API:", fullUrl);
 
