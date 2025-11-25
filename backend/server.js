@@ -6,7 +6,7 @@ connectDB();
 
 const app = express();
 const PORT = 3001;
-const HOST = '192.168.101.22'; // Seu IP local
+const HOST = '192.168.15.77'; // Seu IP local
 
 app.use(cors());
 app.use(express.json());

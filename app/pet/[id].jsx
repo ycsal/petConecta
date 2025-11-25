@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Image, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 // ATENÇÃO: Use 'localhost' para o navegador web ou SEU IP para o celular/emulador.
-const API_URL = 'http://localhost:3001/api/pets';
+const API_URL = 'http://192.168.15.77:3001/api/pets';
 
 export default function PetDetail() {
   const { id: petId } = useLocalSearchParams(); // Pega o 'id' da URL

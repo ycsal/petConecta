@@ -1,8 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from "@react-navigation/native"; // Adicione esta importação
-import { useState } from 'react';
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useCallback, useState } from 'react';
 import {
+  Alert,
   Linking,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,115 +13,63 @@ import {
   View
 } from "react-native";
 
+// URL da sua API - ATUALIZE COM SEU IP
+const API_URL = "http://192.168.15.77:3001/api/servicos";
+
 export default function ServicosProximos() {
   const [searchText, setSearchText] = useState('');
+  const [servicos, setServicos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const navigation = useNavigation();
 
-  // Dados mockados para prestadores de serviço
-  const prestadoresServico = [
-    {
-      id: 1,
-      nome: "João Silva - Transpopet",
-      tipo: "Taxi Pet",
-      bairro: "Centro",
-      cidade: "Guarujá",
-      estado: "SP",
-      telefone: "(13) 99999-9999",
-      descricao: "Serviço de transporte seguro e confortável para seu pet. Veículo adaptado com caixas de transporte e ar condicionado.",
-      valores: "R$ 30,00 por corrida",
-      observacoes: "Atendo emergências 24h"
-    },
-    {
-      id: 2,
-      nome: "Maria Santos - Obedecão",
-      tipo: "Adestrador",
-      bairro: "Jardim Las Palmas",
-      cidade: "Guarujá",
-      estado: "SP",
-      telefone: "(13) 98888-8888",
-      descricao: "Adestramento profissional para cães de todas as raças e idades. Métodos positivos e sem violência.",
-      valores: "R$ 80,00 por aula",
-      observacoes: "Primeira aula experimental gratuita"
-    },
-    {
-      id: 3,
-      nome: "Carlos Oliveira - Pet Sitter",
-      tipo: "Babá Pet",
-      bairro: "Santo Antônio",
-      cidade: "Guarujá",
-      estado: "SP",
-      telefone: "(13) 97777-7777",
-      descricao: "Cuido do seu pet enquanto você viaja. Visitas diárias, alimentação, medicamentos e muito carinho.",
-      valores: "R$ 40,00 por visita",
-      observacoes: "Plantão de feriados e finais de semana"
-    },
-    {
-      id: 4,
-      nome: "Ana Costa - Passeios",
-      tipo: "Passeador",
-      bairro: "Perequê",
-      cidade: "Guarujá",
-      estado: "SP",
-      telefone: "(13) 96666-6666",
-      descricao: "Passeios recreativos em parques e praças. Duração de 30min a 1hora, conforme necessidade do pet.",
-      valores: "R$ 25,00 por passeio",
-      observacoes: "Pacote semanal com desconto"
-    },
-    {
-      id: 5,
-      nome: "Pedro Martins - Hotel",
-      tipo: "Hotel Pet",
-      bairro: "Jardim dos Pássaros",
-      cidade: "Guarujá",
-      estado: "SP",
-      telefone: "(13) 95555-5555",
-      descricao: "Hotelzinho familiar com amplo espaço externo. Acomodações individuais, alimentação especial e monitoramento 24h.",
-      valores: "R$ 60,00 diária",
-      observacoes: "Desconto para estadias longas"
-    },
-    {
-      id: 6,
-      nome: "Fernanda Lima - Banho",
-      tipo: "Banho & Tosa",
-      bairro: "Santa Rosa",
-      cidade: "Guarujá",
-      estado: "SP",
-      telefone: "(13) 94444-4444",
-      descricao: "Banho completo com produtos hipoalergênicos e tosa higiênica. Secagem adequada e cuidados com unhas e ouvidos.",
-      valores: "R$ 45,00 banho e tosa",
-      observacoes: "Agendamento prévio necessário"
-    },
-    {
-      id: 7,
-      nome: "Ricardo Souza - Transporte",
-      tipo: "Transporte Pet",
-      bairro: "Pitangueiras",
-      cidade: "Guarujá",
-      estado: "SP",
-      telefone: "(13) 93333-3333",
-      descricao: "Transporte especializado para pets. Viagens intermunicipais, consultas veterinárias e demais deslocamentos.",
-      valores: "R$ 2,50 por km",
-      observacoes: "Atendo toda a Baixada Santista"
-    },
-    {
-      id: 8,
-      nome: "Juliana Rocha - Creche",
-      tipo: "Creche Pet",
-      bairro: "Centro",
-      cidade: "Guarujá",
-      estado: "SP",
-      telefone: "(13) 92222-2222",
-      descricao: "Creche diária para pets. Atividades recreativas, socialização com outros animais e muito entretenimento.",
-      valores: "R$ 35,00 diária",
-      observacoes: "Horário flexível das 7h às 19h"
-    }
-  ];
+  // Função para buscar serviços da API
+  const fetchServicos = async (search = '') => {
+    try {
+      setLoading(true);
+      const url = search ? `${API_URL}?search=${encodeURIComponent(search)}` : API_URL;
+      
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error('Erro ao carregar serviços');
+      }
 
-  const prestadoresFiltrados = prestadoresServico.filter(prestador =>
-    prestador.nome.toLowerCase().includes(searchText.toLowerCase()) ||
-    prestador.tipo.toLowerCase().includes(searchText.toLowerCase()) ||
-    prestador.bairro.toLowerCase().includes(searchText.toLowerCase())
+      const data = await response.json();
+      
+      if (data.success) {
+        setServicos(data.servicos);
+      } else {
+        throw new Error(data.error || 'Erro ao carregar serviços');
+      }
+    } catch (error) {
+      console.error('Erro ao buscar serviços:', error);
+      Alert.alert('Erro', 'Não foi possível carregar os serviços. Verifique sua conexão.');
+      setServicos([]);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  // Buscar serviços quando a tela ganhar foco
+  useFocusEffect(
+    useCallback(() => {
+      fetchServicos();
+    }, [])
   );
+
+  // Buscar serviços quando o texto de pesquisa mudar
+  const handleSearch = (text) => {
+    setSearchText(text);
+    fetchServicos(text);
+  };
+
+  // Pull to refresh
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchServicos(searchText);
+  }, [searchText]);
 
   const fazerLigacao = (telefone) => {
     const numeroLimpo = telefone.replace(/\D/g, '');
@@ -130,10 +80,13 @@ export default function ServicosProximos() {
         if (supported) {
           Linking.openURL(url);
         } else {
-          console.log('Não foi possível fazer a ligação');
+          Alert.alert('Erro', 'Não foi possível fazer a ligação');
         }
       })
-      .catch(err => console.error('Erro ao abrir app de telefone:', err));
+      .catch(err => {
+        console.error('Erro ao abrir app de telefone:', err);
+        Alert.alert('Erro', 'Não foi possível fazer a ligação');
+      });
   };
 
   const abrirWhatsApp = (telefone) => {
@@ -145,14 +98,101 @@ export default function ServicosProximos() {
         if (supported) {
           Linking.openURL(url);
         } else {
-          console.log('Não foi possível abrir o WhatsApp');
+          Alert.alert('Erro', 'Não foi possível abrir o WhatsApp');
         }
       })
-      .catch(err => console.error('Erro ao abrir WhatsApp:', err));
+      .catch(err => {
+        console.error('Erro ao abrir WhatsApp:', err);
+        Alert.alert('Erro', 'Não foi possível abrir o WhatsApp');
+      });
   };
 
   const abrirDetalhesServico = (servico) => {
     navigation.navigate('detalhesServico', { servico });
+  };
+
+  // Função para renderizar o conteúdo
+  const renderContent = () => {
+    if (loading && servicos.length === 0) {
+      return (
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>Carregando serviços...</Text>
+        </View>
+      );
+    }
+
+    if (servicos.length === 0) {
+      return (
+        <View style={styles.emptyContainer}>
+          <Ionicons name="search-outline" size={64} color="#ccc" />
+          <Text style={styles.emptyText}>
+            {searchText ? 'Nenhum serviço encontrado' : 'Nenhum serviço disponível'}
+          </Text>
+          <Text style={styles.emptySubtext}>
+            {searchText ? 'Tente buscar com outros termos' : 'Seja o primeiro a oferecer um serviço!'}
+          </Text>
+        </View>
+      );
+    }
+
+    return servicos.map((servico) => (
+      <TouchableOpacity 
+        key={servico._id} 
+        style={styles.prestadorCard}
+        onPress={() => abrirDetalhesServico(servico)}
+      >
+        <View style={styles.prestadorInfo}>
+          <View style={styles.headerCard}>
+            <Text style={styles.prestadorNome}>{servico.nomeUsuario}</Text>
+            <Ionicons name="chevron-forward" size={16} color="#666" />
+          </View>
+          <Text style={styles.prestadorTipo}>{servico.titulo}</Text>
+          <Text style={styles.descricaoText} numberOfLines={2}>
+            {servico.descricao}
+          </Text>
+          <View style={styles.localizacaoContainer}>
+            <Ionicons name="location-outline" size={14} color="#666" />
+            <Text style={styles.localizacaoText}>
+              {servico.bairro && `${servico.bairro}, `}{servico.cidade} - {servico.estado}
+            </Text>
+          </View>
+          <View style={styles.telefoneContainer}>
+            <Ionicons name="call-outline" size={14} color="#666" />
+            <Text style={styles.telefoneText}>{servico.telefone}</Text>
+          </View>
+          {servico.valores && (
+            <View style={styles.valoresContainer}>
+              <Ionicons name="pricetag-outline" size={14} color="#666" />
+              <Text style={styles.valoresText}>{servico.valores}</Text>
+            </View>
+          )}
+        </View>
+
+        <View style={styles.botoesAcao}>
+          <TouchableOpacity
+            style={styles.ligarButton}
+            onPress={(e) => {
+              e.stopPropagation();
+              fazerLigacao(servico.telefone);
+            }}
+          >
+            <Ionicons name="call" size={18} color="#fff" />
+            <Text style={styles.ligarButtonText}>Ligar</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            style={styles.whatsappButton}
+            onPress={(e) => {
+              e.stopPropagation();
+              abrirWhatsApp(servico.telefone);
+            }}
+          >
+            <Ionicons name="logo-whatsapp" size={18} color="#fff" />
+            <Text style={styles.whatsappButtonText}>WhatsApp</Text>
+          </TouchableOpacity>
+        </View>
+      </TouchableOpacity>
+    ));
   };
 
   return (
@@ -164,7 +204,7 @@ export default function ServicosProximos() {
           style={styles.criarButton}
           onPress={() => navigation.navigate("configuracoes/meusServicos")}
         >
-          <Ionicons name="add-circle" size={20} color="#fff" />
+          <Ionicons name="list" size={20} color="#fff" />
           <Text style={styles.criarButtonText}>Meus Serviços</Text>
         </TouchableOpacity>
       </View>
@@ -174,73 +214,34 @@ export default function ServicosProximos() {
         <Ionicons name="search" size={20} color="#666" style={styles.searchIcon} />
         <TextInput
           style={styles.searchInput}
-          placeholder="Buscar prestadores..."
+          placeholder="Buscar serviços, prestadores..."
           value={searchText}
-          onChangeText={setSearchText}
+          onChangeText={handleSearch}
+          returnKeyType="search"
         />
         {searchText.length > 0 && (
-          <TouchableOpacity onPress={() => setSearchText('')}>
+          <TouchableOpacity onPress={() => handleSearch('')}>
             <Ionicons name="close-circle" size={20} color="#666" />
           </TouchableOpacity>
         )}
       </View>
 
-      {/* Lista de Prestadores */}
-      <ScrollView style={styles.listaContainer} showsVerticalScrollIndicator={false}>
-        {prestadoresFiltrados.map((prestador) => (
-          <TouchableOpacity 
-            key={prestador.id} 
-            style={styles.prestadorCard}
-            onPress={() => abrirDetalhesServico(prestador)}
-          >
-            <View style={styles.prestadorInfo}>
-              <View style={styles.headerCard}>
-                <Text style={styles.prestadorNome}>{prestador.nome}</Text>
-                <Ionicons name="chevron-forward" size={16} color="#666" />
-              </View>
-              <Text style={styles.prestadorTipo}>{prestador.tipo}</Text>
-              <View style={styles.localizacaoContainer}>
-                <Ionicons name="location-outline" size={14} color="#666" />
-                <Text style={styles.localizacaoText}>
-                  {prestador.bairro}, {prestador.cidade} - {prestador.estado}
-                </Text>
-              </View>
-              <View style={styles.telefoneContainer}>
-                <Ionicons name="call-outline" size={14} color="#666" />
-                <Text style={styles.telefoneText}>{prestador.telefone}</Text>
-              </View>
-            </View>
-
-            {/* Botões de Ação - Lado a Lado */}
-            <View style={styles.botoesAcao}>
-              <TouchableOpacity
-                style={styles.ligarButton}
-                onPress={(e) => {
-                  e.stopPropagation(); // Impede que o clique propague para o card
-                  fazerLigacao(prestador.telefone);
-                }}
-              >
-                <Ionicons name="call" size={18} color="#fff" />
-                <Text style={styles.ligarButtonText}>Ligar</Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity
-                style={styles.whatsappButton}
-                onPress={(e) => {
-                  e.stopPropagation(); // Impede que o clique propague para o card
-                  abrirWhatsApp(prestador.telefone);
-                }}
-              >
-                <Ionicons name="logo-whatsapp" size={18} color="#fff" />
-                <Text style={styles.whatsappButtonText}>WhatsApp</Text>
-              </TouchableOpacity>
-            </View>
-          </TouchableOpacity>
-        ))}
+      {/* Lista de Serviços */}
+      <ScrollView 
+        style={styles.listaContainer} 
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
+        {renderContent()}
       </ScrollView>
 
       {/* Botão Flutuante para Oferecer Serviço */}
-      <TouchableOpacity style={styles.floatingButton} onPress={() => navigation.navigate("CadastroServico/index")}>
+      <TouchableOpacity 
+        style={styles.floatingButton} 
+        onPress={() => navigation.navigate("CadastroServico/index")}
+      >
         <Ionicons name="add" size={24} color="#fff" />
       </TouchableOpacity>
     </View>
@@ -304,6 +305,34 @@ const styles = StyleSheet.create({
   listaContainer: {
     flex: 1,
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 50,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#666',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 50,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#666',
+    marginTop: 16,
+    textAlign: 'center',
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: '#999',
+    marginTop: 8,
+    textAlign: 'center',
+  },
   prestadorCard: {
     backgroundColor: '#fff',
     borderRadius: 12,
@@ -337,6 +366,12 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     marginBottom: 8,
   },
+  descricaoText: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 8,
+    lineHeight: 18,
+  },
   localizacaoContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -350,6 +385,7 @@ const styles = StyleSheet.create({
   telefoneContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 4,
   },
   telefoneText: {
     fontSize: 14,
@@ -357,7 +393,16 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     marginLeft: 6,
   },
-  // NOVOS ESTILOS PARA OS BOTÕES LADO A LADO
+  valoresContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  valoresText: {
+    fontSize: 14,
+    color: '#00C7BE',
+    fontWeight: '500',
+    marginLeft: 6,
+  },
   botoesAcao: {
     flexDirection: 'row',
     gap: 10,

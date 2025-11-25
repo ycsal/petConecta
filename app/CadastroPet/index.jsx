@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRoute } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -17,7 +17,7 @@ import {
 } from "react-native";
 
 // URL da sua API
-const API_URL = "http://localhost:3001/api/pets";
+const API_URL = "http://192.168.15.77:3001/api/pets";
 
 const statusOptions = [
   { label: "🐾 Para adoção", value: "Disponível" },

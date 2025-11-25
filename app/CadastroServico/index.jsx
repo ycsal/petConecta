@@ -1,9 +1,9 @@
 // MUDANÇA 1: Importar useRouter do expo-router
 import { useRoute } from '@react-navigation/native';
-import { useRouter } from 'expo-router'; 
-import * as ImagePicker from 'expo-image-picker';
-import { useState, useEffect } from "react";
+import { useRouter } from 'expo-router';
+import { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   KeyboardAvoidingView,
   Platform,
@@ -12,12 +12,11 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View,
-  ActivityIndicator
+  View
 } from "react-native";
 
 // URL da API
-const API_URL = "http://localhost:3001/api/servicos";
+const API_URL = "http://192.168.15.77:3001/api/servicos";
 
 export default function CadastroServico() {
   // MUDANÇA 2: Usar o router em vez de navigation

@@ -3,7 +3,7 @@ import { Link, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-const API_URL = 'http://192.168.101.22:3001/api/pets';
+const API_URL = 'http://192.168.15.77:3001/api/pets';
 
 export default function MeusMatches() {
   const [matches, setMatches] = useState([]);

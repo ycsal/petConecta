@@ -108,6 +108,41 @@ class ServicoController {
       res.status(500).json({ success: false, error: 'Erro ao deletar serviço' });
     }
   }
+  static async getAllServicos(req, res) {
+    try {
+      const { search, cidade, estado } = req.query;
+      
+      // Filtro base - apenas serviços ativos
+      const filter = { status: 'Ativo' };
+
+      // Adicionar filtros opcionais
+      if (search) {
+        filter.$or = [
+          { titulo: { $regex: search, $options: 'i' } },
+          { descricao: { $regex: search, $options: 'i' } },
+          { nomeUsuario: { $regex: search, $options: 'i' } },
+          { bairro: { $regex: search, $options: 'i' } }
+        ];
+      }
+
+      if (cidade) filter.cidade = { $regex: cidade, $options: 'i' };
+      if (estado) filter.estado = { $regex: estado, $options: 'i' };
+
+      const servicos = await Servico.find(filter).sort({ createdAt: -1 });
+      
+      res.json({
+        success: true,
+        servicos,
+        total: servicos.length
+      });
+    } catch (err) {
+      console.error('Erro ao buscar serviços:', err);
+      res.status(500).json({
+        success: false,
+        error: 'Erro no servidor ao buscar serviços'
+      });
+    }
+  }
 }
 
 module.exports = ServicoController;

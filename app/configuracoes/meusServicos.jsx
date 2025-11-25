@@ -1,19 +1,19 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation, useFocusEffect } from "@react-navigation/native";
-import { useState, useCallback } from "react";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useCallback, useState } from "react";
 import {
+  ActivityIndicator,
+  Alert,
   FlatList,
+  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
-  Alert,
-  Platform,
-  ActivityIndicator
+  View
 } from "react-native";
 
 // URL da API (Ajuste se for rodar no celular físico)
-const API_URL = "http://localhost:3001/api/servicos"; 
+const API_URL = "http://192.168.15.77:3001/api/servicos"; 
 // OBS: Se não tiver configurado o prefixo /servicos no app.js, ajuste aqui.
 
 export default function MeusServicos() {
