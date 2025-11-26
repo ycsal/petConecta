@@ -9,12 +9,19 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
+      "bundlerIdentifier": "com.petC.petConecta",
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
+        "package": "com.petC.petConecta",
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#ffffff",
+        "config": {
+          "googleMaps": {
+            "apiKey": "AIzaSyApGDpNKditZOFLwLxkSdG4oVRUtCP2OWA"
+          }
+        }
       },
       "edgeToEdgeEnabled": true
     },
