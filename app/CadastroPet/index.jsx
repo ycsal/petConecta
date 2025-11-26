@@ -16,6 +16,7 @@ import {
   View
 } from "react-native";
 import { API_PETS } from "../../config";
+import { useAuth } from '../../context/AuthContext';
 
 
 const statusOptions = [
@@ -28,6 +29,8 @@ const statusOptions = [
 export default function CadastroPet() {
   const navigation = useNavigation();
   const route = useRoute();
+  const { user } = useAuth();
+
   const [loading, setLoading] = useState(false);
   
   // Verifica se estamos editando
@@ -48,7 +51,7 @@ export default function CadastroPet() {
     status: "Disponível"
   });
 
-  const userId = "64f3e2a7c9d1f2b4a1e5f6a7";
+//  const userId = "64f3e2a7c9d1f2b4a1e5f6a7";
 
   useEffect(() => {
     if (isEditing) {
@@ -68,6 +71,13 @@ export default function CadastroPet() {
       navigation.setOptions({ title: 'Editar Pet' });
     }
   }, [petParaEditar]);
+
+   useEffect(() => {
+    if (!user) {
+      Alert.alert("Atenção", "Você precisa estar logado para cadastrar pets");
+      navigation.goBack();
+    }
+  }, [user]);
 
   const pickImage = async () => {
     try {
@@ -103,6 +113,10 @@ export default function CadastroPet() {
   };
 
   const handleSubmit = async () => {
+    if (!user) {
+      Alert.alert("Erro", "Você precisa estar logado para cadastrar pets");
+      return;
+    }
     if (!petData.nome || !petData.especie || !petData.porte || !petData.sexo || !petData.idade) {
       Alert.alert("Atenção", "Preencha todos os campos obrigatórios (*)");
       return;
@@ -112,7 +126,7 @@ export default function CadastroPet() {
 
     try {
       const dadosParaEnviar = {
-        id_usuario: userId,
+        id_usuario: user._id,
         nome: petData.nome,
         especie: petData.especie,
         raca: petData.raca || "SRD",
