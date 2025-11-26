@@ -15,8 +15,10 @@ import {
   View
 } from "react-native";
 import { API_SERVICOS } from "../../config";
+import { useAuth } from '../../context/AuthContext';
 
 export default function CadastroServico() {
+  const { user } = useAuth(); 
   // MUDANÇA 2: Usar o router em vez de navigation
   const router = useRouter();
   const route = useRoute(); 
@@ -27,7 +29,8 @@ export default function CadastroServico() {
   const isEditing = !!servicoParaEditar;
 
   // ID do usuário fixo
-  const userId = "64f3e2a7c9d1f2b4a1e5f6a7";
+ // const userId = "64f3e2a7c9d1f2b4a1e5f6a7";
+ 
 
   const [servicoData, setServicoData] = useState({
     titulo: "",
@@ -73,8 +76,9 @@ export default function CadastroServico() {
     setLoading(true);
 
     try {
+      
       const dadosParaEnviar = {
-        id_usuario: userId,
+        id_usuario: user._id,
         titulo: servicoData.titulo,
         descricao: servicoData.descricao,
         nomeUsuario: servicoData.nomeUsuario,
