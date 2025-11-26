@@ -1,162 +1,324 @@
-import { useNavigation } from "@react-navigation/native"; // Adicione esta importação
-import { useState } from "react";
+// MUDANÇA 1: Importar useRouter do expo-router
+import { useRoute } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
+import { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
-  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
+import { API_SERVICOS } from "../../config";
+import { useAuth } from '../../context/AuthContext';
 
-// URL da sua API Node.js
-const API_URL = "http://SEU_SERVIDOR_API"; // <- Substitua pelo real
+export default function CadastroServico() {
+  const { user } = useAuth(); 
+  // MUDANÇA 2: Usar o router em vez de navigation
+  const router = useRouter();
+  const route = useRoute(); 
+  const [loading, setLoading] = useState(false);
 
-export default function MeusServicos() {
-  const navigation = useNavigation(); // Obtém o objeto de navegação
-  const [services, setServices] = useState([]);
+  // Verifica se estamos editando
+  const servicoParaEditar = route.params?.servicoParaEditar;
+  const isEditing = !!servicoParaEditar;
 
-  // ... restante do código
+  // ID do usuário fixo
+ // const userId = "64f3e2a7c9d1f2b4a1e5f6a7";
+ 
 
-  // Criar novo serviço
-  const createService = () => {
-    // Navega para a tela de cadastro de serviço
-    navigation.navigate("Cadastro/CadastroServico"); // <- Verifique se este é o nome exato da rota
+  const [servicoData, setServicoData] = useState({
+    titulo: "",
+    descricao: "",
+    nomeUsuario: "",
+    telefone: "",
+    bairro:  "",
+    cidade:  "",
+    estado: "",
+    valores: "",
+    observacoesValores: ""
+  });
+
+  useEffect(() => {
+    if (isEditing) {
+      setServicoData({
+        titulo: servicoParaEditar.titulo || "",
+        descricao: servicoParaEditar.descricao || "",
+        nomeUsuario: servicoParaEditar.nomeUsuario || "",
+        telefone: servicoParaEditar.telefone || "",
+        bairro: servicoParaEditar.bairro || "",
+        cidade: servicoParaEditar.cidade || "",
+        estado: servicoParaEditar.estado || "",
+        valores: servicoParaEditar.valores || "",
+        observacoesValores: servicoParaEditar.observacoesValores || ""
+      });
+    }
+  }, [servicoParaEditar]);
+
+  const handleChange = (field, value) => {
+    setServicoData(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
-  // Editar serviço
-  const editService = (service) => {
-    // Navega para a tela de edição com os dados do serviço
-    navigation.navigate("EditarServico", { service });
-  };
 
-  // Remover serviço
-  const deleteService = (id) => {
-    Alert.alert(
-      "Excluir Serviço",
-      "Tem certeza que deseja excluir este serviço?",
-      [
-        { text: "Cancelar", style: "cancel" },
-        {
-          text: "Excluir",
-          style: "destructive",
-          onPress: () => {
-            fetch(`${API_URL}/services/${id}`, {
-              method: "DELETE",
-            })
-              .then(() => {
-                setServices((prev) => prev.filter((s) => s.id !== id));
-              })
-              .catch((err) =>
-                console.log("Erro ao excluir serviço:", err)
-              );
-          },
-        },
-      ]
-    );
-  };
+  const handleSalvar = async () => {
+    if (!servicoData.titulo || !servicoData.descricao || !servicoData.nomeUsuario) {
+      Alert.alert("Atenção", "Preencha pelo menos o título, descrição e seu nome.");
+      return;
+    }
 
-  const renderService = ({ item }) => (
-    <View style={styles.card}>
-      <Text style={styles.name}>{item.name}</Text>
-      <Text style={styles.description}>{item.description}</Text>
-      <Text style={styles.price}>Preço: R$ {item.price}</Text>
-      <View style={styles.actions}>
-        <TouchableOpacity
-          style={styles.editButton}
-          onPress={() => editService(item)}
-        >
-          <Text style={styles.buttonText}>Editar</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.deleteButton}
-          onPress={() => deleteService(item.id)}
-        >
-          <Text style={styles.buttonText}>Excluir</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
+    setLoading(true);
+
+    try {
+      
+      const dadosParaEnviar = {
+        id_usuario: user._id,
+        titulo: servicoData.titulo,
+        descricao: servicoData.descricao,
+        nomeUsuario: servicoData.nomeUsuario,
+        telefone: servicoData.telefone,
+        bairro: servicoData.bairro,
+        cidade: servicoData.cidade,
+        estado: servicoData.estado,
+        valores: servicoData.valores,
+        observacoesValores: servicoData.observacoesValores,
+        status: "Ativo"
+      };
+
+      let response;
+
+      if (isEditing) {
+        response = await fetch(`${API_SERVICOS}/${servicoParaEditar._id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(dadosParaEnviar),
+        });
+      } else {
+        response = await fetch(`${API_SERVICOS}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(dadosParaEnviar),
+        });
+      }
+
+      const data = await response.json();
+
+      if (response.ok) {
+        const mensagem = isEditing ? "Serviço atualizado com sucesso!" : "Serviço cadastrado com sucesso!";
+        
+
+        const navigateToServices = () => {
+             
+             router.replace('/meusServicos');
+        };
+
+        if (Platform.OS === 'web') {
+            alert(mensagem);
+            navigateToServices();
+        } else {
+            Alert.alert("Sucesso", mensagem, [
+                { text: "OK", onPress: navigateToServices }
+            ]);
+        }
+        // -------------------------------------------
+
+      } else {
+        const errorMsg = data.error || "Erro ao salvar serviço";
+        if (Platform.OS === 'web') alert(`Erro: ${errorMsg}`);
+        else Alert.alert("Erro", errorMsg);
+      } 
+
+    } catch (error) {
+      console.log("Erro ao salvar serviço:", error);
+      if (Platform.OS === 'web') alert("Erro: Não foi possível conectar ao servidor");
+      else Alert.alert("Erro", "Não foi possível conectar ao servidor");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Meus Serviços</Text>
+    <KeyboardAvoidingView 
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 100}
+    >
+      <ScrollView 
+        style={styles.scrollView} 
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        <Text style={styles.title}>
+            {isEditing ? "Editar Serviço" : "Cadastrar Serviço"}
+        </Text>
 
-      <TouchableOpacity style={styles.addButton} onPress={createService}>
-        <Text style={styles.addText}>+ Adicionar Serviço</Text>
-      </TouchableOpacity>
-
-      {services.length === 0 ? (
-        <Text>Você ainda não cadastrou nenhum serviço.</Text>
-      ) : (
-        <FlatList
-          data={services}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={renderService}
+        <Text style={styles.sectionTitle}>Informações do Serviço</Text>
+        
+        <TextInput 
+          style={styles.input} 
+          placeholder="Título do serviço *" 
+          value={servicoData.titulo} 
+          onChangeText={(text) => handleChange("titulo", text)} 
         />
-      )}
-    </View>
+        
+        <TextInput 
+          style={[styles.input, styles.textArea]} 
+          placeholder="Descrição detalhada do serviço *" 
+          value={servicoData.descricao} 
+          onChangeText={(text) => handleChange("descricao", text)} 
+          multiline 
+          numberOfLines={4}
+        />
+
+        <Text style={styles.sectionTitle}>Valores e Contato</Text>
+        
+        <TextInput 
+          style={styles.input} 
+          placeholder="Valores (ex: R$ 50,00 hora | A combinar | Gratuito)" 
+          value={servicoData.valores} 
+          onChangeText={(text) => handleChange("valores", text)} 
+        />
+        
+        <TextInput 
+          style={[styles.input, styles.textArea]} 
+          placeholder="Observações sobre valores (forma de pagamento, condições, etc.)" 
+          value={servicoData.observacoesValores} 
+          onChangeText={(text) => handleChange("observacoesValores", text)} 
+          multiline 
+          numberOfLines={3}
+        />
+
+        <Text style={styles.sectionTitle}>Seus Dados para Contato</Text>
+        
+        <TextInput 
+          style={styles.input} 
+          placeholder="Seu nome *" 
+          value={servicoData.nomeUsuario} 
+          onChangeText={(text) => handleChange("nomeUsuario", text)} 
+        />
+        
+        <TextInput 
+          style={styles.input} 
+          placeholder="Telefone para contato (ex: (11) 99999-9999) *" 
+          value={servicoData.telefone} 
+          onChangeText={(text) => handleChange("telefone", text)} 
+          keyboardType="phone-pad"
+        />
+        
+        <View style={styles.row}>
+          <TextInput 
+            style={[styles.input, styles.halfInput]} 
+            placeholder="Bairro *" 
+            value={servicoData.bairro} 
+            onChangeText={(text) => handleChange("bairro", text)} 
+          />
+          <TextInput 
+            style={[styles.input, styles.halfInput]} 
+            placeholder="Cidade *" 
+            value={servicoData.cidade} 
+            onChangeText={(text) => handleChange("cidade", text)} 
+          />
+        </View>
+        
+        <TextInput 
+          style={styles.input} 
+          placeholder="Estado *" 
+          value={servicoData.estado} 
+          onChangeText={(text) => handleChange("estado", text)} 
+        />
+
+        <Text style={styles.obs}>
+          * Campos obrigatórios{'\n'}
+          Seus dados de contato serão visíveis para outros usuários interessados no serviço.
+        </Text>
+
+        <TouchableOpacity 
+            style={styles.button} 
+            onPress={handleSalvar}
+            disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="#FFF" />
+          ) : (
+            <Text style={styles.buttonText}>
+                {isEditing ? "Atualizar Serviço" : "Salvar Serviço"}
+            </Text>
+          )}
+        </TouchableOpacity>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  container: { 
+    flex: 1, 
+    backgroundColor: "#fff" 
+  },
+  scrollView: {
     flex: 1,
-    padding: 16,
-    backgroundColor: "#fff",
   },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
+  scrollContent: {
+    padding: 20,
+    paddingBottom: 40,
+  },
+  title: { 
+    fontSize: 22, 
+    fontWeight: "700", 
     marginBottom: 16,
+    color: "#00BCCD",
+    textAlign: "center"
   },
-  card: {
-    padding: 12,
-    marginVertical: 8,
-    borderRadius: 8,
-    backgroundColor: "#f2f2f2",
-  },
-  name: {
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  description: {
-    fontSize: 14,
-    color: "#555",
-  },
-  price: {
-    marginTop: 4,
-    fontWeight: "600",
-  },
-  actions: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    marginTop: 8,
-  },
-  editButton: {
-    backgroundColor: "#4CAF50",
-    padding: 8,
-    borderRadius: 5,
-    marginRight: 8,
-  },
-  deleteButton: {
-    backgroundColor: "#E53935",
-    padding: 8,
-    borderRadius: 5,
-  },
-  buttonText: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
-  addButton: {
-    padding: 12,
-    borderRadius: 8,
-    backgroundColor: "#2196F3",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  addText: {
-    color: "#fff",
-    fontWeight: "bold",
+  sectionTitle: {
     fontSize: 16,
+    fontWeight: "600",
+    marginTop: 20,
+    marginBottom: 10,
+    color: "#333"
   },
+  input: { 
+    backgroundColor: "#f8f8f8", 
+    padding: 12, 
+    borderRadius: 8, 
+    marginBottom: 10, 
+    borderWidth: 1, 
+    borderColor: "#EAEAEA",
+    fontSize: 14
+  },
+  textArea: {
+    height: 100,
+    textAlignVertical: "top"
+  },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between"
+  },
+  halfInput: {
+    width: "48%"
+  },
+  button: { 
+    backgroundColor: "#00BCCD", 
+    padding: 16, 
+    borderRadius: 8, 
+    alignItems: "center", 
+    marginTop: 20,
+    marginBottom: 30
+  },
+  buttonText: { 
+    color: "#fff", 
+    fontWeight: "700",
+    fontSize: 16
+  },
+  obs: {
+    fontSize: 12,
+    color: "#666",
+    marginTop: 10,
+    lineHeight: 16
+  }
 });

@@ -1,25 +1,43 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { View, StyleSheet, Text, ActivityIndicator, Pressable } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router'; // NOVO: Para navegar para a tela de filtros
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import Swiper from 'react-native-deck-swiper';
 import { PetCard } from '../../components/PetCard/index';
-import { Ionicons } from '@expo/vector-icons';
+import { API_PETS } from '../../config';
+import { useFilters } from '../../context/FilterContext';
 
-// ADICIONADO DE VOLTA: A URL da API está aqui dentro do arquivo.
-// ATENÇÃO: Use 'localhost' para o navegador web ou SEU IP para o celular/emulador.
-const API_URL = 'http://localhost:3001/api/pets';
+
+
 
 export default function Match() {
   const [pets, setPets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
   const swiperRef = useRef(null);
 
+  
+  const { filters } = useFilters();
+
+ 
   const fetchPets = useCallback(async () => {
     setLoading(true);
     setError(null);
+
+    // Constrói a query string com os filtros ativos
+    const params = new URLSearchParams();
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== null) {
+        params.append(key, String(value));
+      }
+    });
+    const queryString = params.toString();
+    const fullUrl = queryString ? `${API_PETS}?${queryString}` : API_PETS;
+
+    console.log("Buscando pets da API:", fullUrl);
+
     try {
-      const response = await fetch(API_URL); // Usando a URL local
+      const response = await fetch(fullUrl);
       if (!response.ok) {
         throw new Error('Não foi possível buscar os pets.');
       }
@@ -30,7 +48,7 @@ export default function Match() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [filters]); // A busca é refeita sempre que os filtros mudam
 
   useEffect(() => {
     fetchPets();
@@ -39,13 +57,9 @@ export default function Match() {
   const handleSwipeRight = async (cardIndex) => {
     const pet = pets[cardIndex];
     if (!pet) return;
-
-    // TODO: Substituir este ID fixo pelo ID do usuário que está logado
     const mockUserId = '64f3e2a7c9d1f2b4a1e5f6a7'; 
-    
     try {
-      // Usando a URL local para a rota de match
-      await fetch(`${API_URL}/match`, {
+      await fetch(`${API_PETS}/match`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -79,6 +93,11 @@ export default function Match() {
 
   return (
     <View style={styles.container}>
+     
+      <Pressable style={styles.filterButton} onPress={() => router.push('/filters')}>
+        <Ionicons name="filter" size={24} color="#333" />
+      </Pressable>
+
       <View style={styles.swiperContainer}>
         {pets.length > 0 ? (
           <Swiper
@@ -101,7 +120,7 @@ export default function Match() {
           />
         ) : (
           <View style={styles.centerContent}>
-            <Text style={styles.infoText}>Não há mais pets por aqui!</Text>
+            <Text style={styles.infoText}>Nenhum pet encontrado com esses filtros.</Text>
             <Pressable style={styles.retryButton} onPress={fetchPets}>
               <Text style={styles.retryButtonText}>Buscar novamente</Text>
             </Pressable>
@@ -188,6 +207,16 @@ const styles = StyleSheet.create({
   likeButton: {
     borderColor: '#00C7BE',
     borderWidth: 2,
-  }
+  },
+  
+  filterButton: {
+    position: 'absolute',
+    top: 5,
+    right: 20,
+    zIndex: 10,
+    backgroundColor: '#fff',
+    padding: 10,
+    borderRadius: 50,
+    elevation: 5,
+  },
 });
-

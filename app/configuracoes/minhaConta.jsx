@@ -1,7 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
+  Alert,
   Image,
   Keyboard,
   KeyboardAvoidingView,
@@ -12,10 +14,13 @@ import {
   TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  View,
+  View
 } from "react-native";
+import { API_AUTH } from "../../config";
+import { useAuth } from "../../context/AuthContext";
 
 export default function MeuPerfil() {
+  const { user } = useAuth();
   const [form, setForm] = useState({
     nome: "",
     email: "",
@@ -36,7 +41,8 @@ export default function MeuPerfil() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [cepValido, setCepValido] = useState(false);
-  const [foto, setFoto] = useState(null); 
+  const [foto, setFoto] = useState(null);
+  const [carregandoDados, setLoading] = useState(true); 
 
   const [erros, setErros] = useState({
     email: "",
@@ -44,8 +50,63 @@ export default function MeuPerfil() {
     cep: "",
   });
 
+   useEffect(() => {
+    if (user) {
+      carregarDadosUsuario();
+    }
+  }, [user]);
+
+  const carregarDadosUsuario = async () => {
+  try {
+    setLoading(true);
+    
+    // ✅ BUSCA OS DADOS COMPLETOS DO USUÁRIO
+    const response = await fetch(`${API_AUTH}/profile/${user._id}`);
+    const result = await response.json();
+    
+    if (result.success && result.user) {
+      const usuario = result.user;
+      
+      // ✅ CORREÇÃO: PREENCHE O FORMULÁRIO CORRETAMENTE COM O OBJETO ENDEREÇO
+      setForm({
+        nome: usuario.nome || "",
+        email: usuario.email || "",
+        senha: "", // Não carrega senha por segurança
+        confirmSenha: "",
+        telefone: usuario.telefone || "",
+        // ✅ AGORA ACESSA OS CAMPOS DENTRO DO OBJETO ENDERECO
+        cep: usuario.endereco?.cep || "",
+        cidade: usuario.endereco?.cidade || "",
+        uf: usuario.endereco?.estado || "", // Note: no seu objeto é "estado", não "uf"
+        endereco: usuario.endereco?.rua || "",
+        bairro: usuario.endereco?.bairro || "",
+        numero: usuario.endereco?.numero || "",
+        tipo: usuario.tipousuario || "", // Note: seu objeto original usa "tipousuario"
+        complemento: usuario.endereco?.complemento || "",
+      });
+      
+      // Se o usuário tem foto, carrega também
+      if (usuario.foto) {
+        setFoto(usuario.foto);
+      }
+    } else {
+      Alert.alert("Erro", "Não foi possível carregar os dados do usuário");
+    }
+  } catch (error) {
+    console.error("Erro ao carregar dados:", error);
+    Alert.alert("Erro", "Falha ao carregar dados do usuário");
+  } finally {
+    setLoading(false);
+  }
+};
+
   const handleChange = (key, value) => {
     setForm({ ...form, [key]: value });
+    
+    // Limpa erro do campo quando usuário começa a digitar
+    if (erros[key]) {
+      setErros(prev => ({ ...prev, [key]: "" }));
+    }
   };
 
   const escolherFoto = async () => {
@@ -57,7 +118,6 @@ export default function MeuPerfil() {
       return;
     }
 
- 
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
@@ -70,6 +130,7 @@ export default function MeuPerfil() {
     }
   };
 
+  // ✅ VERIFICAÇÕES DE SENHA
   const checks = {
     length: form.senha.length >= 8,
     upper: /[A-Z]/.test(form.senha),
@@ -77,9 +138,9 @@ export default function MeuPerfil() {
     number: /\d/.test(form.senha),
     symbol: /[@$!%*?&]/.test(form.senha),
   };
+  
   const requisitosValidos = Object.values(checks).every(Boolean);
-  const senhasIguais =
-    form.senha === form.confirmSenha && form.senha.length > 0;
+  const senhasIguais = form.senha === form.confirmSenha && form.senha.length > 0;
 
   const formatTelefone = (value) => {
     let onlyNumbers = value.replace(/\D/g, "");
@@ -127,20 +188,26 @@ export default function MeuPerfil() {
 
       if (data.erro) {
         setErros((prev) => ({ ...prev, cep: "CEP não encontrado." }));
-        setForm({ ...form, endereco: "", bairro: "", cidade: "", uf: "" });
+        setForm(prev => ({ 
+          ...prev, 
+          endereco: "", 
+          bairro: "", 
+          cidade: "", 
+          uf: "" 
+        }));
         setCepValido(false);
         return;
       }
 
       setErros((prev) => ({ ...prev, cep: "" }));
-      setForm({
-        ...form,
+      setForm(prev => ({
+        ...prev,
         endereco: data.logradouro || "",
         bairro: data.bairro || "",
         cidade: data.localidade || "",
         uf: data.uf || "",
         cep: onlyNumbers,
-      });
+      }));
       setCepValido(true);
     } catch (error) {
       setErros((prev) => ({ ...prev, cep: "Erro ao buscar CEP." }));
@@ -148,24 +215,138 @@ export default function MeuPerfil() {
     }
   };
 
-  const handleButtonPress = () => {
+  // ✅ FUNÇÃO ATUALIZADA PARA SALVAR NO BANCO
+  const salvarAlteracoes = async () => {
+  try {
+    setLoading(true);
+    
+    // ✅ CORREÇÃO: MONTA O OBJETO ENDERECO CORRETAMENTE
+    const dadosParaEnviar = {
+      nome: form.nome,
+      email: form.email,
+      telefone: form.telefone,
+      // ✅ OBJETO ENDERECO ESTRUTURADO CORRETAMENTE
+      endereco: {
+        cep: form.cep,
+        rua: form.endereco,
+        numero: form.numero,
+        complemento: form.complemento,
+        bairro: form.bairro,
+        cidade: form.cidade,
+        estado: form.uf // Note: no objeto é "estado", não "uf"
+      },
+      tipousuario: form.tipo, // Note: seu objeto original usa "tipousuario"
+      foto: foto
+    };
+
+    // ✅ SE A SENHA FOI PREENCHIDA, ADICIONA AO ENVIO
+    if (form.senha && form.senha.trim() !== "") {
+      if (!requisitosValidos) {
+        Alert.alert("Erro", "A senha não atende todos os requisitos de segurança.");
+        setLoading(false);
+        return;
+      }
+      
+      if (!senhasIguais) {
+        Alert.alert("Erro", "As senhas não coincidem.");
+        setLoading(false);
+        return;
+      }
+      
+      dadosParaEnviar.senha = form.senha;
+    }
+
+    console.log('Enviando dados para atualização:', dadosParaEnviar);
+
+    // ✅ TENTA ATUALIZAR VIA PATCH PRIMEIRO
+    let response = await fetch(`${API_AUTH}/profile/${user._id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(dadosParaEnviar),
+    });
+
+    // ✅ SE PATCH NÃO EXISTIR, TENTA PUT
+    if (response.status === 404) {
+      response = await fetch(`${API_AUTH}/profile/${user._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dadosParaEnviar),
+      });
+    }
+
+    const result = await response.json();
+    console.log('Resposta da atualização:', result);
+
+    if (result.success) {
+      Alert.alert("Sucesso", "Perfil atualizado com sucesso!");
+      setIsEditing(false);
+      
+      // ✅ LIMPA OS CAMPOS DE SENHA APÓS SALVAR
+      setForm(prev => ({
+        ...prev,
+        senha: "",
+        confirmSenha: ""
+      }));
+      
+      // ✅ RECARREGA OS DADOS PARA PEGAR ATUALIZAÇÕES
+      carregarDadosUsuario();
+    } else {
+      Alert.alert("Erro", result.error || "Erro ao atualizar perfil");
+    }
+  } catch (error) {
+    console.error("Erro ao atualizar:", error);
+    Alert.alert("Erro", "Falha ao conectar com o servidor");
+  } finally {
+    setLoading(false);
+  }
+};
+
+  const handleButtonPress = async () => {
     if (isEditing) {
+      // ✅ VALIDAÇÕES
       const emailValido = validarEmail(form.email);
       const telefoneValido = validarTelefone(form.telefone);
 
-      if (!emailValido || !telefoneValido || !cepValido) return;
-
-      if (!requisitosValidos || !senhasIguais) {
-        setErros((prev) => ({
-          ...prev,
-          senha: "A senha não atende os requisitos.",
-        }));
+      if (!emailValido || !telefoneValido) {
+        Alert.alert("Erro", "Verifique os campos destacados em vermelho.");
         return;
       }
 
-      console.log("Dados salvos:", form);
+      if (!form.nome.trim()) {
+        Alert.alert("Erro", "O nome é obrigatório.");
+        return;
+      }
+
+      // ✅ SE CEP FOI PREENCHIDO, DEVE SER VÁLIDO
+      if (form.cep && form.cep.length === 8 && !cepValido) {
+        Alert.alert("Erro", "CEP inválido. Clique fora do campo para buscar o endereço.");
+        return;
+      }
+
+      await salvarAlteracoes();
+    } else {
+      setIsEditing(true);
     }
-    setIsEditing(!isEditing);
+  };
+
+  // ✅ VERIFICA SE USUÁRIO ESTÁ LOGADO
+  if (!user) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={styles.loadingText}>Você precisa estar logado para acessar esta página</Text>
+        <Text style={styles.loadingSubtext}>Faça login e tente novamente</Text>
+      </View>
+    );
+  }
+
+  // ✅ MOSTRA LOADING ENQUANTO CARREGA DADOS
+  if (carregandoDados) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#00C7BE" />
+        <Text style={styles.loadingText}>Carregando seus dados...</Text>
+      </View>
+    );
   };
 
   return (

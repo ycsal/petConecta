@@ -1,13 +1,31 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useState } from "react";
-import { Image, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { EnterButton } from "../components/EnterButton";
+import { useAuth } from '../context/AuthContext';
 
 export default function Index() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  
+  const { login, loading } = useAuth();
+
+  //Função de Login
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert("Atenção", "Preencha email e senha");
+      return;
+    }
+    const result = await login(email, password);
+    
+    // Se o login for bem-sucedido, o redirecionamento é tratado no AuthContext
+    if (result.success) {
+      console.log("Login bem-sucedido, redirecionando...");
+      // O AuthContext já deve redirecionar automaticamente
+    }
+  };
 
   return (
     <View
@@ -44,8 +62,19 @@ export default function Index() {
         </TouchableOpacity>
       </View>
 
-      <View>
-        <EnterButton title="Entrar" onPress={() => router.navigate('tabs/match')} />
+       <View>
+        {/* ✅ CORRIGIDO: Usar handleLogin corretamente */}
+        {loading ? (
+          <View style={styles.loadingButton}>
+            <ActivityIndicator color="#fff" />
+            <Text style={styles.loadingText}>Entrando...</Text>
+          </View>
+        ) : (
+          <EnterButton 
+            title="Entrar" 
+            /*onPress={() => router.push('tabs/match')}*/ onPress={handleLogin} // ✅ Corrigido: passa a referência da função
+          />
+        )}
       </View>
 
       <View style={styles.footer}>
@@ -98,5 +127,15 @@ const styles = StyleSheet.create({
     color: "#014946ff",
     fontSize: 20,
     textAlign: "center"
+  },
+  loadingButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10
+  },
+  loadingText: {
+    color: '#fff',
+    fontSize: 16
   }
 });
