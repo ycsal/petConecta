@@ -1,6 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import { API_PETS } from '../../config';
 import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
@@ -14,15 +13,18 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
+import { API_PETS } from '../../config';
+import { useAuth } from '../../context/AuthContext';
 
 
 export default function MeusPets() {
+  const { user } = useAuth();
   const navigation = useNavigation();
   const [pets, setPets] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // ID do usuário
-  const userId = "64f3e2a7c9d1f2b4a1e5f6a7"; 
+//  const userId = "64f3e2a7c9d1f2b4a1e5f6a7"; 
 
   // ⭐⭐ FUNÇÃO CORRIGIDA - COM ENDPOINT CORRETO E DEBUG ⭐⭐
   const fetchMyPets = async () => {
@@ -31,9 +33,9 @@ export default function MeusPets() {
       console.log("🔄 Buscando meus pets...");
       
       // ⭐⭐ ENDPOINT CORRETO BASEADO NO SEU PETCONTROLLER ⭐⭐
-      const response = await fetch(`${API_PETS}/meus/${userId}`);
+      const response = await fetch(`${API_PETS}/meus/${user._id}`);
       
-      console.log("📡 URL usada:", `${API_PETS}/meus/${userId}`);
+      console.log("📡 URL usada:", `${API_PETS}/meus/${user._id}`);
       console.log("✅ Status da resposta:", response.status);
       
       if (!response.ok) {
