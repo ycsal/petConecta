@@ -117,7 +117,7 @@ class PetController {
 
     
   }
-  static async createPet(req, res) {
+static async createPet(req, res) {
   try {
     const {
       id_usuario,
@@ -127,15 +127,32 @@ class PetController {
       sexo,
       idade,
       porte,
-      status = 'Disponível', // valor padrão
+      status = 'Disponível',
       descricao,
       foto,
       castrado = false,
       vacinado = false
     } = req.body;
 
+    // Valida se o Usuario esta logado
+    if (!id_usuario) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'ID do usuário é obrigatório' 
+      });
+    }
+
+    // Valida se o usuario existe
+    const userExists = await User.findById(id_usuario);
+    if (!userExists) {
+      return res.status(404).json({ 
+        success: false,
+        error: 'Usuário não encontrado' 
+      });
+    }
+
     // Validar campos obrigatórios
-    if (!id_usuario || !nome || !especie || !raca || !sexo || !idade || !porte) {
+    if (!nome || !especie || !raca || !sexo || !idade || !porte) {
       return res.status(400).json({ error: 'Campos obrigatórios faltando' });
     }
 
@@ -163,6 +180,7 @@ class PetController {
       res.status(500).send('Erro no Servidor ao criar pet');
     }
   }
+
   static async updatePet(req, res) {
     const { id } = req.params; // Pega o ID que veio na URL
     const updateData = req.body; // Pega os dados novos
@@ -201,7 +219,5 @@ class PetController {
   }
 
 }
-
-
 
 module.exports = PetController;
