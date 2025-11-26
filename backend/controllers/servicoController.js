@@ -1,4 +1,5 @@
 const Servico = require('../models/Servico');
+const User = require('../models/User');
 
 class ServicoController {
   static async createServico(req, res) {
@@ -16,6 +17,23 @@ class ServicoController {
         observacoesValores,
         status = 'Ativo'
       } = req.body;
+
+    //Valida se o usuario está logado
+    if (!id_usuario) {
+      return res.status(400).json({
+        success: false,
+        error: 'ID do usuário é obrigatório'
+      });
+    }
+
+    // Valida se o usuario existe
+    const userExists = await User.findById(id_usuario);
+    if (!userExists) {
+      return res.status(404).json({
+        success: false,
+        error: 'Usuário não encontrado'
+      });
+    }
 
       // Validar campos obrigatórios
       if (!id_usuario || !titulo || !descricao || !nomeUsuario || !telefone) {
