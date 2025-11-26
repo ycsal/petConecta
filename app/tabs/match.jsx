@@ -4,8 +4,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import Swiper from 'react-native-deck-swiper';
 import { PetCard } from '../../components/PetCard/index';
+import { API_PETS } from '../../config';
 import { useFilters } from '../../context/FilterContext';
-import {API_PETS } from '../../config';
 
 
 
@@ -59,7 +59,7 @@ export default function Match() {
     if (!pet) return;
     const mockUserId = '64f3e2a7c9d1f2b4a1e5f6a7'; 
     try {
-      await fetch(`${API_URL}/match`, {
+      await fetch(`${API_PETS}/match`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
