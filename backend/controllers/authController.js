@@ -152,6 +152,68 @@ class AuthController {
       });
     }
   }
+  static async updateProfile(req, res) {
+  try {
+    const { userId } = req.params;
+    const updateData = req.body;
+
+    console.log('Atualizando perfil do usuário:', userId);
+    console.log('Dados recebidos:', updateData);
+
+    // Remove campos que não devem ser atualizados
+    delete updateData._id;
+    delete updateData.data_cadastro;
+    delete updateData.ultimo_login;
+
+    // Se senha foi enviada vazia, remove do update
+    if (updateData.senha === '') {
+      delete updateData.senha;
+    }
+
+    const user = await User.findByIdAndUpdate(
+      userId, 
+      updateData, 
+      { new: true, runValidators: true }
+    ).select('-senha');
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'Usuário não encontrado'
+      });
+    }
+
+    console.log('Perfil atualizado com sucesso:', user.email);
+
+    res.json({
+      success: true,
+      user,
+      message: 'Perfil atualizado com sucesso'
+    });
+  } catch (err) {
+    console.error('Erro ao atualizar perfil:', err);
+    
+    if (err.name === 'ValidationError') {
+      const errors = Object.values(err.errors).map(error => error.message);
+      return res.status(400).json({
+        success: false,
+        error: errors.join(', ')
+      });
+    }
+    
+    if (err.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        error: 'Este email já está em uso'
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      error: 'Erro interno do servidor'
+    });
+  }
+}
 }
 
 module.exports = AuthController;
