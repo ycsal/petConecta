@@ -4,9 +4,11 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import Swiper from 'react-native-deck-swiper';
 import { PetCard } from '../../components/PetCard/index';
+import { API_PETS } from '../../config';
+import { useFilters } from '../../context/FilterContext';
 
-// A URL da API está aqui dentro do arquivo.
-const API_URL = 'http://192.168.101.22:3001/api/pets';
+
+
 
 export default function Match() {
   const [pets, setPets] = useState([]);
@@ -30,7 +32,7 @@ export default function Match() {
       }
     });
     const queryString = params.toString();
-    const fullUrl = queryString ? `${API_URL}?${queryString}` : API_URL;
+    const fullUrl = queryString ? `${API_PETS}?${queryString}` : API_PETS;
 
     console.log("Buscando pets da API:", fullUrl);
 
@@ -57,7 +59,7 @@ export default function Match() {
     if (!pet) return;
     const mockUserId = '64f3e2a7c9d1f2b4a1e5f6a7'; 
     try {
-      await fetch(`${API_URL}/match`, {
+      await fetch(`${API_PETS}/match`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

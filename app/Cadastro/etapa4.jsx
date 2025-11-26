@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import { useState } from "react";
-import { Alert, StyleSheet, Text, TextInput, View } from "react-native";
+import { Alert, Keyboard, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableWithoutFeedback, View } from "react-native";
 import { Footer } from "../../components/FooterCadastro";
 import { useCadastro } from '../../context/CadastroContext';
 
@@ -79,7 +79,19 @@ export default function Etapa4() {
     };
 
     return (
-        <View style={styles.container}>
+        <KeyboardAvoidingView 
+            style={styles.container}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 40}
+        >
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <View style={styles.innerContainer}>
+                    <ScrollView 
+                        contentContainerStyle={styles.scrollContent}
+                        showsVerticalScrollIndicator={false}
+                        keyboardShouldPersistTaps="handled"
+                        style={styles.scrollView}
+                    >
             <Text style={styles.title}>Informe seu telefone e endereço</Text>
 
             <TextInput
@@ -170,21 +182,30 @@ export default function Etapa4() {
                 />
             </View>
 
-            <Footer
-                etapa={4}
-                totalEtapas={5}
-                onPress={avancarParaEtapa5}
-                disabled={
-                    telefoneNumeros.length < 10 ||
-                    !cepValido ||
-                    rua.trim().length === 0 ||
-                    numero.trim().length === 0 ||
-                    bairro.trim().length === 0 ||
-                    cidade.trim().length === 0 ||
-                    estado.trim().length === 0
-                }
-            />
-        </View>
+             <View style={styles.espacoExtra} />
+                    </ScrollView>
+
+            <View style={styles.footerOverlay}>
+                        <View style={styles.footerWrapper}>
+                            <Footer
+                                etapa={4}
+                                totalEtapas={5}
+                                onPress={avancarParaEtapa5}
+                                disabled={
+                                    telefoneNumeros.length < 10 ||
+                                    !cepValido ||
+                                    rua.trim().length === 0 ||
+                                    numero.trim().length === 0 ||
+                                    bairro.trim().length === 0 ||
+                                    cidade.trim().length === 0 ||
+                                    estado.trim().length === 0
+                                }
+                            />
+                        </View>
+                    </View>
+                </View>
+            </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
     );
 }
 
@@ -192,14 +213,25 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#fff",
-        justifyContent: "center",
+    },
+    innerContainer: {
+        flex: 1,
+        position: 'relative',
+    },
+    scrollView: {
+        flex: 1,
+        width: '100%',
+    },
+    scrollContent: {
+        flexGrow: 1,
         alignItems: "center",
         padding: 20,
-        paddingBottom: 80
+        paddingTop: 40,
+        paddingBottom: 120, // Espaço para o footer
     },
     title: {
         fontSize: 18,
-        marginBottom: 40,
+        marginBottom: 30,
         textAlign: "center",
         fontWeight: "bold"
     },
@@ -208,17 +240,40 @@ const styles = StyleSheet.create({
         backgroundColor: "#f2f2f2",
         borderRadius: 8,
         paddingHorizontal: 12,
-        paddingVertical: 10,
+        paddingVertical: 12,
         fontSize: 16,
         color: "#000",
-        marginBottom: 20
+        marginBottom: 15
     },
     row: {
         flexDirection: "row",
         justifyContent: "space-between",
-        width: "100%"
+        width: "100%",
+        marginBottom: 15,
     },
     halfInput: {
         flex: 1
     },
+    footerOverlay: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: '#fff',
+        height: 150, 
+    },
+    footerWrapper: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: '#fff',
+        borderTopWidth: 1,
+        borderTopColor: '#f0f0f0',
+        paddingHorizontal: 20,
+        paddingVertical: 10,
+    },
+    espacoExtra: {
+        height: 50,
+    }
 });

@@ -72,7 +72,7 @@ export default function Index() {
         ) : (
           <EnterButton 
             title="Entrar" 
-            onPress={handleLogin} // ✅ Corrigido: passa a referência da função
+            /*onPress={() => router.push('tabs/match')}*/ onPress={handleLogin} // ✅ Corrigido: passa a referência da função
           />
         )}
       </View>

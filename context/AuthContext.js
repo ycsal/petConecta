@@ -2,11 +2,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from "expo-router";
 import { createContext, useContext, useEffect, useState } from 'react';
 import { Alert } from 'react-native';
+import { API_AUTH } from '../config';
+
 
 const AuthContext = createContext();
-
-// ⚠️ SUBSTITUA pelo seu IP real
-const API_URL = "http://192.168.1.8:3001"; 
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -35,7 +34,7 @@ export const AuthProvider = ({ children }) => {
     try {
       console.log('Enviando dados para registro:', userData);
       
-      const response = await fetch(`${API_URL}/api/auth/register`, {
+      const response = await fetch(`${API_AUTH}/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -69,7 +68,7 @@ export const AuthProvider = ({ children }) => {
   try {
     console.log('Tentando login:', email);
     
-    const response = await fetch(`${API_URL}/api/auth/login`, {
+    const response = await fetch(`${API_AUTH}/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

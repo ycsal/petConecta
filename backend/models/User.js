@@ -1,6 +1,16 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
+const enderecoSchema = new mongoose.Schema({
+  cep: { type: String, required: true },
+  rua: { type: String, required: true },
+  numero: { type: String, required: true },
+  complemento: { type: String },
+  bairro: { type: String, required: true },
+  cidade: { type: String, required: true },
+  estado: { type: String, required: true }
+});
+
 const UserSchema = new Schema({
   nome: {
     type: String,
@@ -27,13 +37,7 @@ const UserSchema = new Schema({
     trim: true
   },
   endereco: {
-    cep: String,
-    rua: String,
-    numero: String,
-    complemento: String,
-    bairro: String,
-    cidade: String,
-    estado: String
+    enderecoSchema,
   },
   tipoUsuario: {
   type: String,

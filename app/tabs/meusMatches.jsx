@@ -2,8 +2,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { Link, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { API_PETS } from '../../config';
 
-const API_URL = 'http://192.168.101.22:3001/api/pets';
 
 export default function MeusMatches() {
   const [matches, setMatches] = useState([]);
@@ -16,7 +16,7 @@ export default function MeusMatches() {
         console.log("Tela Meus Matches em foco. Buscando dados...");
         setLoading(true);
         try {
-          const response = await fetch(`${API_URL}/mymatches/${mockUserId}`);
+          const response = await fetch(`${API_PETS}/mymatches/${mockUserId}`);
           if (!response.ok) throw new Error('Erro ao buscar matches');
           const data = await response.json();
           setMatches(data);

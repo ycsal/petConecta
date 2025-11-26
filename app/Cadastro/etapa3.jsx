@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router"; // <-- Importa useRouter
 import { useState } from "react";
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Keyboard, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
 import { Footer } from "../../components/FooterCadastro";
 import { useCadastro } from '../../context/CadastroContext';
 
@@ -31,7 +31,17 @@ export default function Etapa3() {
   }; 
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView 
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 50 : 0}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView 
+          contentContainerStyle={styles.innerContainer}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
       <Text style={styles.title}>Agora crie uma senha para acessar:</Text>
 
       {/* Campo senha */}
@@ -86,14 +96,18 @@ export default function Etapa3() {
       {!senhasIguais && confirm.length > 0 && (
         <Text style={{ color: "red", marginBottom: 10 }}>As senhas não coincidem</Text>
       )}
+      </ScrollView>
+      </TouchableWithoutFeedback>
 
-      <Footer
-        etapa={3}
-        totalEtapas={5}
-        onPress={avancar} 
-        disabled={!requisitosValidos || !senhasIguais}
-      />
-    </View>
+      <View style={styles.footerWrapper}>
+        <Footer
+          etapa={3}
+          totalEtapas={5}
+          onPress={avancar} 
+          disabled={!requisitosValidos || !senhasIguais}
+        />
+      </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -101,9 +115,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+  },
+  innerContainer: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
+    paddingBottom: 100
   },
   title: {
     fontSize: 18,
@@ -134,4 +152,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginVertical: 2,
   },
+  footerWrapper: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+  }
 });

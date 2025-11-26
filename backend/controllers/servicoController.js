@@ -1,4 +1,5 @@
 const Servico = require('../models/Servico');
+const User = require('../models/User');
 
 class ServicoController {
   static async createServico(req, res) {
@@ -16,6 +17,23 @@ class ServicoController {
         observacoesValores,
         status = 'Ativo'
       } = req.body;
+
+    //Valida se o usuario está logado
+    if (!id_usuario) {
+      return res.status(400).json({
+        success: false,
+        error: 'ID do usuário é obrigatório'
+      });
+    }
+
+    // Valida se o usuario existe
+    const userExists = await User.findById(id_usuario);
+    if (!userExists) {
+      return res.status(404).json({
+        success: false,
+        error: 'Usuário não encontrado'
+      });
+    }
 
       // Validar campos obrigatórios
       if (!id_usuario || !titulo || !descricao || !nomeUsuario || !telefone) {
@@ -106,6 +124,41 @@ class ServicoController {
     } catch (err) {
       console.error('Erro ao deletar serviço:', err);
       res.status(500).json({ success: false, error: 'Erro ao deletar serviço' });
+    }
+  }
+  static async getAllServicos(req, res) {
+    try {
+      const { search, cidade, estado } = req.query;
+      
+      // Filtro base - apenas serviços ativos
+      const filter = { status: 'Ativo' };
+
+      // Adicionar filtros opcionais
+      if (search) {
+        filter.$or = [
+          { titulo: { $regex: search, $options: 'i' } },
+          { descricao: { $regex: search, $options: 'i' } },
+          { nomeUsuario: { $regex: search, $options: 'i' } },
+          { bairro: { $regex: search, $options: 'i' } }
+        ];
+      }
+
+      if (cidade) filter.cidade = { $regex: cidade, $options: 'i' };
+      if (estado) filter.estado = { $regex: estado, $options: 'i' };
+
+      const servicos = await Servico.find(filter).sort({ createdAt: -1 });
+      
+      res.json({
+        success: true,
+        servicos,
+        total: servicos.length
+      });
+    } catch (err) {
+      console.error('Erro ao buscar serviços:', err);
+      res.status(500).json({
+        success: false,
+        error: 'Erro no servidor ao buscar serviços'
+      });
     }
   }
 }

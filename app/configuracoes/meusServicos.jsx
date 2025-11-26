@@ -1,34 +1,35 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation, useFocusEffect } from "@react-navigation/native";
-import { useState, useCallback } from "react";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useCallback, useState } from "react";
 import {
+  ActivityIndicator,
+  Alert,
   FlatList,
+  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
-  Alert,
-  Platform,
-  ActivityIndicator
+  View
 } from "react-native";
+import { API_SERVICOS } from "../../config";
+import { useAuth } from '../../context/AuthContext';
 
-// URL da API (Ajuste se for rodar no celular físico)
-const API_URL = "http://localhost:3001/api/servicos"; 
-// OBS: Se não tiver configurado o prefixo /servicos no app.js, ajuste aqui.
 
 export default function MeusServicos() {
+  const { user } = useAuth();
   const navigation = useNavigation();
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // ID do usuário (mesmo usado nos Pets)
-  const userId = "64f3e2a7c9d1f2b4a1e5f6a7"; 
+  //const userId = "64f3e2a7c9d1f2b4a1e5f6a7"; 
 
   // --- BUSCAR SERVIÇOS ---
   const fetchServices = async () => {
     setLoading(true);
+    if (!user) return;
     try {
-      const response = await fetch(`${API_URL}/meus/${userId}`);
+      const response = await fetch(`${API_SERVICOS}/meus/${user._id}`);
       const data = await response.json();
 
       // Verifica se a API retornou o array dentro de 'servicos' (conforme seu controller)
@@ -65,7 +66,7 @@ export default function MeusServicos() {
   const deleteService = (id) => {
     const confirmDelete = async () => {
       try {
-        const response = await fetch(`${API_URL}/${id}`, {
+        const response = await fetch(`${API_SERVICOS}/${id}`, {
           method: "DELETE",
         });
 
