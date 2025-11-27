@@ -1,23 +1,27 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Link, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, FlatList, Image, StyleSheet, Text, TouchableOpacity, View, Alert, Platform } from 'react-native';
 import { API_PETS } from '../../config';
-
+import { useAuth } from '../../context/AuthContext'; 
 
 export default function MeusMatches() {
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(false);
-  const mockUserId = '64f3e2a7c9d1f2b4a1e5f6a7';
+  const { user } = useAuth(); 
 
   useFocusEffect(
     useCallback(() => {
+      if (!user) return;
+
       const fetchMatches = async () => {
-        console.log("Tela Meus Matches em foco. Buscando dados...");
         setLoading(true);
         try {
-          const response = await fetch(`${API_PETS}/mymatches/${mockUserId}`);
+          const userId = user._id || user.id; 
+          const response = await fetch(`${API_PETS}/mymatches/${userId}`);
+          
           if (!response.ok) throw new Error('Erro ao buscar matches');
+          
           const data = await response.json();
           setMatches(data);
         } catch (error) {
@@ -26,67 +30,109 @@ export default function MeusMatches() {
           setLoading(false);
         }
       };
+
       fetchMatches();
-      return () => {};
-    }, []) 
+    }, [user]) 
   );
 
-  // Função para obter cor e texto do status - CORRIGIDA
+  // --- FUNÇÃO DE UNLIKE (REMOVER) ---
+  const handleUnlike = (petId, petName) => {
+    const confirmUnlike = async () => {
+      try {
+        const userId = user._id || user.id;
+        
+        // Chama a rota de delete
+        const response = await fetch(`${API_PETS}/match/${petId}/${userId}`, {
+          method: 'DELETE',
+        });
+
+        if (response.ok) {
+          // Remove da lista visualmente
+          setMatches(prev => prev.filter(item => item._id !== petId));
+          if (Platform.OS === 'web') alert(`Match com ${petName} desfeito.`);
+          else Alert.alert("Pronto", `Match com ${petName} desfeito.`);
+        } else {
+          alert("Erro ao desfazer match.");
+        }
+      } catch (error) {
+        console.log("Erro ao unlike:", error);
+      }
+    };
+
+    if (Platform.OS === 'web') {
+      if (confirm(`Remover ${petName} dos seus matches?`)) confirmUnlike();
+    } else {
+      Alert.alert(
+        "Desfazer Match",
+        `Deseja remover ${petName}?`,
+        [
+          { text: "Cancelar", style: "cancel" },
+          { text: "Sim", style: "destructive", onPress: confirmUnlike }
+        ]
+      );
+    }
+  };
+
   const getStatusInfo = (status) => {
     switch (status?.toLowerCase()) {
-      case 'disponível':
-      case 'disponivel':
-      case 'disponível para adoção':
-      case 'disponivel para adoção':
-        return { color: '#4CAF50', text: 'Disponível para adoção' };
-      case 'encontrado - procurando dono':
-      case 'encontrado':
-        return { color: '#FF9800', text: 'Encontrado' };
-      case 'perdido':
-        return { color: '#F44336', text: 'Perdido' };
-      case 'adotado':
-        return { color: '#9E9E9E', text: 'Adotado' };
-      case 'em processo de adoção':
-        return { color: '#2196F3', text: 'Em processo' };
-      default:
-        return { color: '#757575', text: status || 'Status não informado' };
+      case 'disponível': case 'disponivel': return { color: '#4CAF50', text: 'Disponível' };
+      case 'encontrado': return { color: '#FF9800', text: 'Encontrado' };
+      case 'perdido': return { color: '#F44336', text: 'Perdido' };
+      case 'adotado': return { color: '#9E9E9E', text: 'Adotado' };
+      default: return { color: '#757575', text: status || 'Status?' };
     }
   };
 
   const renderMatch = ({ item }) => {
     const statusInfo = getStatusInfo(item.status);
     
+    // --- CORREÇÃO DO ERRO DA IMAGEM ---
+    let imageSource;
+    
+    // Se não tem foto, ou se estamos na WEB e a foto começa com 'file://' (caminho de celular)
+    // Mostramos uma imagem genérica para não travar o navegador
+    if (!item.foto || (Platform.OS === 'web' && item.foto.startsWith('file://'))) {
+        imageSource = { uri: 'https://via.placeholder.com/150?text=Pet' };
+    } else {
+        // Se for celular ou imagem da internet, mostra normal
+        imageSource = { uri: item.foto };
+    }
+    // ----------------------------------
+
     return (
-      <Link href={`/pet/${item._id}`} asChild>
-        <TouchableOpacity style={styles.matchCard}>
-          <Image 
-            source={{ uri: item.foto || 'https://via.placeholder.com/55?text=Foto' }} 
-            style={styles.matchImage} 
-          />
-          <View style={styles.matchInfo}>
-            <Text style={styles.matchName}>{item.nome}</Text>
-            {/* Linha de informações extras */}
-            <View style={styles.extraInfo}>
-              <Text style={styles.matchDetails}>
-                {item.especie || 'Pet'} • {item.idade ? `${item.idade} ano(s)` : 'Idade não informada'}
-              </Text>
+      <View style={styles.cardContainer}>
+        {/* Link para detalhes */}
+        <Link href={`/pet/${item._id}`} asChild>
+          <TouchableOpacity style={styles.matchCard}>
+            <Image 
+              source={imageSource} 
+              style={styles.matchImage} 
+            />
+            <View style={styles.matchInfo}>
+              <Text style={styles.matchName}>{item.nome}</Text>
+              <View style={styles.extraInfo}>
+                <Text style={styles.matchDetails}>
+                  {item.especie} • {item.raca || 'SRD'}
+                </Text>
+              </View>
+              <View style={styles.statusContainer}>
+                <View style={[styles.statusDot, { backgroundColor: statusInfo.color }]} />
+                <Text style={[styles.statusText, { color: statusInfo.color }]}>
+                  {statusInfo.text}
+                </Text>
+              </View>
             </View>
-            {/* Status do pet - AGORA COM COR VERDE PARA "DISPONÍVEL" */}
-            <View style={styles.statusContainer}>
-              <View 
-                style={[
-                  styles.statusDot, 
-                  { backgroundColor: statusInfo.color }
-                ]} 
-              />
-              <Text style={[styles.statusText, { color: statusInfo.color }]}>
-                {statusInfo.text}
-              </Text>
-            </View>
-          </View>
-          <Ionicons name="chevron-forward" size={24} color="#A0A0A0" />
+          </TouchableOpacity>
+        </Link>
+
+        {/* Botão de Unlike (Lixeira/Coração Quebrado) */}
+        <TouchableOpacity 
+          style={styles.unlikeButton} 
+          onPress={() => handleUnlike(item._id, item.nome)}
+        >
+          <Ionicons name="trash-outline" size={24} color="#E53935" />
         </TouchableOpacity>
-      </Link>
+      </View>
     );
   };
 
@@ -102,10 +148,13 @@ export default function MeusMatches() {
     <View style={styles.container}>
       <Text style={styles.title}>Meus Matches</Text>
 
-      {matches.length === 0 ? (
+      {!user ? (
+         <View style={styles.centerContent}>
+            <Text style={styles.emptyText}>Faça login para ver.</Text>
+         </View>
+      ) : matches.length === 0 ? (
         <View style={styles.centerContent}>
             <Text style={styles.emptyText}>Você ainda não tem matches.</Text>
-            <Text style={styles.emptySubtext}>Volte para a tela principal e deslize para a direita!</Text>
         </View>
       ) : (
         <FlatList
@@ -143,18 +192,24 @@ const styles = StyleSheet.create({
   listContent: {
     paddingBottom: 24,
   },
-  matchCard: { 
-    flexDirection: "row", 
-    alignItems: "center", 
+  cardContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: "#fff",
-    padding: 16,
     borderRadius: 12,
     marginBottom: 12,
+    paddingRight: 5,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.15,
     shadowRadius: 2.5,
     elevation: 2,
+  },
+  matchCard: { 
+    flex: 1, 
+    flexDirection: "row", 
+    alignItems: "center", 
+    padding: 16,
   },
   matchImage: { 
     width: 55,
@@ -193,16 +248,15 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "500",
   },
+  unlikeButton: {
+    padding: 15,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   emptyText: {
     fontSize: 18,
     fontWeight: "600",
     color: "#666",
-    textAlign: "center",
-  },
-  emptySubtext: {
-    fontSize: 14,
-    color: "#999",
-    marginTop: 8,
     textAlign: "center",
   },
   footerSpace: {
