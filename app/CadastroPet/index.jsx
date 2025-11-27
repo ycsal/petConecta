@@ -169,11 +169,11 @@ export default function CadastroPet() {
       if (Platform.OS === 'web') {
         // Na Web, usamos o alert simples e forçamos a volta
         alert(mensagem);
-        navigation.goBack(); 
+        navigation.navigate("tabs/meusPets");
       } else {
         // No celular, usamos o Alert bonito com callback
         Alert.alert("Sucesso!", mensagem, [
-          { text: "OK", onPress: () => navigation.goBack() }
+          { text: "OK", onPress: () => navigation.navigate("tabs/meusPets")}
         ]);
       }
       // ---------------------------------------------

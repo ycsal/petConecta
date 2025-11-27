@@ -111,19 +111,14 @@ export default function CadastroServico() {
 
       if (response.ok) {
         const mensagem = isEditing ? "Serviço atualizado com sucesso!" : "Serviço cadastrado com sucesso!";
-        
-
-        const navigateToServices = () => {
-             
-             router.replace('/meusServicos');
-        };
+    
 
         if (Platform.OS === 'web') {
             alert(mensagem);
-            navigateToServices();
+            navigation.navigate("configuracoes/meusServicos");
         } else {
             Alert.alert("Sucesso", mensagem, [
-                { text: "OK", onPress: navigateToServices }
+                { text: "OK", onPress: navigation.navigate("configuracoes/meusServicos") }
             ]);
         }
         // -------------------------------------------
