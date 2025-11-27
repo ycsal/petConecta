@@ -101,30 +101,6 @@ class PetController {
         res.status(500).send('Erro no Servidor ao buscar os matches.');
       }
   }
-
-// No PetController.js - adicione este método
-static async removeMatch(req, res) {
-  const { userId, petId } = req.body;
-
-  try {
-    // Encontra e remove o match específico
-    const deletedMatch = await Match.findOneAndDelete({ 
-      id_usuario: userId, 
-      id_pet: petId 
-    });
-
-    if (!deletedMatch) {
-      return res.status(404).json({ message: 'Match não encontrado.' });
-    }
-
-    console.log(`Match removido: Usuário ${userId} removeu match com Pet ${petId}`);
-    res.json({ message: 'Match removido com sucesso!' });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Erro no Servidor ao remover o match.');
-  }
-}
-
   static async getMyPets(req, res) {
     try {
       const { userId } = req.params;
