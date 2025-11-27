@@ -178,11 +178,11 @@ export default function CadastroPet() {
         alert(mensagem);
         // ✅ NA WEB, DA UM TEMPO PARA O USUÁRIO VER A MENSAGEM ANTES DE NAVEGAR
         setTimeout(() => {
-          navigation.navigate("tabs/meusPets");
+          navigation.navigate("../tabs/meusPets");
         }, 500);
       } else {
         Alert.alert("Sucesso!", mensagem, [
-          { text: "OK", onPress: () => navigation.navigate("tabs/meusPets") }
+          { text: "OK", onPress: () => navigation.navigate("tabs", { screen: "meusPets" }) }
         ]);
       }
 
