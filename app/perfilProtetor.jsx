@@ -92,7 +92,6 @@ const SERVICOS_EXEMPLO = [
     titulo: "Hospedagem para Pets",
     descricao: "Cuido do seu pet enquanto você viaja. Ambiente seguro e acolhedor.",
     preco: "R$ 50/dia",
-    image: "https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=150&h=150&fit=crop",
     tipo: "Hotel Pet",
     protetorId: "1"
   },
@@ -101,7 +100,6 @@ const SERVICOS_EXEMPLO = [
     titulo: "Passeio com Cães",
     descricao: "Passeios de 30min a 1hora em parques seguros.",
     preco: "R$ 25/passeio",
-    image: "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=150&h=150&fit=crop",
     tipo: "Passeador",
     protetorId: "1"
   },
@@ -110,7 +108,6 @@ const SERVICOS_EXEMPLO = [
     titulo: "Banho e Tosa",
     descricao: "Banho completo e tosa higiênica para cães de pequeno e médio porte.",
     preco: "R$ 40",
-    image: "https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=150&h=150&fit=crop",
     tipo: "Banho/Tosa",
     protetorId: "1"
   }
