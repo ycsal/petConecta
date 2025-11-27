@@ -7,6 +7,7 @@ import {
   Image,
   Keyboard,
   KeyboardAvoidingView,
+  Modal,
   Platform,
   ScrollView,
   StyleSheet,
@@ -19,8 +20,16 @@ import {
 import { API_AUTH } from "../../config";
 import { useAuth } from "../../context/AuthContext";
 
+// ✅ OPÇÕES PARA O TIPO DE USUÁRIO
+const tipoOptions = [
+  { label: "🐕 Tutor/Adotante", value: "Adotante" },
+  { label: "🐕 Tutor", value: "Tutor" },
+  { label: "❤️ Protetor", value: "Protetor" },
+  { label: "🏠 Abrigo", value: "Abrigo" },
+];
+
 export default function MeuPerfil() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [form, setForm] = useState({
     nome: "",
     email: "",
@@ -37,12 +46,15 @@ export default function MeuPerfil() {
     complemento: "",
   });
 
+  const [focusedField, setFocusedField] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [cepValido, setCepValido] = useState(false);
   const [foto, setFoto] = useState(null);
   const [carregandoDados, setLoading] = useState(true); 
+  const [salvando, setSalvando] = useState(false);
+  const [showTipoModal, setShowTipoModal] = useState(false);
 
   const [erros, setErros] = useState({
     email: "",
@@ -50,63 +62,103 @@ export default function MeuPerfil() {
     cep: "",
   });
 
-   useEffect(() => {
+  // ✅ DEBUG: Verificar se o tipo está carregando corretamente
+  useEffect(() => {
+    if (user && form.tipo) {
+      console.log('Tipo de usuário no contexto:', user.tipousuario);
+      console.log('Tipo de usuário no form:', form.tipo);
+    }
+  }, [user, form.tipo]);
+
+  // ✅ Timeout para evitar loading infinito
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (carregandoDados) {
+        console.log('Timeout - parando loading forçadamente');
+        setLoading(false);
+      }
+    }, 10000);
+
+    return () => clearTimeout(timeout);
+  }, [carregandoDados]);
+
+  useEffect(() => {
     if (user) {
       carregarDadosUsuario();
     }
   }, [user]);
 
   const carregarDadosUsuario = async () => {
-  try {
-    setLoading(true);
-    
-    // ✅ BUSCA OS DADOS COMPLETOS DO USUÁRIO
-    const response = await fetch(`${API_AUTH}/profile/${user._id}`);
-    const result = await response.json();
-    
-    if (result.success && result.user) {
-      const usuario = result.user;
+    try {
+      setLoading(true);
       
-      // ✅ CORREÇÃO: PREENCHE O FORMULÁRIO CORRETAMENTE COM O OBJETO ENDEREÇO
-      setForm({
-        nome: usuario.nome || "",
-        email: usuario.email || "",
-        senha: "", // Não carrega senha por segurança
-        confirmSenha: "",
-        telefone: usuario.telefone || "",
-        // ✅ AGORA ACESSA OS CAMPOS DENTRO DO OBJETO ENDERECO
-        cep: usuario.endereco?.cep || "",
-        cidade: usuario.endereco?.cidade || "",
-        uf: usuario.endereco?.estado || "", // Note: no seu objeto é "estado", não "uf"
-        endereco: usuario.endereco?.rua || "",
-        bairro: usuario.endereco?.bairro || "",
-        numero: usuario.endereco?.numero || "",
-        tipo: usuario.tipousuario || "", // Note: seu objeto original usa "tipousuario"
-        complemento: usuario.endereco?.complemento || "",
-      });
+      const response = await fetch(`${API_AUTH}/profile/${user._id}`);
+      const result = await response.json();
       
-      // Se o usuário tem foto, carrega também
-      if (usuario.foto) {
-        setFoto(usuario.foto);
+      console.log('Dados completos da API:', result);
+      
+      if (result.success && result.user) {
+        const usuario = result.user;
+        
+        // ✅ CORREÇÃO: VERIFICAÇÃO CORRIGIDA PARA O CAMPO COM TYPO
+        const tipoUsuario = usuario.tipousuario || usuario.tipolisuario || usuario.tipo || user.tipousuario || user.tipolisuario || "";
+        
+        console.log('Tipo carregado:', {
+          fromAPI_tipousuario: usuario.tipousuario,
+          fromAPI_tipolisuario: usuario.tipolisuario,
+          fromUserContext: user.tipousuario,
+          final: tipoUsuario
+        });
+        
+        setForm({
+          nome: usuario.nome || "",
+          email: usuario.email || "",
+          senha: "",
+          confirmSenha: "",
+          telefone: usuario.telefone || "",
+          cep: usuario.endereco?.cep || "",
+          cidade: usuario.endereco?.cidade || "",
+          uf: usuario.endereco?.estado || "",
+          endereco: usuario.endereco?.rua || "",
+          bairro: usuario.endereco?.bairro || "",
+          numero: usuario.endereco?.numero || "",
+          tipo: tipoUsuario,
+          complemento: usuario.endereco?.complemento || "",
+        });
+        
+        if (usuario.foto) {
+          setFoto(usuario.foto);
+        }
+        
+        console.log('Form carregado com sucesso');
+      } else {
+        Alert.alert("Erro", "Não foi possível carregar os dados do usuário");
       }
-    } else {
-      Alert.alert("Erro", "Não foi possível carregar os dados do usuário");
+    } catch (error) {
+      console.error("Erro ao carregar dados:", error);
+      Alert.alert("Erro", "Falha ao carregar dados do usuário");
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    console.error("Erro ao carregar dados:", error);
-    Alert.alert("Erro", "Falha ao carregar dados do usuário");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
+  // ✅ CORREÇÃO: FUNÇÃO handleChange MELHORADA
   const handleChange = (key, value) => {
-    setForm({ ...form, [key]: value });
+    setForm(prev => ({ 
+      ...prev, 
+      [key]: value 
+    }));
     
     // Limpa erro do campo quando usuário começa a digitar
     if (erros[key]) {
       setErros(prev => ({ ...prev, [key]: "" }));
     }
+  };
+
+  // ✅ FUNÇÃO PARA SELECIONAR TIPO
+  const selecionarTipo = (tipo) => {
+    setForm(prev => ({ ...prev, tipo }));
+    setShowTipoModal(false);
   };
 
   const escolherFoto = async () => {
@@ -215,95 +267,110 @@ export default function MeuPerfil() {
     }
   };
 
-  // ✅ FUNÇÃO ATUALIZADA PARA SALVAR NO BANCO
+  // ✅ FUNÇÃO ATUALIZADA PARA SALVAR - CORRIGIDA
   const salvarAlteracoes = async () => {
-  try {
-    setLoading(true);
-    
-    // ✅ CORREÇÃO: MONTA O OBJETO ENDERECO CORRETAMENTE
-    const dadosParaEnviar = {
-      nome: form.nome,
-      email: form.email,
-      telefone: form.telefone,
-      // ✅ OBJETO ENDERECO ESTRUTURADO CORRETAMENTE
-      endereco: {
-        cep: form.cep,
-        rua: form.endereco,
-        numero: form.numero,
-        complemento: form.complemento,
-        bairro: form.bairro,
-        cidade: form.cidade,
-        estado: form.uf // Note: no objeto é "estado", não "uf"
-      },
-      tipousuario: form.tipo, // Note: seu objeto original usa "tipousuario"
-      foto: foto
-    };
-
-    // ✅ SE A SENHA FOI PREENCHIDA, ADICIONA AO ENVIO
-    if (form.senha && form.senha.trim() !== "") {
-      if (!requisitosValidos) {
-        Alert.alert("Erro", "A senha não atende todos os requisitos de segurança.");
-        setLoading(false);
-        return;
-      }
+    try {
+      setSalvando(true);
       
-      if (!senhasIguais) {
-        Alert.alert("Erro", "As senhas não coincidem.");
-        setLoading(false);
-        return;
+      const dadosParaEnviar = {
+        nome: form.nome,
+        email: form.email,
+        telefone: form.telefone,
+        endereco: {
+          cep: form.cep,
+          rua: form.endereco,
+          numero: form.numero,
+          complemento: form.complemento,
+          bairro: form.bairro,
+          cidade: form.cidade,
+          estado: form.uf
+        },
+        tipousuario: form.tipo,
+        foto: foto
+      };
+
+      // ✅ SE A SENHA FOI PREENCHIDA, ADICIONA AO ENVIO
+      if (form.senha && form.senha.trim() !== "") {
+        if (!requisitosValidos) {
+          Alert.alert("Erro", "A senha não atende todos os requisitos de segurança.");
+          setSalvando(false);
+          return;
+        }
+        
+        if (!senhasIguais) {
+          Alert.alert("Erro", "As senhas não coincidem.");
+          setSalvando(false);
+          return;
+        }
+        
+        dadosParaEnviar.senha = form.senha;
       }
-      
-      dadosParaEnviar.senha = form.senha;
-    }
 
-    console.log('Enviando dados para atualização:', dadosParaEnviar);
+      console.log('Enviando dados para atualização:', dadosParaEnviar);
 
-    // ✅ TENTA ATUALIZAR VIA PATCH PRIMEIRO
-    let response = await fetch(`${API_AUTH}/profile/${user._id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(dadosParaEnviar),
-    });
-
-    // ✅ SE PATCH NÃO EXISTIR, TENTA PUT
-    if (response.status === 404) {
-      response = await fetch(`${API_AUTH}/profile/${user._id}`, {
-        method: "PUT",
+      let response = await fetch(`${API_AUTH}/profile/${user._id}`, {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dadosParaEnviar),
       });
-    }
 
-    const result = await response.json();
-    console.log('Resposta da atualização:', result);
+      if (response.status === 404) {
+        response = await fetch(`${API_AUTH}/profile/${user._id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(dadosParaEnviar),
+        });
+      }
 
-    if (result.success) {
-      Alert.alert("Sucesso", "Perfil atualizado com sucesso!");
-      setIsEditing(false);
-      
-      // ✅ LIMPA OS CAMPOS DE SENHA APÓS SALVAR
-      setForm(prev => ({
-        ...prev,
-        senha: "",
-        confirmSenha: ""
-      }));
-      
-      // ✅ RECARREGA OS DADOS PARA PEGAR ATUALIZAÇÕES
-      carregarDadosUsuario();
-    } else {
-      Alert.alert("Erro", result.error || "Erro ao atualizar perfil");
+      const result = await response.json();
+      console.log('Resposta da atualização:', result);
+
+      if (result.success) {
+        Alert.alert("Sucesso", "Perfil atualizado com sucesso!");
+        
+        // ✅ ATUALIZA O CONTEXTO DO USUÁRIO COM OS NOVOS DADOS
+        if (updateUser && result.user) {
+          await updateUser(result.user);
+        } else {
+          // ✅ SE A API NÃO RETORNOU O USER, ATUALIZA MANUALMENTE
+          await updateUser({
+            nome: form.nome,
+            email: form.email,
+            telefone: form.telefone,
+            endereco: dadosParaEnviar.endereco,
+            tipousuario: form.tipo,
+            foto: foto
+          });
+        }
+        
+        // ✅ CORREÇÃO: VOLTA AO ESTADO ORIGINAL
+        setIsEditing(false);
+        
+        setForm(prev => ({
+          ...prev,
+          senha: "",
+          confirmSenha: ""
+        }));
+        
+      } else {
+        Alert.alert("Erro", result.error || "Erro ao atualizar perfil");
+      }
+    } catch (error) {
+      console.error("Erro ao atualizar:", error);
+      Alert.alert("Erro", "Falha ao conectar com o servidor");
+    } finally {
+      setSalvando(false);
     }
-  } catch (error) {
-    console.error("Erro ao atualizar:", error);
-    Alert.alert("Erro", "Falha ao conectar com o servidor");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   const handleButtonPress = async () => {
     if (isEditing) {
-      // ✅ VALIDAÇÕES
+      // ✅ VALIDAÇÕES MELHORADAS
+      if (!form.nome.trim()) {
+        Alert.alert("Erro", "O nome é obrigatório.");
+        return;
+      }
+
       const emailValido = validarEmail(form.email);
       const telefoneValido = validarTelefone(form.telefone);
 
@@ -312,8 +379,9 @@ export default function MeuPerfil() {
         return;
       }
 
-      if (!form.nome.trim()) {
-        Alert.alert("Erro", "O nome é obrigatório.");
+      // ✅ VALIDAÇÃO DO TIPO DE USUÁRIO
+      if (!form.tipo) {
+        Alert.alert("Erro", "Selecione o tipo de usuário.");
         return;
       }
 
@@ -329,6 +397,12 @@ export default function MeuPerfil() {
     }
   };
 
+  // ✅ CORREÇÃO: BOTÃO CANCELAR EDITAR
+  const cancelarEdicao = () => {
+    setIsEditing(false);
+    carregarDadosUsuario(); // Recarrega os dados originais
+  };
+
   // ✅ VERIFICA SE USUÁRIO ESTÁ LOGADO
   if (!user) {
     return (
@@ -339,15 +413,21 @@ export default function MeuPerfil() {
     );
   }
 
-  // ✅ MOSTRA LOADING ENQUANTO CARREGA DADOS
+  // ✅ MOSTRA LOADING ENQUANTO CARREGA DADOS - COM FALLBACK
   if (carregandoDados) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#00C7BE" />
         <Text style={styles.loadingText}>Carregando seus dados...</Text>
+        <TouchableOpacity 
+          style={styles.timeoutButton}
+          onPress={() => setLoading(false)}
+        >
+          <Text style={styles.timeoutText}>Se estiver demorando, clique aqui</Text>
+        </TouchableOpacity>
       </View>
     );
-  };
+  }
 
   return (
     <KeyboardAvoidingView
@@ -360,6 +440,43 @@ export default function MeuPerfil() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
+          {/* ✅ MODAL PARA SELECIONAR TIPO */}
+          <Modal
+            visible={showTipoModal}
+            transparent={true}
+            animationType="slide"
+            onRequestClose={() => setShowTipoModal(false)}
+          >
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalContent}>
+                <Text style={styles.modalTitle}>Selecione seu tipo</Text>
+                {tipoOptions.map((option) => (
+                  <TouchableOpacity
+                    key={option.value}
+                    style={[
+                      styles.modalOption,
+                      form.tipo === option.value && styles.modalOptionSelected
+                    ]}
+                    onPress={() => selecionarTipo(option.value)}
+                  >
+                    <Text style={[
+                      styles.modalOptionText,
+                      form.tipo === option.value && styles.modalOptionTextSelected
+                    ]}>
+                      {option.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+                <TouchableOpacity
+                  style={styles.modalClose}
+                  onPress={() => setShowTipoModal(false)}
+                >
+                  <Text style={styles.modalCloseText}>Cancelar</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+
           <TouchableOpacity
             style={styles.imageContainer}
             onPress={escolherFoto}
@@ -373,15 +490,17 @@ export default function MeuPerfil() {
           </TouchableOpacity>
 
           <TextInput
-            placeholder="Nome"
+            placeholder="Nome *"
             style={styles.input}
             value={form.nome}
             onChangeText={(text) => handleChange("nome", text)}
             editable={isEditing}
+            onFocus={() => setFocusedField('nome')}
+            onBlur={() => setFocusedField(null)}
           />
 
           <TextInput
-            placeholder="E-mail"
+            placeholder="E-mail *"
             style={styles.input}
             value={form.email}
             keyboardType="email-address"
@@ -389,17 +508,20 @@ export default function MeuPerfil() {
             onChangeText={(text) => handleChange("email", text)}
             onBlur={() => validarEmail(form.email)}
             editable={isEditing}
+            onFocus={() => setFocusedField('email')}
           />
           {erros.email ? <Text style={styles.erro}>{erros.email}</Text> : null}
 
           <View style={styles.inputArea}>
             <TextInput
-              placeholder="Senha"
+              placeholder="Senha (deixe em branco para manter a atual)"
               style={[styles.input, { flex: 1 }]}
               secureTextEntry={!showPassword}
               value={form.senha}
               onChangeText={(text) => handleChange("senha", text)}
               editable={isEditing}
+              onFocus={() => setFocusedField('senha')}
+              onBlur={() => setFocusedField(null)}
             />
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
               <Ionicons
@@ -418,6 +540,8 @@ export default function MeuPerfil() {
               value={form.confirmSenha}
               onChangeText={(text) => handleChange("confirmSenha", text)}
               editable={isEditing}
+              onFocus={() => setFocusedField('confirmSenha')}
+              onBlur={() => setFocusedField(null)}
             />
             <TouchableOpacity onPress={() => setShowConfirm(!showConfirm)}>
               <Ionicons
@@ -439,13 +563,14 @@ export default function MeuPerfil() {
           )}
 
           <TextInput
-            placeholder="Telefone"
+            placeholder="Telefone *"
             style={styles.input}
             keyboardType="numeric"
             value={form.telefone}
             onChangeText={(text) => handleChange("telefone", formatTelefone(text))}
             onBlur={() => validarTelefone(form.telefone)}
             editable={isEditing}
+            onFocus={() => setFocusedField('telefone')}
           />
           {erros.telefone ? <Text style={styles.erro}>{erros.telefone}</Text> : null}
 
@@ -458,6 +583,7 @@ export default function MeuPerfil() {
             onChangeText={(text) => handleChange("cep", text.replace(/\D/g, ""))}
             onBlur={() => buscarCep(form.cep)}
             editable={isEditing}
+            onFocus={() => setFocusedField('cep')}
           />
           {erros.cep ? <Text style={styles.erro}>{erros.cep}</Text> : null}
 
@@ -467,6 +593,8 @@ export default function MeuPerfil() {
             value={form.endereco}
             onChangeText={(text) => handleChange("endereco", text)}
             editable={isEditing}
+            onFocus={() => setFocusedField('endereco')}
+            onBlur={() => setFocusedField(null)}
           />
 
           <View style={styles.row}>
@@ -477,6 +605,8 @@ export default function MeuPerfil() {
               value={form.numero}
               onChangeText={(text) => handleChange("numero", text.replace(/\D/g, ""))}
               editable={isEditing}
+              onFocus={() => setFocusedField('numero')}
+              onBlur={() => setFocusedField(null)}
             />
             <TextInput
               placeholder="Complemento"
@@ -484,6 +614,8 @@ export default function MeuPerfil() {
               value={form.complemento}
               onChangeText={(text) => handleChange("complemento", text)}
               editable={isEditing}
+              onFocus={() => setFocusedField('complemento')}
+              onBlur={() => setFocusedField(null)}
             />
           </View>
 
@@ -493,6 +625,8 @@ export default function MeuPerfil() {
             value={form.bairro}
             onChangeText={(text) => handleChange("bairro", text)}
             editable={isEditing}
+            onFocus={() => setFocusedField('bairro')}
+            onBlur={() => setFocusedField(null)}
           />
 
           <View style={styles.row}>
@@ -502,6 +636,8 @@ export default function MeuPerfil() {
               value={form.cidade}
               onChangeText={(text) => handleChange("cidade", text)}
               editable={isEditing}
+              onFocus={() => setFocusedField('cidade')}
+              onBlur={() => setFocusedField(null)}
             />
             <TextInput
               placeholder="UF"
@@ -511,27 +647,59 @@ export default function MeuPerfil() {
               autoCapitalize="characters"
               onChangeText={(text) => handleChange("uf", text)}
               editable={isEditing}
+              onFocus={() => setFocusedField('uf')}
+              onBlur={() => setFocusedField(null)}
             />
           </View>
 
-          <TextInput
-            placeholder="Tipo (Tutor, Protetor ou Abrigo)"
-            style={styles.input}
-            value={form.tipo}
-            onChangeText={(text) => handleChange("tipo", text)}
-            editable={isEditing}
-          />
-
-          <TouchableOpacity style={styles.button} onPress={handleButtonPress}>
-            <Text style={styles.buttonText}>
-              {isEditing ? "SALVAR ALTERAÇÕES" : "EDITAR PERFIL"}
+          {/* ✅ CAMPO DE TIPO AGORA É UM BOTÃO QUE ABRE MODAL */}
+          <TouchableOpacity
+            style={[styles.input, styles.tipoSelector]}
+            onPress={() => isEditing && setShowTipoModal(true)}
+            disabled={!isEditing}
+          >
+            <Text style={form.tipo ? styles.tipoTextSelected : styles.tipoTextPlaceholder}>
+              {form.tipo || "Selecione o tipo de usuário *"}
             </Text>
-            <Ionicons
-              name={isEditing ? "save-outline" : "create-outline"}
-              size={18}
-              color="#00C7BE"
-            />
+            <Ionicons name="chevron-down" size={16} color="#888" />
           </TouchableOpacity>
+
+          {/* ✅ BOTÕES CONDICIONAIS */}
+          {isEditing ? (
+            <View style={styles.botoesContainer}>
+              <TouchableOpacity 
+                style={[styles.button, styles.buttonCancelar]} 
+                onPress={cancelarEdicao}
+                disabled={salvando}
+              >
+                <Text style={styles.buttonTextCancelar}>CANCELAR</Text>
+                <Ionicons name="close-outline" size={18} color="#FF6B6B" />
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={[styles.button, salvando && styles.buttonDisabled]} 
+                onPress={handleButtonPress}
+                disabled={salvando}
+              >
+                {salvando ? (
+                  <ActivityIndicator size="small" color="#FFF" />
+                ) : (
+                  <>
+                    <Text style={styles.buttonText}>SALVAR</Text>
+                    <Ionicons name="save-outline" size={18} color="#00C7BE" />
+                  </>
+                )}
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <TouchableOpacity 
+              style={styles.button} 
+              onPress={handleButtonPress}
+            >
+              <Text style={styles.buttonText}>EDITAR PERFIL</Text>
+              <Ionicons name="create-outline" size={18} color="#00C7BE" />
+            </TouchableOpacity>
+          )}
         </ScrollView>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
@@ -569,6 +737,68 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     color: "#333",
   },
+  // ✅ ESTILOS PARA O SELETOR DE TIPO
+  tipoSelector: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  tipoTextSelected: {
+    color: '#333',
+  },
+  tipoTextPlaceholder: {
+    color: '#888',
+  },
+  // ✅ ESTILOS PARA O MODAL
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 20,
+    width: '80%',
+    maxWidth: 300,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 15,
+    textAlign: 'center',
+    color: '#333',
+  },
+  modalOption: {
+    padding: 15,
+    borderRadius: 8,
+    marginBottom: 8,
+    backgroundColor: '#f8f8f8',
+  },
+  modalOptionSelected: {
+    backgroundColor: '#00C7BE',
+  },
+  modalOptionText: {
+    fontSize: 16,
+    textAlign: 'center',
+    color: '#666',
+  },
+  modalOptionTextSelected: {
+    color: 'white',
+    fontWeight: '600',
+  },
+  modalClose: {
+    marginTop: 10,
+    padding: 12,
+    borderRadius: 8,
+    backgroundColor: '#f0f0f0',
+  },
+  modalCloseText: {
+    textAlign: 'center',
+    color: '#666',
+    fontWeight: '500',
+  },
   erro: {
     color: "red",
     fontSize: 12,
@@ -597,18 +827,70 @@ const styles = StyleSheet.create({
     flex: 2,
     marginRight: 5,
   },
+  // ✅ NOVOS ESTILOS PARA BOTÕES
+  botoesContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 10,
+  },
   button: {
     flexDirection: "row",
-    justifyContent: "flex-end",
+    justifyContent: "center",
     alignItems: "center",
-    marginTop: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    backgroundColor: "#f0f0f0",
+    borderRadius: 8,
+    flex: 1,
+    marginHorizontal: 5,
+  },
+  buttonCancelar: {
+    backgroundColor: "#FFF",
+    borderWidth: 1,
+    borderColor: "#FF6B6B",
   },
   buttonText: {
     color: "#00C7BE",
     fontWeight: "bold",
     marginRight: 5,
   },
+  buttonTextCancelar: {
+    color: "#FF6B6B",
+    fontWeight: "bold",
+    marginRight: 5,
+  },
+  buttonDisabled: {
+    opacity: 0.5,
+  },
   requisitos: {
     marginBottom: 10,
+    padding: 10,
+    backgroundColor: '#f9f9f9',
+    borderRadius: 8,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  loadingText: {
+    fontSize: 16,
+    color: '#333',
+    marginTop: 10,
+  },
+  loadingSubtext: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 5,
+  },
+  timeoutButton: {
+    marginTop: 20,
+    padding: 10,
+  },
+  timeoutText: {
+    color: '#00C7BE',
+    fontSize: 14,
+    textAlign: 'center',
   },
 });
