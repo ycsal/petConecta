@@ -1,7 +1,7 @@
 // src/config.js (ou onde você salvou)
 
 // AQUI VOCÊ MUDA O IP UMA VEZ E REFLETE EM TUDO
-const MEU_IP = '192.168.15.77'; 
+const MEU_IP = '10.60.128.41'; 
 const PORTA = '3001';
 
 // Base geral (opcional, ajuda se quiser montar urls na mão)
