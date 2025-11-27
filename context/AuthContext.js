@@ -63,6 +63,17 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+    const updateUser = async (updatedUserData) => {
+    try {
+      const updatedUser = { ...user, ...updatedUserData };
+      setUser(updatedUser);
+      await AsyncStorage.setItem('@user', JSON.stringify(updatedUser));
+      console.log('Usuário atualizado no contexto:', updatedUser.email);
+    } catch (error) {
+      console.log('Erro ao atualizar usuário no contexto:', error);
+    }
+  };
+
   const login = async (email, senha) => {
   setLoading(true);
   try {
@@ -109,17 +120,19 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  return (
-    <AuthContext.Provider value={{
-      user,
-      register,
-      loading,
-      login,
-      isAuthenticated: !!user
-    }}>
-      {children}
-    </AuthContext.Provider>
-  );
+return (
+  <AuthContext.Provider value={{
+    user,
+    register,
+    loading,
+    login,
+    logout,
+    updateUser, // ✅ ADICIONAR ESTA LINHA
+    isAuthenticated: !!user
+  }}>
+    {children}
+  </AuthContext.Provider>
+);
 };
 
 export const useAuth = () => useContext(AuthContext);
