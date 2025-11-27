@@ -1,30 +1,29 @@
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router'; // NOVO: Para navegar para a tela de filtros
+import { router } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View, Platform, Alert } from 'react-native';
 import Swiper from 'react-native-deck-swiper';
 import { PetCard } from '../../components/PetCard/index';
 import { API_PETS } from '../../config';
 import { useFilters } from '../../context/FilterContext';
-
-
-
+// 1. IMPORTANTE: Importar o contexto de autenticação
+import { useAuth } from '../../context/AuthContext'; 
 
 export default function Match() {
   const [pets, setPets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const swiperRef = useRef(null);
-
+  
+  // 2. Pegar o usuário logado
+  const { user } = useAuth(); 
   
   const { filters } = useFilters();
 
- 
   const fetchPets = useCallback(async () => {
     setLoading(true);
     setError(null);
 
-    // Constrói a query string com os filtros ativos
     const params = new URLSearchParams();
     Object.entries(filters).forEach(([key, value]) => {
       if (value !== null) {
@@ -34,39 +33,61 @@ export default function Match() {
     const queryString = params.toString();
     const fullUrl = queryString ? `${API_PETS}?${queryString}` : API_PETS;
 
-    console.log("Buscando pets da API:", fullUrl);
-
     try {
       const response = await fetch(fullUrl);
       if (!response.ok) {
         throw new Error('Não foi possível buscar os pets.');
       }
       const data = await response.json();
-      setPets(data);
+
+      // Tratamento de imagem para Web
+      const petsTratados = data.map(pet => {
+        if (Platform.OS === 'web' && pet.foto && pet.foto.startsWith('file://')) {
+          return { 
+            ...pet, 
+            // 3. Troquei o link da imagem por um mais estável
+            foto: 'https://placehold.co/400x600/png?text=Imagem+Mobile' 
+          };
+        }
+        return pet;
+      });
+
+      setPets(petsTratados);
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  }, [filters]); // A busca é refeita sempre que os filtros mudam
+  }, [filters]);
 
   useEffect(() => {
     fetchPets();
   }, [fetchPets]);
 
   const handleSwipeRight = async (cardIndex) => {
+    // Verificação de segurança: se não tiver usuário, não faz match
+    if (!user) {
+      Alert.alert("Atenção", "Você precisa estar logado para dar match!");
+      // Opcional: router.push('/login');
+      return;
+    }
+
     const pet = pets[cardIndex];
     if (!pet) return;
-    const mockUserId = '64f3e2a7c9d1f2b4a1e5f6a7'; 
+    
+    // 4. USANDO O ID REAL DO USUÁRIO LOGADO
+    const userId = user._id || user.id;
+
     try {
       await fetch(`${API_PETS}/match`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userId: mockUserId,
+          userId: userId, // Agora envia o ID correto
           petId: pet._id,
         }),
       });
+      console.log(`Match realizado com ${pet.nome}! (Salvo para usuário: ${userId})`);
     } catch (err) {
       console.error('Erro ao enviar o match:', err);
     }
@@ -93,7 +114,7 @@ export default function Match() {
 
   return (
     <View style={styles.container}>
-     
+      
       <Pressable style={styles.filterButton} onPress={() => router.push('/filters')}>
         <Ionicons name="filter" size={24} color="#333" />
       </Pressable>
@@ -208,7 +229,6 @@ const styles = StyleSheet.create({
     borderColor: '#00C7BE',
     borderWidth: 2,
   },
-  
   filterButton: {
     position: 'absolute',
     top: 5,

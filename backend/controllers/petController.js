@@ -218,6 +218,27 @@ static async createPet(req, res) {
     }
   }
 
+  static async deleteMatch(req, res) {
+    const { petId, userId } = req.params;
+
+    try {
+      // Remove o documento da coleção 'Match' onde o usuário e o pet combinam
+      const deletedMatch = await Match.findOneAndDelete({ 
+        id_usuario: userId, 
+        id_pet: petId 
+      });
+
+      if (!deletedMatch) {
+        return res.status(404).json({ message: 'Match não encontrado.' });
+      }
+
+      res.json({ message: 'Match desfeito com sucesso.' });
+    } catch (err) {
+      console.error('Erro ao deletar match:', err.message);
+      res.status(500).json({ message: 'Erro ao desfazer match', error: err.message });
+    }
+  }
+
 }
 
 module.exports = PetController;
