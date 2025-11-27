@@ -18,13 +18,27 @@ import {
 import { API_PETS } from "../../config";
 import { useAuth } from '../../context/AuthContext';
 
-
 const statusOptions = [
   { label: "🐾 Para adoção", value: "Disponível" },
   { label: "🔍 Perdido", value: "Perdido" },
   { label: "🏠 Encontrado", value: "Encontrado" },
   { label: "✅ Adotado", value: "Adotado" },
 ];
+
+// ✅ DADOS INICIAIS PARA REUTILIZAR
+const initialPetData = {
+  nome: "",
+  especie: "",
+  raca: "",
+  sexo: "",
+  idade: "",
+  porte: "",
+  descricao: "",
+  foto: "",
+  castrado: false,
+  vacinado: false,
+  status: "Disponível"
+};
 
 export default function CadastroPet() {
   const navigation = useNavigation();
@@ -33,28 +47,14 @@ export default function CadastroPet() {
 
   const [loading, setLoading] = useState(false);
   
-  // Verifica se estamos editando
   const petParaEditar = route.params?.petParaEditar;
   const isEditing = !!petParaEditar;
 
-  const [petData, setPetData] = useState({
-    nome: "",
-    especie: "",
-    raca: "",
-    sexo: "",
-    idade: "",
-    porte: "",
-    descricao: "",
-    foto: "",
-    castrado: false,
-    vacinado: false,
-    status: "Disponível"
-  });
-
-//  const userId = "64f3e2a7c9d1f2b4a1e5f6a7";
+  const [petData, setPetData] = useState(initialPetData);
 
   useEffect(() => {
     if (isEditing) {
+      // ✅ MODO EDIÇÃO: CARREGA OS DADOS DO PET
       setPetData({
         nome: petParaEditar.nome || "",
         especie: petParaEditar.especie || "",
@@ -69,10 +69,14 @@ export default function CadastroPet() {
         status: petParaEditar.status || "Disponível"
       });
       navigation.setOptions({ title: 'Editar Pet' });
+    } else {
+      // ✅ MODO CADASTRO: GARANTE QUE OS CAMPOS ESTEJAM LIMPOS
+      setPetData(initialPetData);
+      navigation.setOptions({ title: 'Cadastro Pet' });
     }
-  }, [petParaEditar]);
+  }, [isEditing, petParaEditar]);
 
-   useEffect(() => {
+  useEffect(() => {
     if (!user) {
       Alert.alert("Atenção", "Você precisa estar logado para cadastrar pets");
       navigation.goBack();
@@ -163,20 +167,24 @@ export default function CadastroPet() {
         throw new Error(errorText);
       }
 
-      // --- CORREÇÃO AQUI: VOLTAR PARA MEUS PETS ---
       const mensagem = isEditing ? "Pet atualizado com sucesso!" : "Pet cadastrado com sucesso!";
       
+      // ✅ CORREÇÃO: LIMPA OS CAMPOS APÓS CADASTRAR (APENAS SE NÃO FOR EDIÇÃO)
+      if (!isEditing) {
+        setPetData(initialPetData);
+      }
+      
       if (Platform.OS === 'web') {
-        // Na Web, usamos o alert simples e forçamos a volta
         alert(mensagem);
-        navigation.navigate("tabs/meusPets");
+        // ✅ NA WEB, DA UM TEMPO PARA O USUÁRIO VER A MENSAGEM ANTES DE NAVEGAR
+        setTimeout(() => {
+          navigation.navigate("tabs/meusPets");
+        }, 500);
       } else {
-        // No celular, usamos o Alert bonito com callback
         Alert.alert("Sucesso!", mensagem, [
-          { text: "OK", onPress: () => navigation.navigate("tabs/meusPets")}
+          { text: "OK", onPress: () => navigation.navigate("tabs/meusPets") }
         ]);
       }
-      // ---------------------------------------------
 
     } catch (error) {
       console.log("Erro ao salvar pet:", error);
@@ -185,6 +193,8 @@ export default function CadastroPet() {
       setLoading(false);
     }
   };
+
+  // ... resto do código (JSX) permanece igual ...
 
   return (
     <KeyboardAvoidingView 
