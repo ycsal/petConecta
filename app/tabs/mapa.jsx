@@ -228,10 +228,8 @@ const MobileMapView = ({ location, onLocationChange }) => {
   const filters = [
     { id: 'tudo', label: 'Tudo' },
     { id: 'abrigo', label: 'Abrigos' },
-    { id: 'encontrado', label: 'Pets Encontrados' },
     { id: 'clinica', label: 'Clínicas' },
-    { id: 'petshop', label: 'Petshops' },
-    { id: 'servicos', label: 'Serviços' }
+    { id: 'petshop', label: 'Petshops' }
   ];
 
   // Buscar lugares reais do Google Maps
@@ -251,7 +249,7 @@ const MobileMapView = ({ location, onLocationChange }) => {
       if (type === 'tudo') {
         keywords = [
           'veterinary+clinic+vet+clínica+veterinária+hospital+veterinário',
-          'pet+store+pet+shop+petshop+loja+animal',
+          'pet+store+pet+shop+petshop+loja+animal+petz+cobasi+love',
           'animal+shelter+abrigo+animal',
           'pet+hotel+hotel+animal+pet+taxi+táxi+animal+dog+walker+passeador+adestrador+dog+trainer'
         ];
@@ -264,7 +262,7 @@ const MobileMapView = ({ location, onLocationChange }) => {
             keywords = ['veterinary+clinic+vet+clínica+veterinária'];
             break;
           case 'petshop':
-            keywords = ['pet+store+pet+shop+petshop+loja+animal'];
+            keywords = ['pet+store+pet+shop+petshop+loja+animal+petz+cobasi+love'];
             break;
           case 'servicos':
             keywords = ['pet+hotel+hotel+animal+pet+taxi+táxi+animal+dog+walker+passeador+adestrador+dog+trainer'];
