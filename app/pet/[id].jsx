@@ -76,7 +76,7 @@ export default function PetDetail() {
   // Função para navegar para o perfil do protetor
   const handleViewProtectorProfile = () => {
     if (pet?.id_usuario?._id) {
-      router.push(`../perfilProtetor/${pet.id_usuario._id}`);
+      router.push(`../telaProtetor`);
     } else {
       Alert.alert("Erro", "Informações do protetor não disponíveis.");
     }

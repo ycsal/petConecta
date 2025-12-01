@@ -26,4 +26,7 @@ router.patch('/:id', PetController.updatePet);
 // Rota para excluir um pet pelo ID
 router.delete('/:id', PetController.deletePet);
 
+// Rota para deletar um match pelo ID do pet e do usuário
+router.delete('/match/:petId/:userId', PetController.deleteMatch);
+
 module.exports = router;

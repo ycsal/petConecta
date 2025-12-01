@@ -1,5 +1,4 @@
-// MUDANÇA 1: Importar useRouter do expo-router
-import { useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from "react";
 import {
@@ -27,6 +26,7 @@ export default function CadastroServico() {
   // Verifica se estamos editando
   const servicoParaEditar = route.params?.servicoParaEditar;
   const isEditing = !!servicoParaEditar;
+   const navigation = useNavigation();
 
   // ID do usuário fixo
  // const userId = "64f3e2a7c9d1f2b4a1e5f6a7";
@@ -112,27 +112,19 @@ export default function CadastroServico() {
       if (response.ok) {
         const mensagem = isEditing ? "Serviço atualizado com sucesso!" : "Serviço cadastrado com sucesso!";
     
-
-        if (Platform.OS === 'web') {
-            alert(mensagem);
-            navigation.navigate("configuracoes/meusServicos");
-        } else {
-            Alert.alert("Sucesso", mensagem, [
-                { text: "OK", onPress: navigation.navigate("configuracoes/meusServicos") }
-            ]);
-        }
-        // -------------------------------------------
+        alert(mensagem);
+        navigation.navigate("configuracoes/meusServicos");
+        
 
       } else {
-        const errorMsg = data.error || "Erro ao salvar serviço";
-        if (Platform.OS === 'web') alert(`Erro: ${errorMsg}`);
-        else Alert.alert("Erro", errorMsg);
+        Alert.alert("Sucesso!", mensagem, [
+          { text: "OK", onPress: () => navigation.navigate("tabs/meusServicos") }
+        ]);
+
       } 
 
     } catch (error) {
       console.log("Erro ao salvar serviço:", error);
-      if (Platform.OS === 'web') alert("Erro: Não foi possível conectar ao servidor");
-      else Alert.alert("Erro", "Não foi possível conectar ao servidor");
     } finally {
       setLoading(false);
     }

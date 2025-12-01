@@ -36,7 +36,7 @@ const PetSchema = new Schema({
   status: {
     type: String,
     required: true,
-    enum: ['Disponível', 'Adotado', 'Perdido'],
+    enum: ['Disponível', 'Adotado', 'Perdido', 'Encontrado'],
     default: 'Disponível' 
   },
   descricao: {
