@@ -157,16 +157,7 @@ export default function PetDetail() {
             <Ionicons name="call" size={18} color="#666" />
             <Text style={styles.infoText}>{pet.id_usuario?.telefone || 'Telefone não informado'}</Text>
           </View>
-          
-          <View style={styles.infoRow}>
-            <Ionicons name="location" size={18} color="#666" />
-            <Text style={styles.infoText}>
-              {pet.id_usuario?.cidade && pet.id_usuario?.estado 
-                ? `${pet.id_usuario.cidade} - ${pet.id_usuario.estado}`
-                : 'Localização não informada'
-              }
-            </Text>
-          </View>
+        
 
           <Pressable 
             style={styles.verPerfilButton}

@@ -516,7 +516,6 @@ export default function MeuPerfil() {
             <TextInput
               placeholder="Senha (deixe em branco para manter a atual)"
               style={[styles.input, { flex: 1 }]}
-              secureTextEntry={!showPassword}
               value={form.senha}
               onChangeText={(text) => handleChange("senha", text)}
               editable={isEditing}
@@ -536,7 +535,6 @@ export default function MeuPerfil() {
             <TextInput
               placeholder="Confirmar Senha"
               style={[styles.input, { flex: 1 }]}
-              secureTextEntry={!showConfirm}
               value={form.confirmSenha}
               onChangeText={(text) => handleChange("confirmSenha", text)}
               editable={isEditing}

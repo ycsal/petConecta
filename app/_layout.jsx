@@ -206,6 +206,17 @@ export default function Layout() {
           />
 
           <Drawer.Screen
+            name="telaProtetor"
+            options={{
+              drawerItemStyle: { display: 'none' },
+              title: '',
+              headerLeft: () => {
+                return <Ionicons name='arrow-back' size={24} color='#00C7BE' style={{ marginLeft: 16 }} onPress={() => router.navigate('/tabs')} />
+              }
+            }}
+          />
+
+          <Drawer.Screen
             name="detalhesServico"
             options={{
               drawerItemStyle: { display: 'none' },

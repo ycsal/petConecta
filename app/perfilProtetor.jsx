@@ -1,9 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
+import { Image } from "expo-image";
 import { useState } from "react";
 import {
   Alert,
   FlatList,
-  Image,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,101 +11,32 @@ import {
   View
 } from "react-native";
 
-
+const PETS_EXEMPLO = []
 const PROTETOR_EXEMPLO = {
   id: "1",
-  nome: "Ana Silva",
+  nome: "Yasmin Salgado",
   cidade: "Guarujá",
   estado: "SP",
-  telefone: "(13) 98765-4321",
-  foto: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=150&h=150&fit=crop",
-  tipoUsuario: "Protetor",
-  descricaoTipo: "Pessoa que resgata e cuida temporariamente de animais."
+  telefone: "(13) 97409-8877",
+  foto: require("../assets/images/yasmin.jpg"), // Use require para imagens locais
+  tipoUsuario: "Adotante",
+  descricaoTipo: "Pessoa interessada em adotar um animal."
 };
-
-const PETS_EXEMPLO = [
-  {
-    id: 1,
-    name: "Rex",
-    especie: "Cachorro",
-    raca: "Vira-lata",
-    idade: 2,
-    status: "Disponível para adoção",
-    image: "https://images.unsplash.com/photo-1552053831-71594a27632d?w=150&h=150&fit=crop",
-    protetorId: "1",
-    tipo: "adocao"
-  },
-  {
-    id: 2,
-    name: "Luna",
-    especie: "Gato",
-    raca: "Siamês",
-    idade: 1,
-    status: "Disponível para adoção",
-    image: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=150&h=150&fit=crop",
-    protetorId: "1",
-    tipo: "adocao"
-  },
-  {
-    id: 3,
-    name: "Thor",
-    especie: "Cachorro",
-    raca: "Labrador",
-    idade: 3,
-    status: "Disponível para adoção",
-    image: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=150&h=150&fit=crop",
-    protetorId: "1",
-    tipo: "adocao"
-  },
-  {
-    id: 4,
-    name: null, 
-    especie: "Cachorro",
-    raca: "Desconhecida",
-    idade: "Adulto",
-    status: "Encontrado - Procurando dono",
-    image: "https://images.unsplash.com/photo-1588943211346-0908a1fb0b01?w=150&h=150&fit=crop",
-    protetorId: "1",
-    tipo: "encontrado",
-    localEncontro: "Parque Ibirapuera",
-    dataEncontro: "15/10/2023"
-  },
-  {
-    id: 5,
-    name: null, // Pet encontrado sem nome
-    especie: "Gato",
-    raca: "SRD",
-    idade: "Filhote",
-    status: "Encontrado - Procurando dono",
-    image: "https://images.unsplash.com/photo-1536589961741-88c3a8f6b8de?w=150&h=150&fit=crop",
-    protetorId: "1",
-    tipo: "encontrado",
-    localEncontro: "Rua Augusta",
-    dataEncontro: "20/10/2023"
-  }
-];
 
 // Dados de exemplo dos serviços
 const SERVICOS_EXEMPLO = [
   {
     id: 1,
-    titulo: "Hospedagem para Pets",
-    descricao: "Cuido do seu pet enquanto você viaja. Ambiente seguro e acolhedor.",
-    preco: "R$ 50/dia",
+    titulo: "Adestramento",
+    descricao: "Adestro seu pet em 10 dias!",
+    preco: "R$1.200,00",
     protetorId: "1"
   },
   {
     id: 2,
-    titulo: "Passeio com Cães",
-    descricao: "Passeios de 30min a 1hora em parques seguros.",
-    preco: "R$ 25/passeio",
-    protetorId: "1"
-  },
-  {
-    id: 3,
-    titulo: "Banho e Tosa",
-    descricao: "Banho completo e tosa higiênica para cães de pequeno e médio porte.",
-    preco: "R$ 40",
+    titulo: "Babá Pet",
+    descricao: "Cuido do seu animalzinho na sua ausência.",
+    preco: "R$60,00/dia",
     protetorId: "1"
   }
 ];
@@ -146,7 +77,11 @@ export default function PerfilProtetor({ route }) {
   // Renderizar card de pet
   const renderPet = ({ item }) => (
     <TouchableOpacity style={styles.card}>
-      <Image source={{ uri: item.image }} style={styles.cardImage} />
+      <Image 
+        source={{ uri: item.image }} 
+        style={styles.cardImage}
+        placeholder={{ blurhash: "L6PZfSi_.AyE_3t7t7R**0o#DgR4" }}
+      />
       <View style={styles.cardContent}>
         <Text style={styles.cardTitle}>
           {item.name || "Pet Encontrado"}
@@ -188,11 +123,25 @@ export default function PerfilProtetor({ route }) {
     </TouchableOpacity>
   );
 
+  // Renderizar mensagem quando não há pets
+  const renderSemPets = () => (
+    <View style={styles.semPetsContainer}>
+      <Ionicons name="paw-outline" size={50} color="#CCC" />
+      <Text style={styles.semPetsText}>
+        Este usuário não possui nenhum pet para adoção ou encontrado.
+      </Text>
+    </View>
+  );
+
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Header com foto e informações básicas */}
       <View style={styles.header}>
-        <Image source={{ uri: protetor.foto }} style={styles.fotoPerfil} />
+        <Image 
+          source={protetor.foto} // Correção: passe diretamente o require
+          style={styles.fotoPerfil}
+          placeholder={{ blurhash: "L6PZfSi_.AyE_3t7t7R**0o#DgR4" }}
+        />
         <View style={styles.infoBasica}>
           <Text style={styles.nome}>{protetor.nome}</Text>
           <View style={styles.localizacao}>
@@ -204,7 +153,8 @@ export default function PerfilProtetor({ route }) {
         </View>
       </View>
 
-      {/* Tipo de Usuário - NOVA SEÇÃO */}
+      {/* Resto do código permanece igual */}
+      {/* Tipo de Usuário */}
       <View style={styles.tipoUsuarioSection}>
         <Text style={styles.sectionTitle}>Perfil do Usuário</Text>
         <View style={styles.tipoUsuarioContainer}>
@@ -264,45 +214,47 @@ export default function PerfilProtetor({ route }) {
       {/* Lista de Pets ou Serviços */}
       <View style={styles.listaSection}>
         {filtroAtivo === 'pets' ? (
-          <View>
-            {/* Seção de Pets para Adoção */}
-            {petsAdocao.length > 0 && (
-              <View style={styles.subsection}>
-                <Text style={styles.subsectionTitle}>Pets para Adoção</Text>
-                <FlatList
-                  data={petsAdocao}
-                  renderItem={renderPet}
-                  keyExtractor={(item) => item.id.toString()}
-                  scrollEnabled={false}
-                  showsVerticalScrollIndicator={false}
-                />
-              </View>
-            )}
-            
-            {/* Seção de Pets Encontrados */}
-            {petsEncontrados.length > 0 && (
-              <View style={styles.subsection}>
-                <Text style={styles.subsectionTitle}>Pets Encontrados</Text>
-                <Text style={styles.subsectionDescription}>
-                  Estes pets foram encontrados e estão procurando por seus donos
-                </Text>
-                <FlatList
-                  data={petsEncontrados}
-                  renderItem={renderPet}
-                  keyExtractor={(item) => item.id.toString()}
-                  scrollEnabled={false}
-                  showsVerticalScrollIndicator={false}
-                />
-              </View>
-            )}
-          </View>
+          pets.length > 0 ? (
+            <View>
+              {/* Pets para adoção */}
+              {petsAdocao.length > 0 && (
+                <View style={styles.subsection}>
+                  <Text style={styles.subsectionTitle}>Pets para Adoção</Text>
+                  <FlatList
+                    data={petsAdocao}
+                    renderItem={renderPet}
+                    keyExtractor={(item) => item.id.toString()}
+                    scrollEnabled={false}
+                  />
+                </View>
+              )}
+
+              {/* Pets encontrados */}
+              {petsEncontrados.length > 0 && (
+                <View style={styles.subsection}>
+                  <Text style={styles.subsectionTitle}>Pets Encontrados</Text>
+                  <Text style={styles.subsectionDescription}>
+                    Estes pets foram encontrados e estão procurando por seus donos
+                  </Text>
+
+                  <FlatList
+                    data={petsEncontrados}
+                    renderItem={renderPet}
+                    keyExtractor={(item) => item.id.toString()}
+                    scrollEnabled={false}
+                  />
+                </View>
+              )}
+            </View>
+          ) : (
+            renderSemPets()
+          )
         ) : (
           <FlatList
             data={servicos}
             renderItem={renderServico}
             keyExtractor={(item) => item.id.toString()}
             scrollEnabled={false}
-            showsVerticalScrollIndicator={false}
           />
         )}
       </View>
@@ -310,6 +262,7 @@ export default function PerfilProtetor({ route }) {
   );
 }
 
+// Estilos permanecem os mesmos
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -347,6 +300,7 @@ const styles = StyleSheet.create({
     color: "#666",
     marginLeft: 4,
   },
+  // ... resto dos estilos permanecem iguais
   // NOVOS ESTILOS PARA TIPO DE USUÁRIO
   tipoUsuarioSection: {
     backgroundColor: "#FFF",
@@ -538,4 +492,16 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#00C7BE",
   },
+  semPetsContainer: {
+  alignItems: "center",
+  justifyContent: "center",
+  padding: 40,
+},
+semPetsText: {
+  fontSize: 16,
+  color: "#666",
+  textAlign: "center",
+  marginTop: 16,
+  lineHeight: 22,
+}
 });

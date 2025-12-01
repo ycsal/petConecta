@@ -11,14 +11,13 @@ import {
     View
 } from "react-native";
 
-
 const PROTETOR_EXEMPLO = {
   id: "1",
   nome: "Arthur",
   cidade: "São Vicente",
   estado: "SP",
   telefone: "(13) 98106-8898",
-  foto: "../assets/images/arthur.jpg",
+  foto: require("../assets/images/arthur.jpg"),
   tipoUsuario: "Protetor",
   descricaoTipo: "Pessoa que resgata e cuida temporariamente de animais."
 };
@@ -31,18 +30,18 @@ const PETS_EXEMPLO = [
     raca: "Vira-lata",
     idade: "1 ano",
     status: "Disponível para adoção",
-    image: "https://images.unsplash.com/photo-1552053831-71594a27632d?w=150&h=150&fit=crop",
+    image: require("../assets/images/Bolt.jpg"),
     protetorId: "1",
     tipo: "adocao"
   },
   {
     id: 2,
-    name: "Mimi",
+    name: "Serena",
     especie: "Gato",
-    raca: "Persa",
+    raca: "Laranja",
     idade: "2 anos",
     status: "Disponível para adoção",
-    image: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=150&h=150&fit=crop",
+    image: require("../assets/images/Serena.jpg"),
     protetorId: "1",
     tipo: "adocao"
   },
@@ -50,10 +49,10 @@ const PETS_EXEMPLO = [
     id: 3,
     name: "Rex",
     especie: "Cachorro",
-    raca: "Pitbull",
-    idade: "3 anos",
+    raca: "Golden Retriever",
+    idade: "1 ano",
     status: "Disponível para adoção",
-    image: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=150&h=150&fit=crop",
+    image: require("../assets/images/Rex.jpg"),
     protetorId: "1",
     tipo: "adocao"
   },
@@ -62,26 +61,24 @@ const PETS_EXEMPLO = [
     name: null, 
     especie: "Cachorro",
     raca: "Poodle",
-    idade: "Adulto",
-    status: "Encontrado - Procurando dono",
-    image: "https://images.unsplash.com/photo-1588943211346-0908a1fb0b01?w=150&h=150&fit=crop",
+    idade: "1 ano",
+    status: "Encontrado",
+    image: require("../assets/images/poodle.jpg"),
     protetorId: "1",
     tipo: "encontrado",
-    localEncontro: "Praia do Itararé",
-    dataEncontro: "10/11/2023"
+    localEncontro: "Praia do Itararé"
   },
   {
     id: 5,
     name: null,
     especie: "Gato",
     raca: "SRD",
-    idade: "Filhote",
-    status: "Encontrado - Procurando dono",
-    image: "https://images.unsplash.com/photo-1536589961741-88c3a8f6b8de?w=150&h=150&fit=crop",
+    idade: "3 anos",
+    status: "Encontrado",
+    image: require("../assets/images/gato.jpg"),
     protetorId: "1",
     tipo: "encontrado",
-    localEncontro: "Centro de São Vicente",
-    dataEncontro: "25/11/2023"
+    localEncontro: "Centro de São Vicente"
   }
 ];
 
@@ -124,7 +121,12 @@ export default function PerfilProtetor({ route }) {
   // Renderizar card de pet
   const renderPet = ({ item }) => (
     <TouchableOpacity style={styles.card}>
-      <Image source={{ uri: item.image }} style={styles.cardImage} />
+      <Image 
+        source={item.image} 
+        style={styles.cardImage}
+        placeholder={{ blurhash: "L6PZfSi_.AyE_3t7t7R**0o#DgR4" }}
+        contentFit="cover"
+      />
       <View style={styles.cardContent}>
         <Text style={styles.cardTitle}>
           {item.name || "Pet Encontrado"}
@@ -156,7 +158,6 @@ export default function PerfilProtetor({ route }) {
   // Renderizar card de serviço
   const renderServico = ({ item }) => (
     <TouchableOpacity style={styles.card}>
-      <Image source={{ uri: item.image }} style={styles.cardImage} />
       <View style={styles.cardContent}>
         <Text style={styles.cardTitle}>{item.titulo}</Text>
         <Text style={styles.cardSubtitle}>{item.descricao}</Text>
@@ -184,7 +185,12 @@ export default function PerfilProtetor({ route }) {
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Header com foto e informações básicas */}
       <View style={styles.header}>
-        <Image source={{ uri: protetor.foto }} style={styles.fotoPerfil} />
+        <Image 
+          source={protetor.foto} 
+          style={styles.fotoPerfil}
+          placeholder={{ blurhash: "L6PZfSi_.AyE_3t7t7R**0o#DgR4" }}
+          contentFit="cover"
+        />
         <View style={styles.infoBasica}>
           <Text style={styles.nome}>{protetor.nome}</Text>
           <View style={styles.localizacao}>

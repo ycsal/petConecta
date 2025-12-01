@@ -50,7 +50,6 @@ export default function Etapa3() {
           style={styles.input}
           placeholder="Senha"
           placeholderTextColor="#888"
-          secureTextEntry={!showPassword}
           value={password}
           onChangeText={setPassword}
         />
@@ -65,7 +64,6 @@ export default function Etapa3() {
           style={styles.input}
           placeholder="Confirme sua senha"
           placeholderTextColor="#888"
-          secureTextEntry={!showConfirm}
           value={confirm}
           onChangeText={setConfirm}
         />

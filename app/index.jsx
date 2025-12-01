@@ -49,7 +49,6 @@ export default function Index() {
           style={[styles.textoLogin, { flex: 1 }]}
           placeholder="Senha"
           placeholderTextColor="#00000070"
-          secureTextEntry={!showPassword}
           value={password}
           onChangeText={setPassword}
         />

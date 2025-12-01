@@ -1,13 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View, Platform, Alert } from 'react-native';
+import { ActivityIndicator, Alert, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import Swiper from 'react-native-deck-swiper';
 import { PetCard } from '../../components/PetCard/index';
 import { API_PETS } from '../../config';
 import { useFilters } from '../../context/FilterContext';
 // 1. IMPORTANTE: Importar o contexto de autenticação
-import { useAuth } from '../../context/AuthContext'; 
+import { useAuth } from '../../context/AuthContext';
 
 export default function Match() {
   const [pets, setPets] = useState([]);
