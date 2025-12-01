@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ActivityIndicator, Alert, Image, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { EnterButton } from "../components/EnterButton";
 import { useAuth } from '../context/AuthContext';
@@ -10,9 +10,10 @@ export default function Index() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   
+  const passwordInputRef = useRef(null);
   const { login, loading } = useAuth();
 
-  //Função de Login
+  // Função de Login
   const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert("Atenção", "Preencha email e senha");
@@ -20,18 +21,15 @@ export default function Index() {
     }
     const result = await login(email, password);
     
-    // Se o login for bem-sucedido, o redirecionamento é tratado no AuthContext
     if (result.success) {
       console.log("Login bem-sucedido, redirecionando...");
-      // O AuthContext já deve redirecionar automaticamente
     }
   };
 
   return (
-    <View
-      style={styles.container}
-    >
+    <View style={styles.container}>
       <Image source={require('../assets/images/logoBranco.png')} />
+      
       <View style={styles.inputLogin}>
         <TextInput
           style={styles.textoLogin}
@@ -40,19 +38,45 @@ export default function Index() {
           keyboardType="email-address"
           value={email}
           onChangeText={setEmail}
+          autoCapitalize="none"
         />
       </View>
 
-      {/* Campo de Senha com olho */}
+      {/* Campo de Senha - UMA ÚNICA CAMADA VISÍVEL */}
       <View style={[styles.inputLogin, styles.inputSenha]}>
+        {/* Texto VISÍVEL ÚNICO - SEM duplicação */}
         <TextInput
+          ref={passwordInputRef}
           style={[styles.textoLogin, { flex: 1 }]}
           placeholder="Senha"
           placeholderTextColor="#00000070"
-          value={password}
-          onChangeText={setPassword}
+          secureTextEntry={false} // Importante: false para captura
+          value={showPassword ? password : "•".repeat(password.length)}
+          onChangeText={(text) => {
+            if (showPassword) {
+              // Se está mostrando, atualiza normalmente
+              setPassword(text);
+            } else {
+              // Se está escondido, precisa de lógica especial
+              // Quando usuário digita com senha oculta
+              if (text.length > password.length) {
+                // Adicionou caractere
+                const newChar = text.charAt(text.length - 1);
+                if (newChar !== "•") {
+                  setPassword(password + newChar);
+                }
+              } else if (text.length < password.length) {
+                // Removeu caractere
+                setPassword(password.slice(0, text.length));
+              }
+            }
+          }}
+          autoCapitalize="none"
         />
-        <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+        
+        <TouchableOpacity 
+          onPress={() => setShowPassword(!showPassword)}
+        >
           <Ionicons
             name={showPassword ? "eye-off" : "eye"}
             size={24}
@@ -61,8 +85,7 @@ export default function Index() {
         </TouchableOpacity>
       </View>
 
-       <View>
-        {/* ✅ CORRIGIDO: Usar handleLogin corretamente */}
+      <View>
         {loading ? (
           <View style={styles.loadingButton}>
             <ActivityIndicator color="#fff" />
@@ -71,7 +94,7 @@ export default function Index() {
         ) : (
           <EnterButton 
             title="Entrar" 
-            /*onPress={() => router.push('tabs/match')}*/ onPress={handleLogin} // ✅ Corrigido: passa a referência da função
+            onPress={handleLogin}
           />
         )}
       </View>
@@ -107,16 +130,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between"
   },
   textoLogin: {
-    flex: 1,
     fontSize: 18,
     color: "#000",
-    textAlign: "left"
-  },
-  title: {
-    fontSize: 45,
-    color: "#fff",
-    fontWeight: "bold",
-    textAlign: "center"
   },
   footer: {
     width: '80%',
