@@ -2,13 +2,13 @@ import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { useState } from "react";
 import {
-    Alert,
-    FlatList,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Alert,
+  FlatList,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from "react-native";
 
 const PROTETOR_EXEMPLO = {
@@ -61,7 +61,7 @@ const PETS_EXEMPLO = [
     name: null, 
     especie: "Cachorro",
     raca: "Poodle",
-    idade: "1 ano",
+    idade: "2 anos",
     status: "Encontrado",
     image: require("../assets/images/poodle.jpg"),
     protetorId: "1",
@@ -137,7 +137,7 @@ export default function PerfilProtetor({ route }) {
         {item.tipo === 'encontrado' ? (
           <View style={styles.encontradoInfo}>
             <Text style={styles.encontradoText}>
-              📍 {item.localEncontro} • {item.dataEncontro}
+              📍 {item.localEncontro} 
             </Text>
           </View>
         ) : null}
