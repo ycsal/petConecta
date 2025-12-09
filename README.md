@@ -30,7 +30,7 @@ Antes de iniciar o app, é **necessário alterar o IP** para o IP da sua máquin
 * Abra o arquivo:
 
 ```
-app/config.js
+config.js
 ```
 
 * Substitua o valor do IP pelo IP atual do seu computador
@@ -67,7 +67,7 @@ Depois, basta escanear o QR Code exibido após iniciar o Expo.
 npm start
 ```
 
-> **Importante:** O backend também exige que o IP correto esteja configurado em `app/config.js`.
+> **Importante:** O backend também exige que o IP correto esteja configurado em `config.js`.
 
 ---
 
@@ -79,11 +79,39 @@ npm start
 ---
 
 ## ✨ Desenvolvido por
+<table>
+  <tr>
+    <td align="center">
+      <img src="assets/images/arthur.jpg" width="120" style="border-radius:10px;"><br>
+      <strong><span style="color:#000;">Arthur Duvareski</span></strong><br>
+      <a href="https://github.com/ArthurDRF">        
+        <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" width="26">
+      </a>
+    </td>
+    <td align="center">
+      <img src="assets/images/bruno.jpg" width="120" style="border-radius:10px;"><br>
+      <strong><span style="color:#000;">Bruno Peres</span></strong><br>
+      <a href="https://github.com/brunocperez">
+        <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" width="26">
+      </a>
+    </td>
+    <td align="center">
+      <img src="assets/images/nathan.jpg" width="120" style="border-radius:10px;"><br>
+      <strong><span style="color:#000;">Nathan Holtz</span></strong><br>
+      <a href="https://github.com/nathanholtz">
+        <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" width="26">
+      </a>
+    </td>
+    <td align="center">
+      <img src="assets/images/yasmin.jpg" width="120" style="border-radius:10px;"><br>
+      <strong><span style="color:#000;">Yasmin Salgado</span></strong><br>
+      <a href="https://github.com/ycsal">
+        <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" width="26">
+      </a>
+    </td>
+  </tr>
+</table>
 
-* **Yasmin Salgado**
-* **Arthur Duvareski**
-* **Bruno Peres**
-* **Nathan Holtz**
 
 ---
 
