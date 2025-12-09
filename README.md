@@ -1,6 +1,6 @@
 # PetConecta
 
-Projeto desenvolvido como **Trabalho de Conclusão de Curso (TCC)** no curso de **Análise e Desenvolvimento de Sistemas da FATEC Rubens Lara – Baixada Santista**.
+Projeto desenvolvido como **Trabalho de Conclusão de Curso (TCC)** no curso de **Análise e Desenvolvimento de Sistemas da FATEC Rubens Lara - Baixada Santista**.
 
 O **PetConecta** é uma aplicação mobile criada para facilitar o contato entre tutores de pets e prestadores de serviços, como veterinários, pet shops, cuidadores e ONGs. O objetivo é oferecer uma experiência simples, rápida e prática para quem quer adotar, encontrar animais perdidos, simplesmente buscar serviços ou deseja divulgar seu trabalho.
 
@@ -73,8 +73,8 @@ npm start
 
 ## 📂 Estrutura do Projeto (resumo)
 
-* `/frontend` – Aplicação em React Native
-* `/backend` – API em Node.js com Express
+* `/frontend` - Aplicação em React Native
+* `/backend` - API em Node.js com Express
 
 ---
 
@@ -115,4 +115,4 @@ npm start
 
 ---
 
-TCC apresentado como parte dos requisitos para conclusão do curso de Análise e Desenvolvimento de Sistemas da FATEC Rubens Lara – 2025.
+TCC apresentado como parte dos requisitos para conclusão do curso de Análise e Desenvolvimento de Sistemas da FATEC Rubens Lara - 2025.
