@@ -2,7 +2,7 @@
 
 Projeto desenvolvido como **Trabalho de Conclusão de Curso (TCC)** no curso de **Análise e Desenvolvimento de Sistemas da FATEC Rubens Lara – Baixada Santista**.
 
-O **PetConecta** é uma aplicação mobile criada para facilitar o contato entre tutores de pets e prestadores de serviços, como veterinários, pet shops, cuidadores e ONGs. O objetivo é oferecer uma experiência simples, rápida e prática para quem busca serviços ou deseja divulgar seu trabalho.
+O **PetConecta** é uma aplicação mobile criada para facilitar o contato entre tutores de pets e prestadores de serviços, como veterinários, pet shops, cuidadores e ONGs. O objetivo é oferecer uma experiência simples, rápida e prática para quem quer adotar, encontrar animais perdidos, simplesmente buscar serviços ou deseja divulgar seu trabalho.
 
 ---
 
