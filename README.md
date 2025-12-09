@@ -1,50 +1,90 @@
-# Welcome to your Expo app 👋
+# PetConecta
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Projeto desenvolvido como **Trabalho de Conclusão de Curso (TCC)** no curso de **Análise e Desenvolvimento de Sistemas da FATEC Rubens Lara – Baixada Santista**.
 
-## Get started
+O **PetConecta** é uma aplicação mobile criada para facilitar o contato entre tutores de pets e prestadores de serviços, como veterinários, pet shops, cuidadores e ONGs. O objetivo é oferecer uma experiência simples, rápida e prática para quem busca serviços ou deseja divulgar seu trabalho.
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+## 🚀 Tecnologias Utilizadas
 
-2. Start the app
+* **React Native** com **Expo**
+* **Node.js** com **Express** (backend)
+* **MongoDB**
+* **API do Google Maps**
 
-   ```bash
-   npx expo start
-   ```
+---
 
-In the output, you'll find options to open the app in a
+## 📱 Como rodar o projeto (Frontend - Expo)
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+### 1. Instalar as dependências
 
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 2. Ajustar o IP local no projeto
 
-## Learn more
+Antes de iniciar o app, é **necessário alterar o IP** para o IP da sua máquina:
 
-To learn more about developing your project with Expo, look at the following resources:
+* Abra o arquivo:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```
+app/config.js
+```
 
-## Join the community
+* Substitua o valor do IP pelo IP atual do seu computador
 
-Join our community of developers creating universal apps.
+Isso é essencial para que o aplicativo consiga se comunicar corretamente com o backend.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### 3. Iniciar o aplicativo
+
+Você pode usar **qualquer um dos comandos abaixo**:
+
+```bash
+npx expo start
+```
+
+ou
+
+```bash
+npm start
+```
+
+### 4. Rodar no celular
+
+Instale o aplicativo **Expo Go** no seu smartphone.
+Depois, basta escanear o QR Code exibido após iniciar o Expo.
+
+---
+
+## 🖥️ Como rodar o backend
+
+1. Acesse a pasta do backend
+2. Execute no terminal:
+
+```bash
+npm start
+```
+
+> **Importante:** O backend também exige que o IP correto esteja configurado em `app/config.js`.
+
+---
+
+## 📂 Estrutura do Projeto (resumo)
+
+* `/frontend` – Aplicação em React Native
+* `/backend` – API em Node.js com Express
+
+---
+
+## ✨ Desenvolvido por
+
+* **Yasmin Salgado**
+* **Arthur Duvareski**
+* **Bruno Peres**
+* **Nathan Holtz**
+
+---
+
+TCC apresentado como parte dos requisitos para conclusão do curso de Análise e Desenvolvimento de Sistemas da FATEC Rubens Lara – 2025.
